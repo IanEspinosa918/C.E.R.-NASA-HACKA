@@ -1,10 +1,12 @@
-# Datos descargados y generados (pesan GB; cada quien los descarga con el script)
+# Datos descargados (pesan GB; cada quien los descarga con scripts/descargar_psi.py)
 data/raw/*
-data/processed/*
-data/reportes/*
 !data/raw/.gitkeep
-!data/processed/.gitkeep
+
+# Reportes (se regeneran con cada corrida)
+data/reportes/*
 !data/reportes/.gitkeep
+
+# data/processed/ SÍ se sube: son CSV limpios y pequeños que necesita el backend.
 
 # Claves y configuración local (NUNCA subir claves de API)
 .env

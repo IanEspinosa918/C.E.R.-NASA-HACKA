@@ -1,5 +1,23 @@
 # Scripts de datos
 
+Orden de uso:
+
+```powershell
+python scripts\descargar_psi.py     # 1. descarga de PSI a data\raw\
+python scripts\limpiar_todo.py      # 2. limpia todo a data\processed\pruebas.csv
+```
+
+| Script | Qué hace |
+|---|---|
+| `descargar_psi.py` | Descarga fichas, tablas y documentos de PSI |
+| `limpiar_todo.py` | Corre todas las limpiezas y junta el resultado en `data/processed/pruebas.csv` |
+| `limpiar_flex.py` | Limpia FLEX (PSI-69) → `data/processed/pruebas_flex.csv` |
+| `comun_limpieza.py` | Formato común, lectura de valores sucios y validación (lo usan los `limpiar_*`) |
+| `investigaciones.py` | Lista de los 24 experimentos |
+
+El formato de la tabla limpia está en [`docs/formato-datos.md`](../docs/formato-datos.md).
+Cada limpieza deja un reporte de problemas en `data/reportes/validacion_<nombre>.csv`.
+
 ## `descargar_psi.py`: descarga los datos de NASA PSI
 
 Baja los 24 experimentos de `investigaciones.py` a `data/raw/`. Por cada experimento

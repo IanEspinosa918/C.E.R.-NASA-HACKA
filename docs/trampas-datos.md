@@ -34,6 +34,32 @@ Revisar esta lista al limpiar los CSV (Fase 1).
 - Saffire se hizo en Cygnus, no en la ISS; columnas "1-g" de Saffire-II son pruebas en tierra.
 - Cohetes y propelentes: fuera de alcance.
 
+## FLEX (revisado a fondo; ya lo resuelve `scripts/limpiar_flex.py`)
+- El CSV viene en Windows-1252 y perdió los subíndices: "O", "N", "CO" son **O₂, N₂, CO₂**
+  (las 4 fracciones suman 1 y "CO" llega a 0.70, sólo posible para CO₂).
+- "Burning rate; mm" es la constante de quemado en **mm²/s**.
+- Prueba 114: presión 0 (imposible). Pruebas 70 y 73: mismo identificador, fecha y hora
+  con mediciones distintas. Pruebas 223 y 224: tiempos aproximados ("~6", "~9").
+- "Test end" también puede ser **Completion** (se quemó toda la gota).
+
+## Dónde están los datos buenos (no siempre en el CSV)
+- **BASS**: el CSV solo trae el material; condiciones y notas en
+  `Science Documents/..._As Run_Test Matrix.xlsx`.
+- **BASS-II**: `Science Documents/..._Test.Matrices.xlsx`, una hoja por investigador.
+  El oxígeno varía de ~17 % a 22 %.
+- **CFI**: el CSV (87 filas) no tiene resultados; el Excel
+  `CFI_DataSummary_Spreadsheet_Jan2021.xlsx` tiene 227 pruebas con resultados.
+- **FLEX-2**: el CSV es la matriz de diseño (rangos planeados), **no resultados**.
+- **ACME BRE, CLD, E-FIELD, s-Flame, SLICE, DAFT**: bitácoras (fechas y flamas
+  encendidas), no resultados por prueba.
+
+## Archivos rotos o raros en PSI (encontrados al descargar)
+- 5 archivos de Saffire (PSI-98 y PSI-100) aparecen en PSI pero no existen en el servidor
+  de la NASA (error 404): las presentaciones del ICES 45, 46 y 47 y "SAFFIRE Offgassing
+  Testing Strategy" (repetido en PSI-98 y PSI-100). No se pueden descargar.
+- Algunos nombres de archivo contienen "/" (ej. en PSI-22); el script los guarda con "_".
+- PSI reporta mal el tamaño de algunos archivos (ej. un documento de ingeniería de PSI-20).
+
 ## Versiones y citas
 - Los experimentos tienen versiones (ej. BASS v4). Guardar con qué versión se trabajó.
 - El campo `added` de la ficha solo lista archivos de la última versión; el script usa
