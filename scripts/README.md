@@ -1,0 +1,72 @@
+# Scripts de datos
+
+## `descargar_psi.py`: descarga los datos de NASA PSI
+
+Baja los 24 experimentos de `investigaciones.py` a `data/raw/`. Por cada experimento
+guarda la ficha (`ficha.json`), la lista completa de archivos (`listado_archivos.json`)
+y los archivos de cada categoría. **Nunca baja Raw Data** (son terabytes).
+
+No necesita instalar nada además de Python 3.8 o más reciente.
+
+### Requisito: Python
+
+En una terminal (PowerShell):
+
+```powershell
+python --version
+```
+
+Si no aparece una versión, instálalo desde https://www.python.org/downloads/ y en el
+instalador **marca la casilla "Add python.exe to PATH"**. Cierra y vuelve a abrir la terminal.
+En Windows también puede funcionar `py` en lugar de `python`.
+
+### Pasos
+
+```powershell
+cd C:\Users\ianda\HackatonNASA
+
+# 1. Ver qué se va a bajar y cuánto pesa (no descarga nada)
+python scripts\descargar_psi.py --solo-listar
+
+# 2. Descarga rápida: solo fichas y tablas CSV (unos minutos, pocos MB)
+python scripts\descargar_psi.py --solo-tablas
+
+# 3. Descarga normal: fichas, tablas y documentos (PDF, presentaciones, etc.)
+python scripts\descargar_psi.py
+```
+
+### Opciones
+
+| Opción | Qué hace |
+|---|---|
+| `--solo-listar` | No descarga; muestra qué bajaría y cuánto pesa |
+| `--solo-tablas` | Solo fichas, CSV y metadatos |
+| `--todo` | Incluye además Analyzed Data, Reference Data y Calibration (~2 GB más) |
+| `--ids PSI-69 PSI-26` | Solo esos experimentos |
+| `--max-mb 100` | Salta archivos de más de 100 MB (default: 300; `0` = sin límite) |
+| `--hilos 4` | Descargas simultáneas (default: 4) |
+
+### Qué queda después
+
+```
+data/raw/
+├── indice.csv                 ← un renglón por experimento, con su DOI
+├── PSI-69_FLEX/
+│   ├── ficha.json
+│   ├── listado_archivos.json
+│   ├── Experimental table/    ← el CSV de pruebas
+│   ├── Science Documents/
+│   ├── Presentations/
+│   └── Engineering Documents/
+└── ...
+data/reportes/descarga_<fecha>.csv  ← qué se bajó, qué se saltó y por qué, y qué falló
+```
+
+### Si algo falla
+
+- **Vuelve a correr el mismo comando.** Lo que ya se descargó completo no se vuelve a bajar.
+- Revisa el reporte en `data/reportes/` para ver qué falló.
+- El script usa la API interna de la página de PSI (no es una API pública documentada).
+  Si PSI cambia su página, puede dejar de funcionar.
+- Los datos **no se suben a GitHub** (`data/` está en `.gitignore`). Cada integrante corre
+  el script, o se comparte la carpeta `data/raw/` por Drive.
