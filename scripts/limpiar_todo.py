@@ -21,7 +21,8 @@ import comun_limpieza as cl  # noqa: E402
 
 LIMPIADORES = [
     "limpiar_flex",
-    # "limpiar_cfi",
+    "limpiar_bass2",
+    "limpiar_cfi",
     # "limpiar_cfig",
     # "limpiar_bass",
     # "limpiar_saffire",

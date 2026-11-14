@@ -1,0 +1,5 @@
+# Dependencias de Python del proyecto
+# Instalar con:  pip install -r requirements.txt
+#
+# descargar_psi.py y limpiar_flex.py / limpiar_bass2.py solo usan la librería estándar.
+openpyxl>=3.1   # leer los Excel de PSI (CFI, BASS) en las siguientes limpiezas

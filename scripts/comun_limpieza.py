@@ -26,13 +26,21 @@ COLUMNAS = [
     "fecha",                 # AAAA-MM-DD
     "gravedad",              # microgravedad | gravedad_normal
     "tipo_combustible",      # gota | gas | solido | humo
-    "combustible",           # Methanol, Heptane, SIBAL, PMMA...
+    "combustible",           # Methanol, Heptane, PMMA, SIBAL, Nomex...
+    "descripcion_muestra",   # texto original de la muestra (sólidos)
+    "geometria",             # gota | pelicula | placa | varilla | tela | seccion_esferica | vela
+    "espesor_mm",            # mm (en varillas: diámetro)
+    "ancho_mm",              # mm
     "presion_atm",           # atm
     "o2", "n2", "co2", "he", # fracción molar (0 a 1)
-    "flujo_aire_cm_s",       # cm/s
+    "flujo_aire_cm_s",       # cm/s (flujo inicial si hubo varios)
+    "flujo_aire_min_cm_s",   # cm/s (mínimo durante la prueba)
+    "flujo_aire_max_cm_s",   # cm/s (máximo durante la prueba)
     "diametro_inicial_mm",   # mm (gotas)
     "diametro_extincion_mm", # mm (gotas, llama visible)
-    "k_quemado_mm2_s",       # mm²/s (constante de quemado, ley d²)
+    "k_quemado_mm2_s",       # mm²/s (constante de quemado, ley d²; llama caliente)
+    "k_quemado_fria_mm2_s",  # mm²/s (constante de quemado de la llama fría)
+    "diametro_extincion_fria_mm",  # mm (extinción de la llama fría; 0 = consumió la gota)
     "tiempo_quemado_s",      # s
     "resultado",             # ver RESULTADOS
     "resultado_original",    # texto tal cual venía en PSI
@@ -61,9 +69,15 @@ RANGOS = {
     "presion_atm": (0.05, 5.0),
     "o2": (0.0, 1.0), "n2": (0.0, 1.0), "co2": (0.0, 1.0), "he": (0.0, 1.0),
     "flujo_aire_cm_s": (0.0, 200.0),
+    "flujo_aire_min_cm_s": (0.0, 200.0),
+    "flujo_aire_max_cm_s": (0.0, 200.0),
+    "espesor_mm": (0.0, 50.0),
+    "ancho_mm": (0.0, 1000.0),
     "diametro_inicial_mm": (0.1, 10.0),
     "diametro_extincion_mm": (0.0, 10.0),
     "k_quemado_mm2_s": (0.0, 3.0),
+    "k_quemado_fria_mm2_s": (0.0, 3.0),
+    "diametro_extincion_fria_mm": (0.0, 10.0),
     "tiempo_quemado_s": (0.0, 2000.0),
 }
 
@@ -172,6 +186,11 @@ def validar(pruebas: list[dict]) -> list[dict]:
             suma = sum(gases)
             if abs(suma - 1.0) > 0.03:
                 marcar(p, "o2", f"composicion_suma_{suma:.2f}")
+
+        # Una gota no puede apagarse más grande de lo que empezó (2 % de tolerancia de medición)
+        d0, dext = p.get("diametro_inicial_mm"), p.get("diametro_extincion_mm")
+        if d0 and dext and dext > d0 * 1.02:
+            marcar(p, "diametro_extincion_mm", "extincion_mayor_que_diametro_inicial")
 
         if p.get("resultado", "") not in RESULTADOS:
             marcar(p, "resultado", "resultado_desconocido")

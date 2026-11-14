@@ -16,7 +16,7 @@ Revisar esta lista al limpiar los CSV (Fase 1).
 | Aproximados y rangos | "~ 21.5", "21.5 - 21.7" |
 | Texto en columnas numéricas | "Insignificant", "Complete", "n/a", "none" |
 | Unidades distintas | Presión en mmHg (FLEX), atm (CFI), psi (reto); oxígeno como fracción (FLEX) o como % |
-| Valores no físicos | BASS-II: "Fan display" / "Air display" no son cm/s |
+| Valores no físicos | BASS-II: "Fan display" es voltaje del ventilador x10 (no velocidad); "Air display" SÍ es cm/s |
 | Dos números de prueba | BASS: "Test #" (planeado) vs "As Run Test #" (real) |
 | Fechas sin año | SAME-R: "21-Jul" |
 | Abreviaturas | SAME-R: "Rt/R0" → buscar en Read Me / reportes |
@@ -41,6 +41,29 @@ Revisar esta lista al limpiar los CSV (Fase 1).
 - Prueba 114: presión 0 (imposible). Pruebas 70 y 73: mismo identificador, fecha y hora
   con mediciones distintas. Pruebas 223 y 224: tiempos aproximados ("~6", "~9").
 - "Test end" también puede ser **Completion** (se quemó toda la gota).
+
+## BASS-II (ya lo resuelve `scripts/limpiar_bass2.py`)
+- "Air display" = velocidad del aire en cm/s (según el ReadMe). "Fan display" = voltaje x10.
+- El flujo se cambiaba durante la prueba: "5 3 2 1 ext" = se bajó hasta que se apagó.
+  En el CSV se perdieron las comas ("10, 5, 3" → "10   5   3").
+- Mezcla valores de perilla del ventilador ("pots 0.4 0.36", "(0.36)") que NO son cm/s.
+- **No hay columna de resultado**: sólo 21 de 129 pruebas lo dicen en el texto
+  ("ext", "blowoff", "no ign"). El resto hay que buscarlo en videos o publicaciones.
+- Oxígeno de 13.6 % a 22.2 % (calibrado con un ajuste por día).
+- Pruebas B2, P22a y T28a terminan con O2 cercano a 1 %: se marcan, no se interpretan.
+- La fecha del video es un día después de la real (error de año bisiesto a bordo).
+
+## CFI (ya lo resuelve `scripts/limpiar_cfi.py`)
+- Los datos buenos están en el Excel `CFI_DataSummary_Spreadsheet_Jan2021.xlsx`
+  (227 pruebas, hojas Master Sheet + DATA + Comments), no en el CSV (87 filas sin resultados).
+- 79 pruebas no tienen análisis numérico ("Completed Analysis? = No"), pero su comentario
+  sí describe lo que pasó: sirve para la IA, no para gráficas.
+- "Extrap CF? = 1" (34 pruebas): los valores de la llama fría fueron extrapolados.
+- "Dext,cool = 0" (49 pruebas): la llama fría consumió toda la gota.
+- Constantes de quemado muy bajas (khot hasta 0.001): no son error, son llamas calientes
+  que se apagaron casi de inmediato (la gota casi no cambió de tamaño).
+- 4 pruebas con O2 0.21 + N2 0.76 = 0.97 (no suman 1) y 2 pruebas (1274A, 1328) con
+  diámetro de extinción mayor que el inicial: se marcan.
 
 ## Dónde están los datos buenos (no siempre en el CSV)
 - **BASS**: el CSV solo trae el material; condiciones y notas en
