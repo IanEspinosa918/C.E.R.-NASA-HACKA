@@ -33,6 +33,10 @@ Así el backend, las gráficas, los simuladores y la IA leen todo igual.
 | `tiempo_quemado_s` | s | 5 |
 | `longitud_quemada_mm` | mm, cuánto de la muestra sólida se quemó | 290 |
 | `velocidad_propagacion_mm_s` | mm/s, velocidad de avance de la flama (sólidos) | 2.1 |
+| `calentamiento_rt_r0` | humo: razón de resistencia del alambre calefactor (más alto = más caliente; aproximado) | 1.38 |
+| `tiempo_calentamiento_s` | humo: s que se calentó la muestra | 60 |
+| `tiempo_envejecimiento_s` | humo: s que envejeció el humo antes de medirlo | 261 |
+| `perdida_masa_mg_min` | humo: velocidad de pérdida de masa de la muestra | 2 |
 | `resultado` | ver abajo | extincion |
 | `resultado_original` | texto tal cual venía | Extinction |
 | `aproximado` | `si` si algún valor era "~6", un rango, etc. | no |
@@ -72,4 +76,4 @@ Así el backend, las gráficas, los simuladores y la IA leen todo igual.
 | CFI-G (PSI-159) | pendiente | 333 | Dos CSV: normal e inversa |
 | BASS (PSI-26) | pendiente | ~130 | Usar `As Run_Test Matrix.xlsx` |
 | Saffire I/II/III | `limpiar_saffire.py` | 2 + 18 + 2 | Listo. Saffire II: 9 muestras × 2 filas (microgravedad y gravedad normal) |
-| SAME / SAME-R | pendiente | 8/109 | |
+| SAME / SAME-R | `limpiar_same.py` | 20 + 109 | Listo. Sólo condiciones; el tamaño de partículas está en los reportes |

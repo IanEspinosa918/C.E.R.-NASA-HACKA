@@ -78,6 +78,17 @@ Revisar esta lista al limpiar los CSV (Fase 1).
   posible error de unidades (marcado). En Saffire I el largo y el ancho vienen invertidos.
 - Saffire III no trae oxígeno ni resultados en la tabla.
 
+## SAME y SAME-R (ya lo resuelve `scripts/limpiar_same.py`)
+- **No hay flama**: calientan materiales con un alambre hasta que sueltan humo (pirólisis),
+  como un cable sobrecalentado. Es la etapa más temprana de un incendio.
+- SAME: las filas 5-8 dicen "same conditions as 1-4" -> se expanden a 4 pruebas cada una.
+- SAME-R (vuelo jul–sep 2010): las filas que terminan en "a" (51a, 61a...) son el MISMO humo
+  medido otra vez después de envejecer, no pruebas nuevas. Las fechas no traen año.
+- "Rt/R0" = razón de resistencia del alambre calefactor (indica temperatura). El reporte
+  final aclara que es aproximado: mismo Rt/R0 puede dar temperaturas distintas.
+- **El resultado (tamaño de partículas) NO está en las tablas**, sólo en los reportes finales
+  (ej. Tabla 2 del reporte de SAME-R). Hay que extraerlo a mano si se necesita.
+
 ## Dónde están los datos buenos (no siempre en el CSV)
 - **BASS**: el CSV solo trae el material; condiciones y notas en
   `Science Documents/..._As Run_Test Matrix.xlsx`.

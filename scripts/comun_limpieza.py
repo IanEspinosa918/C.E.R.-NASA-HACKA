@@ -45,6 +45,10 @@ COLUMNAS = [
     "tiempo_quemado_s",      # s
     "longitud_quemada_mm",   # mm (sólidos: cuánto de la muestra se quemó)
     "velocidad_propagacion_mm_s",  # mm/s (sólidos: velocidad de avance de la flama)
+    "calentamiento_rt_r0",   # humo: razón de resistencia del alambre calefactor (más alto = más caliente)
+    "tiempo_calentamiento_s",      # humo: cuánto tiempo se calentó la muestra
+    "tiempo_envejecimiento_s",     # humo: cuánto tiempo "envejeció" el humo antes de medirlo
+    "perdida_masa_mg_min",   # humo: velocidad de pérdida de masa de la muestra
     "resultado",             # ver RESULTADOS
     "resultado_original",    # texto tal cual venía en PSI
     "aproximado",            # si algún valor venía como "~6", rango, etc.
@@ -79,6 +83,10 @@ RANGOS = {
     "largo_mm": (0.0, 2000.0),
     "longitud_quemada_mm": (0.0, 2000.0),
     "velocidad_propagacion_mm_s": (0.0, 100.0),
+    "calentamiento_rt_r0": (1.0, 3.0),
+    "tiempo_calentamiento_s": (0.0, 3600.0),
+    "tiempo_envejecimiento_s": (0.0, 7200.0),
+    "perdida_masa_mg_min": (0.0, 100.0),
     "diametro_inicial_mm": (0.1, 10.0),
     "diametro_extincion_mm": (0.0, 10.0),
     "k_quemado_mm2_s": (0.0, 3.0),
