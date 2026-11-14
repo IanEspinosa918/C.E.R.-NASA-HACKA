@@ -65,6 +65,19 @@ Revisar esta lista al limpiar los CSV (Fase 1).
 - 4 pruebas con O2 0.21 + N2 0.76 = 0.97 (no suman 1) y 2 pruebas (1274A, 1328) con
   diámetro de extinción mayor que el inicial: se marcan.
 
+## Saffire I, II y III (ya lo resuelve `scripts/limpiar_saffire.py`)
+- Se quemó en la nave Cygnus después de desacoplarse de la ISS, no dentro de la estación.
+- Saffire II trae, para cada muestra, el resultado en microgravedad Y en gravedad normal
+  (prueba en tierra del mismo tamaño que NASA-STD-6001 Test 1): se guardan como 2 filas.
+- "037 mm" = 0.37 mm (falta el punto decimal).
+- Muestras 2-6 y 2-9 sin material: es el de la fila de arriba (celda combinada).
+- Filas F1/F2 son visualización del flujo, no pruebas.
+- "Complete" = se quemó toda la muestra; "Acceleratory" = la flama se fue acelerando.
+- Notas al pie (note 1 a 4) con información clave; se copian a cada prueba.
+- Saffire I/III reportan la tela SIBAL con 0.33–0.37 **cm**; Saffire II con 0.37 **mm**:
+  posible error de unidades (marcado). En Saffire I el largo y el ancho vienen invertidos.
+- Saffire III no trae oxígeno ni resultados en la tabla.
+
 ## Dónde están los datos buenos (no siempre en el CSV)
 - **BASS**: el CSV solo trae el material; condiciones y notas en
   `Science Documents/..._As Run_Test Matrix.xlsx`.

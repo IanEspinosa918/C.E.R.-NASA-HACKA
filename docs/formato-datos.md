@@ -19,6 +19,7 @@ Así el backend, las gráficas, los simuladores y la IA leen todo igual.
 | `geometria` | `gota` / `pelicula` / `placa` / `varilla` / `tela` / `seccion_esferica` / `vela` | varilla |
 | `espesor_mm` | mm (en varillas y esferas: diámetro) | 6.35 |
 | `ancho_mm` | mm | 20 |
+| `largo_mm` | mm, largo de la muestra sólida | 290 |
 | `presion_atm` | atm | 1.0026 |
 | `o2`, `n2`, `co2`, `he` | fracción molar (0 a 1) | 0.21 |
 | `flujo_aire_cm_s` | cm/s, flujo inicial (vacío = aire quieto o sin dato) | 5 |
@@ -30,6 +31,8 @@ Así el backend, las gráficas, los simuladores y la IA leen todo igual.
 | `k_quemado_fria_mm2_s` | mm²/s, constante de quemado de la llama fría | 0.385 |
 | `diametro_extincion_fria_mm` | mm, extinción de la llama fría (0 = consumió la gota) | 0.497 |
 | `tiempo_quemado_s` | s | 5 |
+| `longitud_quemada_mm` | mm, cuánto de la muestra sólida se quemó | 290 |
+| `velocidad_propagacion_mm_s` | mm/s, velocidad de avance de la flama (sólidos) | 2.1 |
 | `resultado` | ver abajo | extincion |
 | `resultado_original` | texto tal cual venía | Extinction |
 | `aproximado` | `si` si algún valor era "~6", un rango, etc. | no |
@@ -68,5 +71,5 @@ Así el backend, las gráficas, los simuladores y la IA leen todo igual.
 | CFI (PSI-39) | `limpiar_cfi.py` | 227 | Listo. Desde el Excel; 127 con llama fría, 79 sin análisis numérico. Requiere `openpyxl` |
 | CFI-G (PSI-159) | pendiente | 333 | Dos CSV: normal e inversa |
 | BASS (PSI-26) | pendiente | ~130 | Usar `As Run_Test Matrix.xlsx` |
-| Saffire I/II/III | pendiente | 4/15/2 | Unidades dentro de las celdas |
+| Saffire I/II/III | `limpiar_saffire.py` | 2 + 18 + 2 | Listo. Saffire II: 9 muestras × 2 filas (microgravedad y gravedad normal) |
 | SAME / SAME-R | pendiente | 8/109 | |

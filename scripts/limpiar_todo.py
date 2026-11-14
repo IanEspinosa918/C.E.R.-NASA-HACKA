@@ -23,9 +23,9 @@ LIMPIADORES = [
     "limpiar_flex",
     "limpiar_bass2",
     "limpiar_cfi",
+    "limpiar_saffire",
     # "limpiar_cfig",
     # "limpiar_bass",
-    # "limpiar_saffire",
     # "limpiar_same",
 ]
 

@@ -31,6 +31,7 @@ COLUMNAS = [
     "geometria",             # gota | pelicula | placa | varilla | tela | seccion_esferica | vela
     "espesor_mm",            # mm (en varillas: diámetro)
     "ancho_mm",              # mm
+    "largo_mm",              # mm (largo de la muestra sólida)
     "presion_atm",           # atm
     "o2", "n2", "co2", "he", # fracción molar (0 a 1)
     "flujo_aire_cm_s",       # cm/s (flujo inicial si hubo varios)
@@ -42,6 +43,8 @@ COLUMNAS = [
     "k_quemado_fria_mm2_s",  # mm²/s (constante de quemado de la llama fría)
     "diametro_extincion_fria_mm",  # mm (extinción de la llama fría; 0 = consumió la gota)
     "tiempo_quemado_s",      # s
+    "longitud_quemada_mm",   # mm (sólidos: cuánto de la muestra se quemó)
+    "velocidad_propagacion_mm_s",  # mm/s (sólidos: velocidad de avance de la flama)
     "resultado",             # ver RESULTADOS
     "resultado_original",    # texto tal cual venía en PSI
     "aproximado",            # si algún valor venía como "~6", rango, etc.
@@ -73,6 +76,9 @@ RANGOS = {
     "flujo_aire_max_cm_s": (0.0, 200.0),
     "espesor_mm": (0.0, 50.0),
     "ancho_mm": (0.0, 1000.0),
+    "largo_mm": (0.0, 2000.0),
+    "longitud_quemada_mm": (0.0, 2000.0),
+    "velocidad_propagacion_mm_s": (0.0, 100.0),
     "diametro_inicial_mm": (0.1, 10.0),
     "diametro_extincion_mm": (0.0, 10.0),
     "k_quemado_mm2_s": (0.0, 3.0),
