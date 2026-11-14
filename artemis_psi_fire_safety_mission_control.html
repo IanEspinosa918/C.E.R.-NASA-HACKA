@@ -1,0 +1,1741 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NASA PSI // HABITAT FIRE SAFETY MISSION CONTROL</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Three.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <!-- Google Fonts: Inter & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            nasa: {
+              bg: '#060a12',
+              panel: '#0c1322',
+              card: '#111b2e',
+              border: '#1e2f4d',
+              cyan: '#00e5ff',
+              amber: '#ffb300',
+              red: '#ff3b5c',
+              green: '#00e676'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      background-color: #060a12;
+      color: #e2e8f0;
+      overflow-x: hidden;
+    }
+    /* Custom Scrollbar estilo Mission Control */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #060a12;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #1e2f4d;
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #00e5ff;
+    }
+    /* Sliders personalizados */
+    input[type="range"] {
+      -webkit-appearance: none;
+      appearance: none;
+      background: #1e2f4d;
+      height: 6px;
+      border-radius: 9999px;
+      outline: none;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: #00e5ff;
+      cursor: pointer;
+      box-shadow: 0 0 10px rgba(0, 229, 255, 0.7);
+      border: 2px solid #060a12;
+    }
+    .grid-bg {
+      background-image: 
+        linear-gradient(to right, rgba(30, 47, 77, 0.25) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(30, 47, 77, 0.25) 1px, transparent 1px);
+      background-size: 28px 28px;
+    }
+    .glow-cyan {
+      box-shadow: 0 0 18px rgba(0, 229, 255, 0.15);
+    }
+    .pulse-dot {
+      animation: pulseGlow 2s infinite;
+    }
+    @keyframes pulseGlow {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.45; transform: scale(1.25); }
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col font-sans grid-bg selection:bg-cyan-500/30 selection:text-cyan-200">
+
+  <!-- HEADER SUPERIOR: MISSION CONTROL -->
+  <header class="sticky top-0 z-40 bg-[#080e1a]/95 backdrop-blur-md border-b border-[#1e2f4d] px-4 py-3 shadow-lg">
+    <div class="max-w-[1600px] mx-auto flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
+      <!-- Título y Subtítulo -->
+      <div class="flex items-start sm:items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-cyan-500/10 border border-cyan-400/40 flex items-center justify-center shrink-0 glow-cyan">
+          <svg class="w-6 h-6 text-cyan-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9.879 16.121A3 3 0 1012.015 11L11 14H9c0 .768.293 1.536.879 2.121z" />
+          </svg>
+        </div>
+        <div>
+          <div class="flex items-center gap-2 flex-wrap">
+            <h1 class="text-base sm:text-lg md:text-xl font-bold tracking-wider text-white font-mono">
+              NASA PSI <span class="text-cyan-400">//</span> HABITAT FIRE SAFETY MISSION CONTROL
+            </h1>
+            <span class="px-2 py-0.5 text-[10px] font-mono uppercase tracking-widest rounded-full bg-amber-500/15 text-amber-300 border border-amber-500/30">
+              ARTEMIS EDITION
+            </span>
+          </div>
+          <p class="text-xs sm:text-sm text-slate-400">
+            Simulador de Riesgo de Combustión, Detección y Supresión basado en <span class="text-cyan-300 font-medium">Physical Sciences Informatics (PSI)</span>
+          </p>
+        </div>
+      </div>
+
+      <!-- Insignias de Estado de Telemetría -->
+      <div class="flex flex-wrap items-center gap-2 text-xs font-mono">
+        <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#0c1322] border border-[#1e2f4d]">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 pulse-dot"></span>
+          <span class="text-slate-400">CIR:</span>
+          <span class="text-emerald-300 font-semibold">ONLINE</span>
+        </div>
+        <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#0c1322] border border-[#1e2f4d]">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 pulse-dot"></span>
+          <span class="text-slate-400">MSG:</span>
+          <span class="text-emerald-300 font-semibold">ACTIVE</span>
+        </div>
+        <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#0c1322] border border-[#1e2f4d]">
+          <span class="w-2 h-2 rounded-full bg-cyan-400"></span>
+          <span class="text-slate-400">CYGNUS:</span>
+          <span class="text-cyan-300 font-semibold">SAFFIRE-DB</span>
+        </div>
+        <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-cyan-950/50 border border-cyan-500/40">
+          <span class="w-2 h-2 rounded-full bg-amber-400 pulse-dot"></span>
+          <span class="text-cyan-200 font-semibold">CAMPAIGN 17319A3 (15-NOV-2017)</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- CONTENIDO PRINCIPAL: PANTALLA DIVIDIDA EN DOS GRANDES ZONAS -->
+  <main class="flex-1 max-w-[1600px] w-full mx-auto p-4 grid grid-cols-1 xl:grid-cols-12 gap-5">
+
+    <!-- ===================================================================== -->
+    <!-- ZONA IZQUIERDA (5 COLS): ESCENARIO 3D LUNAR/ORBITAL + LLAMA + TELEMETRÍA -->
+    <!-- ===================================================================== -->
+    <section class="xl:col-span-5 flex flex-col gap-4">
+      
+      <!-- VISOR 3D INTERACTIVO (THREE.JS) -->
+      <div class="bg-[#0c1322] border border-[#1e2f4d] rounded-2xl overflow-hidden shadow-xl flex flex-col glow-cyan">
+        <div class="px-4 py-2.5 bg-[#0f182b] border-b border-[#1e2f4d] flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-cyan-400"></span>
+            <h2 class="text-xs font-mono font-bold uppercase tracking-wider text-cyan-300">
+              ESCENARIO TÁCTICO 3D // LUNA & ÓRBITA GATEWAY
+            </h2>
+          </div>
+          <span id="active-habitat-badge" class="text-[11px] font-mono px-2 py-0.5 rounded bg-cyan-500/15 text-cyan-300 border border-cyan-500/30">
+            Base Hábitat Principal
+          </span>
+        </div>
+
+        <!-- Contenedor Canvas 3D + Pines Superpuestos -->
+        <div id="three-container" class="relative w-full h-[300px] sm:h-[340px] bg-[#04070d] cursor-grab active:cursor-grabbing select-none">
+          <!-- Overlay HUD superior izquierdo -->
+          <div class="absolute top-3 left-3 z-10 pointer-events-none font-mono text-[11px] text-slate-300 bg-[#060a12]/80 backdrop-blur px-2.5 py-1.5 rounded-lg border border-[#1e2f4d]">
+            <div>LAT: <span id="hud-lat" class="text-cyan-400">89.54° S</span> | LON: <span id="hud-lon" class="text-cyan-400">00.00° E</span></div>
+            <div>GRAVEDAD: <span id="hud-grav" class="text-amber-400 font-bold">1/6g (1.62 m/s²)</span></div>
+          </div>
+
+          <!-- Instrucción de arrastre -->
+          <div class="absolute bottom-2.5 right-3 z-10 pointer-events-none font-mono text-[10px] text-slate-400 bg-[#060a12]/75 px-2 py-1 rounded">
+            Arrastra para rotar • Clic en pin para enfocar
+          </div>
+
+          <!-- Pines interactivos flotantes sobre la escena -->
+          <button onclick="selectPreset('lunar_base_south_pole')" id="pin-btn-lunar_base_south_pole"
+            class="absolute bottom-10 left-4 z-10 flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-mono bg-[#0c1322]/90 hover:bg-cyan-950 text-cyan-300 border border-cyan-400 shadow-lg transition">
+            <span class="w-2 h-2 rounded-full bg-cyan-400 pulse-dot"></span> Polo Sur Base
+          </button>
+          <button onclick="selectPreset('pressurized_rover')" id="pin-btn-pressurized_rover"
+            class="absolute top-16 right-4 z-10 flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-mono bg-[#0c1322]/90 hover:bg-cyan-950 text-slate-200 border border-[#1e2f4d] shadow-lg transition">
+            <span class="w-2 h-2 rounded-full bg-amber-400"></span> Rover Lunar
+          </button>
+          <button onclick="selectPreset('eva_airlock')" id="pin-btn-eva_airlock"
+            class="absolute bottom-20 right-6 z-10 flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-mono bg-[#0c1322]/90 hover:bg-cyan-950 text-slate-200 border border-[#1e2f4d] shadow-lg transition">
+            <span class="w-2 h-2 rounded-full bg-rose-500"></span> Esclusa EVA
+          </button>
+          <button onclick="selectPreset('gateway_station')" id="pin-btn-gateway_station"
+            class="absolute top-3 right-3 z-10 flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-mono bg-[#0c1322]/90 hover:bg-cyan-950 text-slate-200 border border-[#1e2f4d] shadow-lg transition">
+            <span class="w-2 h-2 rounded-full bg-emerald-400"></span> Gateway 0g
+          </button>
+        </div>
+
+        <!-- 4 Tarjetas Rápidas de Hábitats debajo del Visor 3D -->
+        <div class="p-3 bg-[#090f1c] border-t border-[#1e2f4d] grid grid-cols-2 gap-2">
+          <button onclick="selectPreset('lunar_base_south_pole')" data-preset="lunar_base_south_pole"
+            class="preset-card text-left p-2.5 rounded-xl bg-[#111b2e] border border-cyan-400/70 hover:border-cyan-400 transition">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold text-white">1. Base Polo Sur</span>
+              <span class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-cyan-500/20 text-cyan-300">1/6g</span>
+            </div>
+            <div class="text-[11px] font-mono text-slate-400 mt-1">34% O₂ • 8.2 psi • 15 cm/s</div>
+          </button>
+
+          <button onclick="selectPreset('pressurized_rover')" data-preset="pressurized_rover"
+            class="preset-card text-left p-2.5 rounded-xl bg-[#111b2e] border border-[#1e2f4d] hover:border-cyan-400/60 transition">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold text-white">2. Rover Presurizado</span>
+              <span class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300">1/6g</span>
+            </div>
+            <div class="text-[11px] font-mono text-slate-400 mt-1">32% O₂ • 8.5 psi • 25 cm/s</div>
+          </button>
+
+          <button onclick="selectPreset('eva_airlock')" data-preset="eva_airlock"
+            class="preset-card text-left p-2.5 rounded-xl bg-[#111b2e] border border-[#1e2f4d] hover:border-cyan-400/60 transition">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold text-white">3. Esclusa EVA</span>
+              <span class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-rose-500/20 text-rose-300">1/6g</span>
+            </div>
+            <div class="text-[11px] font-mono text-slate-400 mt-1">100% O₂ • 4.3 psi • 5 cm/s</div>
+          </button>
+
+          <button onclick="selectPreset('gateway_station')" data-preset="gateway_station"
+            class="preset-card text-left p-2.5 rounded-xl bg-[#111b2e] border border-[#1e2f4d] hover:border-cyan-400/60 transition">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold text-white">4. Estación Gateway</span>
+              <span class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300">0g</span>
+            </div>
+            <div class="text-[11px] font-mono text-slate-400 mt-1">21% O₂ • 14.7 psi • 20 cm/s</div>
+          </button>
+        </div>
+      </div>
+
+      <!-- SIMULADOR VISUAL DE MORFOLOGÍA DE LLAMA EN TIEMPO REAL -->
+      <div class="bg-[#0c1322] border border-[#1e2f4d] rounded-2xl p-4 shadow-xl">
+        <div class="flex items-center justify-between mb-2">
+          <h3 class="text-xs font-mono font-bold uppercase tracking-wider text-cyan-300 flex items-center gap-2">
+            <span>🔥 MORFOLOGÍA DE LLAMA SIMULADA (TIEMPO REAL)</span>
+          </h3>
+          <span id="flame-regime-tag" class="text-[11px] font-mono px-2 py-0.5 rounded bg-amber-500/15 text-amber-300 border border-amber-500/30">
+            Convección Mixta / Elongada
+          </span>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-12 gap-3 items-center">
+          <div class="sm:col-span-5 bg-[#050811] border border-[#1e2f4d] rounded-xl overflow-hidden h-[150px] relative">
+            <canvas id="flame-canvas" class="w-full h-full block"></canvas>
+            <div class="absolute bottom-1.5 left-2 text-[10px] font-mono text-slate-400">
+              Flujo aire → <span id="flame-flow-label">15 cm/s</span>
+            </div>
+          </div>
+          <div class="sm:col-span-7 space-y-2 text-xs">
+            <div class="p-2.5 rounded-xl bg-[#111b2e] border border-[#1e2f4d]">
+              <div class="text-[11px] font-mono text-slate-400 uppercase">Geometría y Coloración</div>
+              <p id="flame-geometry-desc" class="text-slate-200 mt-0.5 leading-relaxed">
+                En 1/6g con 34% O₂, la flotabilidad es débil: la llama adopta una forma semiesférica inclinada hacia el flujo de ventilación, con núcleo azul intenso y corona amarilla brillante por alta temperatura.
+              </p>
+            </div>
+            <div class="grid grid-cols-3 gap-2 font-mono text-center">
+              <div class="p-1.5 rounded-lg bg-[#090f1c] border border-[#1e2f4d]">
+                <div class="text-[10px] text-slate-400">TEMP. PICO</div>
+                <div id="flame-temp-val" class="text-xs font-bold text-amber-400">~2,180 K</div>
+              </div>
+              <div class="p-1.5 rounded-lg bg-[#090f1c] border border-[#1e2f4d]">
+                <div class="text-[10px] text-slate-400">VEL. PROPAG.</div>
+                <div id="flame-spread-val" class="text-xs font-bold text-rose-400">3.4x (1g)</div>
+              </div>
+              <div class="p-1.5 rounded-lg bg-[#090f1c] border border-[#1e2f4d]">
+                <div class="text-[10px] text-slate-400">HOLLÍN / HUMO</div>
+                <div id="flame-soot-val" class="text-xs font-bold text-cyan-300">Aglomerado</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- MINI-GRÁFICA INTERACTIVA: TELEMETRÍA REAL CAMPAÑA ACME 17319A3 -->
+      <div class="bg-[#0c1322] border border-[#1e2f4d] rounded-2xl p-4 shadow-xl flex-1 flex flex-col">
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
+          <div>
+            <h3 class="text-xs font-mono font-bold uppercase tracking-wider text-cyan-300">
+              📊 TELEMETRÍA REAL PSI // PRUEBA ACME 17319A3 (ISS CIR)
+            </h3>
+            <p class="text-[11px] text-slate-400">
+              15 Nov 2017 (GMT 21:31:53–21:33:13) • 9,994 muestras (125 Hz) • CH₄ 40% @ 10 cm/s
+            </p>
+          </div>
+          <div class="flex gap-1 font-mono text-[10px]">
+            <button onclick="setTelemetryChannel('all')" id="tel-btn-all" class="px-2 py-1 rounded bg-cyan-500/20 text-cyan-300 border border-cyan-500/50">Todo</button>
+            <button onclick="setTelemetryChannel('flows')" id="tel-btn-flows" class="px-2 py-1 rounded bg-[#111b2e] text-slate-300 border border-[#1e2f4d]">Flujos MFCA</button>
+            <button onclick="setTelemetryChannel('radiometers')" id="tel-btn-radiometers" class="px-2 py-1 rounded bg-[#111b2e] text-slate-300 border border-[#1e2f4d]">Radiómetros</button>
+            <button onclick="setTelemetryChannel('pmt')" id="tel-btn-pmt" class="px-2 py-1 rounded bg-[#111b2e] text-slate-300 border border-[#1e2f4d]">PMT</button>
+          </div>
+        </div>
+
+        <div class="relative w-full h-[165px] bg-[#050811] border border-[#1e2f4d] rounded-xl overflow-hidden">
+          <canvas id="telemetry-canvas" class="w-full h-full block"></canvas>
+        </div>
+
+        <!-- Leyenda y eventos clave -->
+        <div class="mt-2 flex flex-wrap items-center justify-between gap-2 text-[10px] font-mono text-slate-400">
+          <div class="flex items-center gap-3">
+            <span class="flex items-center gap-1"><span class="w-2.5 h-0.5 bg-amber-400 inline-block"></span> MFCA3 Fuel (1.10)</span>
+            <span class="flex items-center gap-1"><span class="w-2.5 h-0.5 bg-cyan-400 inline-block"></span> MFCA1 Coflow (0.67)</span>
+            <span class="flex items-center gap-1"><span class="w-2.5 h-0.5 bg-rose-400 inline-block"></span> Radiómetro (1.86V pico)</span>
+            <span class="flex items-center gap-1"><span class="w-2.5 h-0.5 bg-emerald-400 inline-block"></span> PMT1 (4.52V→1.00V)</span>
+          </div>
+          <span class="text-cyan-300">Llama estable: 66.3s – 71.8s</span>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- ZONA DERECHA (7 COLS): CONTROLES DE INGENIERÍA + 4 TARJETAS + IA COPILOT -->
+    <!-- ===================================================================== -->
+    <section class="xl:col-span-7 flex flex-col gap-4">
+
+      <!-- PANEL DE CONTROLES DE INGENIERÍA (4 VARIABLES CRÍTICAS) -->
+      <div class="bg-[#0c1322] border border-[#1e2f4d] rounded-2xl p-4 shadow-xl">
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-3 pb-2 border-b border-[#1e2f4d]">
+          <h2 class="text-xs font-mono font-bold uppercase tracking-wider text-cyan-300">
+            ⚙️ PARÁMETROS AMBIENTALES DEL HÁBITAT (ENTRADA AL MOTOR PSI)
+          </h2>
+          <span id="preset-description-banner" class="text-xs text-slate-400 italic">
+            Atmósfera de exploración enriquecida en oxígeno a baja presión.
+          </span>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- 1. Selector de Gravedad -->
+          <div class="bg-[#111b2e] border border-[#1e2f4d] rounded-xl p-3">
+            <label class="block text-[11px] font-mono uppercase text-slate-400 mb-2">
+              1. Régimen de Gravedad
+            </label>
+            <div class="grid grid-cols-3 gap-1.5 font-mono text-xs">
+              <button onclick="setGravity('0g')" id="grav-btn-0g"
+                class="grav-btn py-2 px-2 rounded-lg border border-[#1e2f4d] bg-[#090f1c] text-slate-300 hover:border-cyan-400 transition font-semibold">
+                0g (Órbita)
+              </button>
+              <button onclick="setGravity('1/6g')" id="grav-btn-1/6g"
+                class="grav-btn py-2 px-2 rounded-lg border border-cyan-400 bg-cyan-500/20 text-cyan-300 transition font-semibold">
+                1/6g (Luna)
+              </button>
+              <button onclick="setGravity('3/8g')" id="grav-btn-3/8g"
+                class="grav-btn py-2 px-2 rounded-lg border border-[#1e2f4d] bg-[#090f1c] text-slate-300 hover:border-cyan-400 transition font-semibold">
+                3/8g (Marte)
+              </button>
+            </div>
+          </div>
+
+          <!-- 2. Selector de Material Predominante -->
+          <div class="bg-[#111b2e] border border-[#1e2f4d] rounded-xl p-3">
+            <label class="block text-[11px] font-mono uppercase text-slate-400 mb-2">
+              4. Material / Combustible Predominante
+            </label>
+            <div class="grid grid-cols-3 gap-1.5 font-mono text-xs">
+              <button onclick="setFuel('solido')" id="fuel-btn-solido"
+                class="fuel-btn py-2 px-2 rounded-lg border border-cyan-400 bg-cyan-500/20 text-cyan-300 transition font-semibold">
+                Sólidos
+              </button>
+              <button onclick="setFuel('liquido')" id="fuel-btn-liquido"
+                class="fuel-btn py-2 px-2 rounded-lg border border-[#1e2f4d] bg-[#090f1c] text-slate-300 hover:border-cyan-400 transition font-semibold">
+                Líquidos
+              </button>
+              <button onclick="setFuel('gas')" id="fuel-btn-gas"
+                class="fuel-btn py-2 px-2 rounded-lg border border-[#1e2f4d] bg-[#090f1c] text-slate-300 hover:border-cyan-400 transition font-semibold">
+                Gases
+              </button>
+            </div>
+            <div id="fuel-detail-hint" class="text-[11px] text-slate-400 mt-1.5 truncate">
+              Nomex, algodón, PMMA/acrílico, aislamiento de cables
+            </div>
+          </div>
+
+          <!-- 3. Deslizador de Oxígeno (% O2) y Presión (psi) -->
+          <div class="bg-[#111b2e] border border-[#1e2f4d] rounded-xl p-3 space-y-2.5">
+            <div>
+              <div class="flex justify-between text-xs font-mono mb-1">
+                <span class="text-slate-400 uppercase text-[11px]">2A. Concentración O₂</span>
+                <span id="o2-val-display" class="text-cyan-300 font-bold">34.0 % O₂</span>
+              </div>
+              <input type="range" id="o2-slider" min="15" max="100" step="1" value="34" class="w-full" oninput="onO2Change(this.value)">
+            </div>
+            <div>
+              <div class="flex justify-between text-xs font-mono mb-1">
+                <span class="text-slate-400 uppercase text-[11px]">2B. Presión Total Cabina</span>
+                <span id="psi-val-display" class="text-amber-300 font-bold">8.2 psi</span>
+              </div>
+              <input type="range" id="psi-slider" min="4.0" max="29.4" step="0.1" value="8.2" class="w-full" oninput="onPsiChange(this.value)">
+            </div>
+          </div>
+
+          <!-- 4. Deslizador de Flujo de Aire / Ventilación -->
+          <div class="bg-[#111b2e] border border-[#1e2f4d] rounded-xl p-3 flex flex-col justify-between">
+            <div>
+              <div class="flex justify-between text-xs font-mono mb-1">
+                <span class="text-slate-400 uppercase text-[11px]">3. Flujo de Aire / Ventilación</span>
+                <span id="flow-val-display" class="text-emerald-300 font-bold">15 cm/s</span>
+              </div>
+              <input type="range" id="flow-slider" min="0" max="50" step="1" value="15" class="w-full" oninput="onFlowChange(this.value)">
+              <div class="flex justify-between text-[10px] font-mono text-slate-500 mt-1">
+                <span>0 cm/s (Quieto)</span>
+                <span>15 cm/s (Cabina)</span>
+                <span>50 cm/s (Forzado)</span>
+              </div>
+            </div>
+            <div class="mt-2 pt-2 border-t border-[#1e2f4d]/70 flex items-center justify-between text-[11px] font-mono">
+              <span class="text-slate-400">Presión Parcial O₂ (ppO₂):</span>
+              <span id="ppo2-display" class="text-white font-semibold">2.79 psi (19.2 kPa)</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===================================================================== -->
+      <!-- LAS 4 TARJETAS DE DIAGNÓSTICO CALCULADAS POR EL MOTOR PSI             -->
+      <!-- ===================================================================== -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+        <!-- TARJETA A: ÍNDICE DE RIESGO Y COMPORTAMIENTO DE LLAMA -->
+        <div class="bg-[#0c1322] border border-[#1e2f4d] rounded-2xl p-4 shadow-xl flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between gap-2 mb-2">
+              <span class="text-[11px] font-mono font-bold uppercase tracking-wider text-cyan-400">
+                TARJETA A // ÍNDICE DE RIESGO & LLAMA
+              </span>
+              <span id="risk-badge" class="px-2.5 py-0.5 rounded-full text-xs font-mono font-bold bg-rose-500/20 text-rose-300 border border-rose-500/50">
+                CRÍTICO (82/100)
+              </span>
+            </div>
+
+            <!-- Barra de riesgo -->
+            <div class="w-full h-2.5 bg-[#060a12] rounded-full overflow-hidden border border-[#1e2f4d] mb-3">
+              <div id="risk-bar" class="h-full bg-gradient-to-r from-emerald-400 via-amber-400 to-rose-500 transition-all duration-300" style="width: 82%;"></div>
+            </div>
+
+            <p id="card-a-behavior" class="text-xs text-slate-200 leading-relaxed mb-3">
+              Atmósfera enriquecida en oxígeno (34% O₂) con ventilación activa (15 cm/s). La llama se ancla en dirección al flujo de aire con alta tasa de transferencia térmica hacia superficies sólidas adyacentes.
+            </p>
+          </div>
+
+          <!-- Avisos explícitos del PSI -->
+          <div id="card-a-alerts" class="space-y-2 text-[11px]">
+            <!-- Se llena dinámicamente -->
+          </div>
+        </div>
+
+        <!-- TARJETA B: RANKING TOP 3 EXPERIMENTOS PSI RELEVANTES -->
+        <div class="bg-[#0c1322] border border-[#1e2f4d] rounded-2xl p-4 shadow-xl flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between gap-2 mb-2">
+              <span class="text-[11px] font-mono font-bold uppercase tracking-wider text-cyan-400">
+                TARJETA B // TOP 3 EXPERIMENTOS PSI
+              </span>
+              <span class="text-[10px] font-mono text-slate-400">
+                Algoritmo Similitud PSI
+              </span>
+            </div>
+
+            <div id="ranking-list" class="space-y-2.5">
+              <!-- Se llena dinámicamente con el Top 3 -->
+            </div>
+          </div>
+
+          <div class="mt-3 pt-2 border-t border-[#1e2f4d] flex items-center justify-between text-[11px]">
+            <span class="text-slate-400 font-mono">Ponderación: Comb 35% | O₂ 30% | Flujo 20% | Grav 15%</span>
+            <button onclick="openAcmeCampaignModal()" class="text-cyan-400 hover:text-cyan-300 font-mono underline">
+              Ver 18 pruebas 17319
+            </button>
+          </div>
+        </div>
+
+        <!-- TARJETA C: ESTRATEGIA DE DETECCIÓN RECOMENDADA -->
+        <div class="bg-[#0c1322] border border-[#1e2f4d] rounded-2xl p-4 shadow-xl flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between gap-2 mb-2">
+              <span class="text-[11px] font-mono font-bold uppercase tracking-wider text-cyan-400">
+                TARJETA C // ESTRATEGIA DE DETECCIÓN
+              </span>
+              <span class="px-2 py-0.5 rounded text-[10px] font-mono bg-cyan-500/10 text-cyan-300 border border-cyan-500/30">
+                SAME / SAME-R / DAFT-2
+              </span>
+            </div>
+
+            <p id="card-c-main" class="text-xs text-slate-200 leading-relaxed mb-2.5">
+              En baja gravedad el humo no asciende por convección natural; sigue las líneas de corriente del sistema HVAC y forma agregados de aerosoles de mayor diámetro.
+            </p>
+
+            <div class="space-y-1.5 text-[11px] bg-[#111b2e] p-2.5 rounded-xl border border-[#1e2f4d]">
+              <div class="flex items-start gap-2">
+                <span class="text-cyan-400 font-mono font-bold shrink-0">[SAME-R]</span>
+                <span id="card-c-sensor" class="text-slate-300">Instalar detectores fotoeléctricos multi-longitud de onda directamente en los retornos de ventilación.</span>
+              </div>
+              <div class="flex items-start gap-2">
+                <span class="text-amber-400 font-mono font-bold shrink-0">[DAFT-2]</span>
+                <span id="card-c-dust" class="text-slate-300">Aplicar discriminación óptica de dispersión para filtrar regolito lunar en suspensión y evitar falsas alarmas.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- TARJETA D: PROTOCOLO DE EXTINCIÓN Y SPIN-OFF TERRESTRE -->
+        <div class="bg-[#0c1322] border border-[#1e2f4d] rounded-2xl p-4 shadow-xl flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between gap-2 mb-2">
+              <span class="text-[11px] font-mono font-bold uppercase tracking-wider text-cyan-400">
+                TARJETA D // EXTINCIÓN & SPIN-OFF
+              </span>
+              <span id="card-d-ref" class="px-2 py-0.5 rounded text-[10px] font-mono bg-amber-500/15 text-amber-300 border border-amber-500/30">
+                BASS-II / SAFFIRE
+              </span>
+            </div>
+
+            <div class="text-xs font-semibold text-white mb-1" id="card-d-agent">
+              Agente: Corte de ventilación + Niebla fina de agua / N₂ localizado
+            </div>
+            <p id="card-d-warning" class="text-[11px] text-rose-300 bg-rose-950/40 border border-rose-500/30 rounded-lg p-2 mb-2.5 leading-relaxed">
+              ⚠️ En O₂ > 30%, la propagación es extremadamente rápida; apagar los ventiladores de cabina es la primera acción crítica.
+            </p>
+          </div>
+
+          <!-- Recuadro destacado Spin-off Terrestre -->
+          <div class="p-2.5 rounded-xl bg-emerald-950/30 border border-emerald-500/30 text-[11px]">
+            <div class="font-mono font-bold text-emerald-300 flex items-center gap-1.5">
+              <span>🌍 SPIN-OFF NASA ISS → TIERRA:</span>
+            </div>
+            <p class="text-slate-300 mt-0.5 leading-snug">
+              <strong>Niebla Fina de Agua (Fine Water Mist):</strong> Microgotas (&lt;100 µm) creadas para sustituir al Halón en la ISS hoy protegen museos, cabinas de aviones, hospitales y centros de datos sin dañar equipos.
+            </p>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ===================================================================== -->
+      <!-- CO-PILOTO DE IA (INTERPRETAR ESTE ESCENARIO CON IA)                   -->
+      <!-- ===================================================================== -->
+      <div class="bg-[#0c1322] border border-cyan-500/40 rounded-2xl p-4 shadow-xl glow-cyan">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
+          <div class="flex items-center gap-2">
+            <div class="w-7 h-7 rounded-lg bg-cyan-500/20 border border-cyan-400/50 flex items-center justify-center text-cyan-300 font-mono font-bold text-xs">
+              AI
+            </div>
+            <div>
+              <h3 class="text-xs font-mono font-bold uppercase tracking-wider text-white">
+                CO-PILOTO DE INGENIERÍA PSI (SÍNTESIS INTELIGENTE)
+              </h3>
+              <p class="text-[11px] text-slate-400">
+                Analiza el Top 3 rankeado y genera directrices accionables de seguridad contra incendios
+              </p>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <select id="ai-persona-select" class="bg-[#111b2e] border border-[#1e2f4d] text-xs font-mono text-slate-200 rounded-lg px-2.5 py-2 focus:outline-none focus:border-cyan-400">
+              <option value="engineer">Perfil: Ingeniero de Sistemas NASA</option>
+              <option value="student">Perfil: Estudiante / Divulgación</option>
+            </select>
+            <button onclick="runAICopilot()" class="px-3.5 py-2 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-[#060a12] font-mono font-bold text-xs transition shadow-lg shadow-cyan-500/20 whitespace-nowrap">
+              ✨ Interpretar este escenario con IA
+            </button>
+          </div>
+        </div>
+
+        <!-- Terminal de salida del Co-Piloto IA -->
+        <div id="ai-copilot-output" class="bg-[#050811] border border-[#1e2f4d] rounded-xl p-3.5 font-mono text-xs text-slate-300 leading-relaxed space-y-2">
+          <div class="text-cyan-400">&gt; SISTEMA LISTO. Selecciona un hábitat o ajusta los parámetros y presiona "Interpretar este escenario con IA" para generar el dictamen técnico basado en el PSI.</div>
+        </div>
+      </div>
+
+    </section>
+  </main>
+
+  <!-- MODAL DE BITÁCORA REAL: CAMPAÑA ACME / CLD FLAME 17319 (18 PRUEBAS) -->
+  <div id="acme-modal" class="fixed inset-0 z-50 hidden bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-[#0c1322] border border-cyan-500/50 rounded-2xl max-w-4xl w-full max-h-[85vh] flex flex-col shadow-2xl overflow-hidden">
+      <div class="px-5 py-3.5 bg-[#111b2e] border-b border-[#1e2f4d] flex items-center justify-between">
+        <div>
+          <h3 class="text-sm font-mono font-bold text-cyan-300">
+            BITÁCORA REAL PSI // CAMPAÑA ACME - CLD FLAME (15 NOV 2017 - DÍA JULIANO 319)
+          </h3>
+          <p class="text-xs text-slate-400">
+            18 pruebas ejecutadas en ISS CIR (10 igniciones exitosas, 5 sin ignición, 3 abortadas) • Investigador: Dennis Stocker
+          </p>
+        </div>
+        <button onclick="closeAcmeCampaignModal()" class="px-3 py-1.5 rounded-lg bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/40 font-mono text-xs">
+          Cerrar [ESC]
+        </button>
+      </div>
+      <div class="p-4 overflow-y-auto space-y-3">
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs font-mono">
+          <div class="p-2.5 rounded-xl bg-[#090f1c] border border-[#1e2f4d]">
+            <span class="text-slate-400">Atmósfera Cámara:</span> <span class="text-white font-bold">21% O₂ / 79% N₂</span>
+          </div>
+          <div class="p-2.5 rounded-xl bg-[#090f1c] border border-[#1e2f4d]">
+            <span class="text-slate-400">Combustible:</span> <span class="text-white font-bold">40% CH₄ (Metano)</span>
+          </div>
+          <div class="p-2.5 rounded-xl bg-[#090f1c] border border-[#1e2f4d]">
+            <span class="text-slate-400">Auditoría Imágenes C1A:</span> <span class="text-amber-300 font-bold">3 FCI / 60 TIF faltantes</span>
+          </div>
+        </div>
+        <div class="overflow-x-auto border border-[#1e2f4d] rounded-xl">
+          <table class="w-full text-left border-collapse text-xs font-mono">
+            <thead>
+              <tr class="bg-[#111b2e] text-cyan-300 border-b border-[#1e2f4d]">
+                <th class="py-2 px-3">#</th>
+                <th class="py-2 px-3">ID Prueba</th>
+                <th class="py-2 px-3">GMT</th>
+                <th class="py-2 px-3">Velocidad</th>
+                <th class="py-2 px-3">Estado</th>
+                <th class="py-2 px-3">Notas Experimentales</th>
+              </tr>
+            </thead>
+            <tbody id="acme-tests-tbody" class="divide-y divide-[#1e2f4d]/60 text-slate-300">
+              <!-- Se llena dinámicamente -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- JAVASCRIPT: DATASET MAESTRO PSI + MOTOR DE SIMILITUD + THREE.JS + UI  -->
+  <!-- ===================================================================== -->
+  <script>
+    // 1. DATASET MAESTRO INCRUSTADO (15 EXPERIMENTOS REALES DEL PSI + PRESETS + TELEMETRÍA)
+    const PSI_MASTER_DATA = {
+      habitat_presets: [
+        {
+          id: "lunar_base_south_pole",
+          name: "Base Hábitat Principal (Polo Sur)",
+          environment: "Luna",
+          gravity_label: "1/6g",
+          o2_pct: 34.0,
+          pressure_psi: 8.2,
+          airflow_cm_s: 15.0,
+          predominant_fuel: "solido",
+          lat: "89.54° S",
+          lon: "00.00° E",
+          cameraTarget: { x: 0, y: -1.15, z: 1.55 },
+          description: "Atmósfera de exploración enriquecida en oxígeno a baja presión para reducir pre-respiración EVA; alta carga de polímeros y cables."
+        },
+        {
+          id: "pressurized_rover",
+          name: "Rover Presurizado de Exploración",
+          environment: "Luna",
+          gravity_label: "1/6g",
+          o2_pct: 32.0,
+          pressure_psi: 8.5,
+          airflow_cm_s: 25.0,
+          predominant_fuel: "solido",
+          lat: "84.20° S",
+          lon: "28.40° E",
+          cameraTarget: { x: 1.1, y: -0.7, z: 1.75 },
+          description: "Cabina compacta móvil con ventilación forzada continua para control térmico y alta exposición a polvo lunar fino."
+        },
+        {
+          id: "eva_airlock",
+          name: "Esclusa de Descompresión (Airlock - EVA)",
+          environment: "Luna / Órbita",
+          gravity_label: "1/6g",
+          o2_pct: 100.0,
+          pressure_psi: 4.3,
+          airflow_cm_s: 5.0,
+          predominant_fuel: "solido",
+          lat: "89.50° S",
+          lon: "01.10° W",
+          cameraTarget: { x: -0.9, y: -1.0, z: 1.75 },
+          description: "Entorno crítico previo a caminata espacial con oxígeno puro (100% O₂) a 4.3 psi; riesgo extremo de ignición en trajes y sellos."
+        },
+        {
+          id: "gateway_station",
+          name: "Estación Orbital Gateway (Microgravedad)",
+          environment: "Órbita",
+          gravity_label: "0g",
+          o2_pct: 21.0,
+          pressure_psi: 14.7,
+          airflow_cm_s: 20.0,
+          predominant_fuel: "gas",
+          lat: "ÓRBITA NRHO",
+          lon: "ALT 3,000 km",
+          cameraTarget: { x: 1.45, y: 1.15, z: 2.1 },
+          description: "Condiciones estándar tipo ISS en microgravedad pura (0g) con circulación de aire forzada por racks de aviónica."
+        }
+      ],
+      experiments: [
+        {
+          id: "ACME_CLD_FLAME",
+          nombre: "ACME - CLD Flame (Coflow Laminar Diffusion Flame)",
+          hardware: "CIR (Combustion Integrated Rack) - ISS",
+          gravedad: "0g",
+          tipo_combustible: ["gas"],
+          rango_o2: [21, 21],
+          presion_psi: [14.7, 14.7],
+          velocidad_flujo_cm_s: [10, 40],
+          hallazgo_clave: "En 0g con coflujo controlado (10-40 cm/s), las llamas de metano diluido (40% CH₄) se estabilizan como llamas elevadas (lifted) sin hollín; el tiempo de cebado y energía del encendedor definen el éxito de ignición.",
+          aplicacion_tierra: "Optimización de quemadores industriales limpios de bajas emisiones y validación de modelos de extinción.",
+          is_efield_analog: false
+        },
+        {
+          id: "ACME_BRE",
+          nombre: "ACME - BRE (Burning Rate Emulator)",
+          hardware: "CIR (Combustion Integrated Rack) - ISS",
+          gravedad: "0g",
+          tipo_combustible: ["gas", "solido"],
+          rango_o2: [18, 35],
+          presion_psi: [10.0, 14.7],
+          velocidad_flujo_cm_s: [0, 10],
+          hallazgo_clave: "Demostró que quemadores gaseosos porosos emulan con precisión la tasa de combustión e inflamabilidad de materiales sólidos reales (polímeros, telas) en baja gravedad.",
+          aplicacion_tierra: "Pruebas rápidas de inflamabilidad de materiales compuestos y polímeros para aviación y construcción.",
+          is_efield_analog: false
+        },
+        {
+          id: "ACME_EFIELD",
+          nombre: "ACME - E-FIELD Flames (Electric-Field Effects)",
+          hardware: "CIR (Combustion Integrated Rack) - ISS",
+          gravedad: "0g",
+          tipo_combustible: ["gas"],
+          rango_o2: [21, 30],
+          presion_psi: [14.7, 14.7],
+          velocidad_flujo_cm_s: [0, 15],
+          hallazgo_clave: "Los campos eléctricos generan un 'viento iónico' en 0g que imita la flotabilidad de gravedad parcial (Luna 1/6g y Marte 3/8g), permitiendo acotar convección reducida.",
+          aplicacion_tierra: "Control activo de llamas mediante campos eléctricos para aumentar eficiencia y reducir hollín en calderas.",
+          is_efield_analog: true
+        },
+        {
+          id: "ACME_CFIG",
+          nombre: "ACME - CFI-G (Cool Flames Investigation with Gases)",
+          hardware: "CIR (Combustion Integrated Rack) - ISS",
+          gravedad: "0g",
+          tipo_combustible: ["gas"],
+          rango_o2: [21, 35],
+          presion_psi: [14.7, 29.4],
+          velocidad_flujo_cm_s: [0, 15],
+          hallazgo_clave: "Confirmó llamas frías gaseosas autosostenidas (~400°C, invisibles al ojo) que emiten formaldehído (CH₂O) y CO sin radiación térmica visible intensa.",
+          aplicacion_tierra: "Motores de combustión a baja temperatura (HCCI) ultraeficientes y prevención de autoignición.",
+          is_efield_analog: false
+        },
+        {
+          id: "BASS",
+          nombre: "BASS (Burning and Suppression of Solids)",
+          hardware: "MSG (Microgravity Science Glovebox) - ISS",
+          gravedad: "0g",
+          tipo_combustible: ["solido"],
+          rango_o2: [15, 25],
+          presion_psi: [14.7, 14.7],
+          velocidad_flujo_cm_s: [0, 30],
+          hallazgo_clave: "En baja gravedad, sólidos como PMMA y algodón arden a menor concentración de O₂ que en la Tierra cuando un flujo lento (5–15 cm/s) aporta oxidante sin enfriar la llama.",
+          aplicacion_tierra: "Mejora de estándares contra incendios en edificios con ventilación mecánica y ductos HVAC.",
+          is_efield_analog: false
+        },
+        {
+          id: "BASS_II",
+          nombre: "BASS-II (Burning and Suppression of Solids - II)",
+          hardware: "MSG (Microgravity Science Glovebox) - ISS",
+          gravedad: "0g",
+          tipo_combustible: ["solido"],
+          rango_o2: [18, 35],
+          presion_psi: [8.2, 14.7],
+          velocidad_flujo_cm_s: [1, 50],
+          hallazgo_clave: "Evaluó atmósferas de exploración (34% O₂ / 8.2 psi): la velocidad de propagación de llama en telas Nomex y polímeros crece drásticamente con el O₂ y exige mayor flujo de extinción.",
+          aplicacion_tierra: "Diseño de textiles ignífugos avanzados para bomberos, aviación comercial y cámaras hiperbáricas.",
+          is_efield_analog: false
+        },
+        {
+          id: "SAFFIRE_I_III",
+          nombre: "Saffire I, II y III (Spacecraft Fire Safety Demo)",
+          hardware: "Nave de carga Cygnus (post-desacople ISS)",
+          gravedad: "0g",
+          tipo_combustible: ["solido"],
+          rango_o2: [21, 34],
+          presion_psi: [8.2, 14.7],
+          velocidad_flujo_cm_s: [5, 30],
+          hallazgo_clave: "Incendios a gran escala (0.4 × 1.0 m) en naves espaciales: en atmósferas enriquecidas en O₂ con ventilación, la propagación sobre materiales reales es exponencial.",
+          aplicacion_tierra: "Validación de simuladores CFD (FDS) para diseño de evacuación y control de humo en túneles y rascacielos.",
+          is_efield_analog: false
+        },
+        {
+          id: "SAME",
+          nombre: "SAME (Smoke and Aerosol Measurement Experiment)",
+          hardware: "MSG (Microgravity Science Glovebox) - ISS",
+          gravedad: "0g",
+          tipo_combustible: ["solido"],
+          rango_o2: [21, 21],
+          presion_psi: [14.7, 14.7],
+          velocidad_flujo_cm_s: [0, 15],
+          hallazgo_clave: "En microgravedad las partículas de humo se aglomeran formando agregados mayores que en la Tierra, alterando la respuesta de detectores ópticos frente a los de ionización.",
+          aplicacion_tierra: "Calibración de detectores de humo domésticos e industriales de doble sensor contra falsas alarmas.",
+          is_efield_analog: false
+        },
+        {
+          id: "SAME_R",
+          nombre: "SAME-R (Smoke and Aerosol Measurement - Reflight)",
+          hardware: "MSG (Microgravity Science Glovebox) - ISS",
+          gravedad: "0g",
+          tipo_combustible: ["solido"],
+          rango_o2: [21, 30],
+          presion_psi: [10.0, 14.7],
+          velocidad_flujo_cm_s: [5, 25],
+          hallazgo_clave: "Caracterizó humo de combustión sin llama (smoldering) en cables y plásticos bajo ventilación forzada, demostrando que los sensores deben ubicarse en los retornos de aire.",
+          aplicacion_tierra: "Detección temprana de incendios latentes en centros de datos, submarinos y cabinas de aeronaves.",
+          is_efield_analog: false
+        },
+        {
+          id: "DAFT",
+          nombre: "DAFT / DAFT-2 (Dust & Aerosol Feasibility Test)",
+          hardware: "ISS / MSG (instrumentación derivada de SAME)",
+          gravedad: "0g",
+          tipo_combustible: ["solido"],
+          rango_o2: [21, 34],
+          presion_psi: [8.2, 14.7],
+          velocidad_flujo_cm_s: [5, 30],
+          hallazgo_clave: "Permitió diferenciar mediante dispersión óptica las partículas de polvo en suspensión frente al humo real, evitando falsas alarmas por regolito lunar en hábitats.",
+          aplicacion_tierra: "Monitoreo de calidad del aire en minería, industria farmacéutica y detección de fuego en ambientes polvorientos.",
+          is_efield_analog: false
+        },
+        {
+          id: "FLEX",
+          nombre: "FLEX (Flame Extinguishment Experiment)",
+          hardware: "CIR (Combustion Integrated Rack) - ISS",
+          gravedad: "0g",
+          tipo_combustible: ["liquido"],
+          rango_o2: [15, 30],
+          presion_psi: [10.0, 29.4],
+          velocidad_flujo_cm_s: [0, 5],
+          hallazgo_clave: "Determinó las concentraciones mínimas de CO₂, N₂ y Helio para extinguir gotas de combustible líquido en 0g, probando que el Helio apaga llamas más rápido por difusión térmica.",
+          aplicacion_tierra: "Formulación de agentes limpios de extinción para sustituir halones en aviación y salas de servidores.",
+          is_efield_analog: false
+        },
+        {
+          id: "FLEX_2",
+          nombre: "FLEX-2 (Flame Extinguishment Experiment - 2)",
+          hardware: "CIR (Combustion Integrated Rack) - ISS",
+          gravedad: "0g",
+          tipo_combustible: ["liquido"],
+          rango_o2: [18, 35],
+          presion_psi: [14.7, 29.4],
+          velocidad_flujo_cm_s: [0, 10],
+          hallazgo_clave: "Descubrió la combustión en dos etapas en gotas líquidas: tras extinguirse la llama caliente visible, la gota sigue ardiendo mediante una 'llama fría' invisible a ~400°C.",
+          aplicacion_tierra: "Diseño de aditivos antidetonantes y mejora en inyección de combustibles diésel y de aviación.",
+          is_efield_analog: false
+        },
+        {
+          id: "CFI",
+          nombre: "CFI (Cool Flames Investigation)",
+          hardware: "CIR (Combustion Integrated Rack) - ISS",
+          gravedad: "0g",
+          tipo_combustible: ["liquido"],
+          rango_o2: [21, 35],
+          presion_psi: [14.7, 29.4],
+          velocidad_flujo_cm_s: [0, 5],
+          hallazgo_clave: "Advierte que la desaparición de luz visible no garantiza extinción total: las llamas frías químicas pueden reignitar violentamente si se restaura la ventilación o el oxígeno.",
+          aplicacion_tierra: "Prevención de explosiones por reignición retardada (backdraft) en almacenamiento de hidrocarburos.",
+          is_efield_analog: false
+        },
+        {
+          id: "SPICE",
+          nombre: "SPICE (Smoke Point in Co-flow Experiment)",
+          hardware: "MSG (Microgravity Science Glovebox) - ISS",
+          gravedad: "0g",
+          tipo_combustible: ["gas"],
+          rango_o2: [21, 21],
+          presion_psi: [14.7, 14.7],
+          velocidad_flujo_cm_s: [5, 35],
+          hallazgo_clave: "Midió el punto de humo laminar en microgravedad, demostrando que las llamas sin flotabilidad emiten hollín a tasas menores debido al mayor tiempo de residencia.",
+          aplicacion_tierra: "Reducción de emisiones de carbono negro (hollín) en turbinas a reacción y quemadores.",
+          is_efield_analog: false
+        },
+        {
+          id: "SLICE",
+          nombre: "SLICE (Structure and Liftoff In Combustion)",
+          hardware: "MSG (Microgravity Science Glovebox) - ISS",
+          gravedad: "0g",
+          tipo_combustible: ["gas"],
+          rango_o2: [21, 21],
+          presion_psi: [14.7, 14.7],
+          velocidad_flujo_cm_s: [10, 45],
+          hallazgo_clave: "Estudió el despegue (liftoff) y soplado (blowout) de llamas de gas en coflujo, estableciendo cuándo una corriente de aire extingue una fuga frente a cuándo la estabiliza.",
+          aplicacion_tierra: "Diseño seguro de ventilación de emergencia ante fugas de gas natural o hidrógeno.",
+          is_efield_analog: false
+        }
+      ],
+      acme_17319_tests: [
+        { n: 1, id: "17319A1", gmt: "319:14:57", vel: "10 cm/s", status: "no ignition", note: "Sin ignición; cebado ajustado a 9s, detenido prematuramente." },
+        { n: 2, id: "17319A2", gmt: "319:15:15", vel: "10 cm/s (sin coflujo)", status: "no ignition", note: "Sin coflujo en ignición; detenido a los 9s." },
+        { n: 3, id: "17319F1", gmt: "319:16:32", vel: "40 cm/s fuel", status: "flame", note: "Ignición probable, llama elevada (lifted) al final de rampa." },
+        { n: 4, id: "17319F2", gmt: "319:17:11", vel: "40 fuel / 5-40 coflow", status: "flame", note: "Encendió, llama elevada, ardió hasta el final de prueba." },
+        { n: 5, id: "17319E1", gmt: "319:18:03", vel: "30 cm/s", status: "abort", note: "Venteo a 14.73 psia; abortada por límite de tiempo." },
+        { n: 6, id: "17319E2", gmt: "319:18:19", vel: "30 cm/s", status: "no ignition", note: "Sin ignición; tiempo de cebado era de solo 2s." },
+        { n: 7, id: "17319E3", gmt: "319:18:35", vel: "30 cm/s", status: "flame", note: "Ignición exitosa al ajustar cebado a 1s." },
+        { n: 8, id: "17319C1", gmt: "319:18:55", vel: "20 fuel / 5-20 coflow", status: "flame", note: "Ignición exitosa y combustión estable (3 FCI / 60 TIF perdidos)." },
+        { n: 9, id: "17319C2", gmt: "319:19:15", vel: "20 fuel / 10-20 coflow", status: "flame", note: "Llama estable durante toda la duración de la prueba." },
+        { n: 10, id: "17319D1", gmt: "319:19:35", vel: "20 cm/s ambos", status: "abort", note: "Abortada antes de apagar LEDs o iniciar flujo de gas." },
+        { n: 11, id: "17319D2", gmt: "319:19:50", vel: "20 cm/s ambos", status: "flame", note: "Repetición de D1 exitosa, llama elevada sin hollín." },
+        { n: 12, id: "17319H1", gmt: "319:20:10", vel: "20 cm/s (40→30% CH₄)", status: "flame", note: "Pico de N₂ aumentó momentáneamente tamaño de llama, luego estable." },
+        { n: 13, id: "17319D3", gmt: "319:20:30", vel: "20 cm/s ambos", status: "no ignition", note: "Voltaje de encendedor reducido; sin ignición aparente." },
+        { n: 14, id: "17319D4", gmt: "319:20:51", vel: "20 cm/s", status: "abort", note: "Voltaje a 4V, 1.5s ignición; abortada temprano." },
+        { n: 15, id: "17319D5", gmt: "319:20:55", vel: "20 cm/s", status: "flame", note: "Ignición exitosa con tiempos reducidos del encendedor." },
+        { n: 16, id: "17319A3", gmt: "319:21:31", vel: "10 cm/s igualados", status: "flame", note: "PRUEBA DE TELEMETRÍA: 5s estabilización, llama estable 6s (66.3–71.8s)." },
+        { n: 17, id: "17319H2", gmt: "319:21:52", vel: "20 cm/s (40-30%)", status: "no ignition", note: "Sin ignición, terminada temprano." },
+        { n: 18, id: "17319H3", gmt: "319:21:57", vel: "20 cm/s (40-30%)", status: "flame", note: "Ignición exitosa aumentando duración encendedor (2000 ms)." }
+      ]
+    };
+
+    // 2. ESTADO REACTIVO DEL SIMULADOR
+    const state = {
+      presetId: "lunar_base_south_pole",
+      gravity: "1/6g",
+      o2: 34.0,
+      psi: 8.2,
+      flow: 15,
+      fuel: "solido",
+      telemetryChannel: "all",
+      lastTop3: [],
+      lastRiskScore: 82
+    };
+
+    // 3. MOTOR DE SIMILITUD Y DIAGNÓSTICO PSI
+    function computePSIDiagnosis() {
+      const { gravity, o2, psi, flow, fuel } = state;
+
+      // A. Calcular puntaje de similitud (0 - 100%) contra los 15 experimentos PSI
+      const ranked = PSI_MASTER_DATA.experiments.map(exp => {
+        // 1) Coincidencia de combustible (35%)
+        let fuelScore = 0;
+        if (exp.tipo_combustible.includes(fuel)) {
+          fuelScore = exp.tipo_combustible.length === 1 ? 100 : 88;
+        } else if (
+          (fuel === "solido" && exp.tipo_combustible.includes("gas")) ||
+          (fuel === "gas" && exp.tipo_combustible.includes("solido"))
+        ) {
+          fuelScore = 25;
+        } else {
+          fuelScore = 10;
+        }
+
+        // 2) Rango de O2 (30%)
+        const [minO2, maxO2] = exp.rango_o2;
+        let o2Score = 100;
+        if (o2 < minO2) {
+          o2Score = Math.max(0, 100 - (minO2 - o2) * 3.2);
+        } else if (o2 > maxO2) {
+          // Si o2 > 35 (ej. EVA 100%), premiar los que llegaron hasta 34-35%
+          const effectiveO2 = Math.min(o2, 45);
+          o2Score = Math.max(15, 100 - (effectiveO2 - maxO2) * 3.0);
+        }
+
+        // 3) Velocidad de flujo (20%)
+        const [minF, maxF] = exp.velocidad_flujo_cm_s;
+        let flowScore = 100;
+        if (flow < minF) {
+          flowScore = Math.max(0, 100 - (minF - flow) * 4);
+        } else if (flow > maxF) {
+          flowScore = Math.max(0, 100 - (flow - maxF) * 3.5);
+        }
+
+        // 4) Régimen de gravedad / análogo E-FIELD (15%)
+        let gravScore = 70;
+        if (gravity === "0g") {
+          gravScore = exp.gravedad === "0g" ? 100 : 75;
+        } else {
+          // En 1/6g o 3/8g, premiar experimentos análogos de convección/flujo o E-FIELD
+          gravScore = exp.is_efield_analog ? 100 : 72;
+        }
+
+        const totalScore = Math.round(
+          fuelScore * 0.35 + o2Score * 0.30 + flowScore * 0.20 + gravScore * 0.15
+        );
+
+        return {
+          ...exp,
+          similarity: Math.min(99, Math.max(12, totalScore))
+        };
+      }).sort((a, b) => b.similarity - a.similarity);
+
+      const top3 = ranked.slice(0, 3);
+      state.lastTop3 = top3;
+
+      // B. Calcular Índice de Riesgo (0 - 100)
+      let risk = 20;
+      // Factor Oxígeno
+      if (o2 > 21) risk += (o2 - 21) * 1.45;
+      if (o2 >= 50) risk += 15;
+      // Factor Flujo de aire (en baja gravedad el flujo alimenta la llama)
+      if (flow >= 5 && flow <= 35) risk += 16;
+      else if (flow > 35) risk += 10;
+      else risk += 4;
+      // Factor Combustible
+      if (fuel === "gas") risk += 14;
+      else if (fuel === "liquido") risk += 11;
+      else risk += 9;
+      // Factor Gravedad (en baja gravedad no hay flotabilidad que disipe calor ni humo)
+      if (gravity === "0g") risk += 8;
+      else if (gravity === "1/6g") risk += 6;
+      else risk += 4;
+
+      risk = Math.min(100, Math.max(8, Math.round(risk)));
+      state.lastRiskScore = risk;
+
+      updateUI(top3, risk);
+    }
+
+    // 4. ACTUALIZAR INTERFAZ Y LAS 4 TARJETAS DE DIAGNÓSTICO
+    function updateUI(top3, risk) {
+      // Actualizar displays numéricos
+      document.getElementById("o2-val-display").textContent = `${state.o2.toFixed(1)} % O₂`;
+      document.getElementById("psi-val-display").textContent = `${state.psi.toFixed(1)} psi`;
+      document.getElementById("flow-val-display").textContent = `${state.flow} cm/s`;
+      const ppo2 = (state.psi * (state.o2 / 100));
+      const kpa = ppo2 * 6.89476;
+      document.getElementById("ppo2-display").textContent = `${ppo2.toFixed(2)} psi (${kpa.toFixed(1)} kPa)`;
+      document.getElementById("flame-flow-label").textContent = `${state.flow} cm/s`;
+
+      // HUD 3D
+      const gravLabels = {
+        "0g": "0g (Microgravedad)",
+        "1/6g": "1/6g (1.62 m/s²)",
+        "3/8g": "3/8g (3.72 m/s²)"
+      };
+      document.getElementById("hud-grav").textContent = gravLabels[state.gravity];
+
+      // --- TARJETA A: RIESGO Y COMPORTAMIENTO DE LLAMA ---
+      const riskBadge = document.getElementById("risk-badge");
+      const riskBar = document.getElementById("risk-bar");
+      riskBar.style.width = `${risk}%`;
+
+      if (risk >= 70) {
+        riskBadge.className = "px-2.5 py-0.5 rounded-full text-xs font-mono font-bold bg-rose-500/20 text-rose-300 border border-rose-500/50";
+        riskBadge.textContent = `CRÍTICO (${risk}/100)`;
+      } else if (risk >= 42) {
+        riskBadge.className = "px-2.5 py-0.5 rounded-full text-xs font-mono font-bold bg-amber-500/20 text-amber-300 border border-amber-500/50";
+        riskBadge.textContent = `MODERADO (${risk}/100)`;
+      } else {
+        riskBadge.className = "px-2.5 py-0.5 rounded-full text-xs font-mono font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/50";
+        riskBadge.textContent = `BAJO (${risk}/100)`;
+      }
+
+      // Descripción física de comportamiento de llama
+      let behaviorText = "";
+      if (state.gravity === "0g") {
+        behaviorText = state.flow < 5
+          ? "En 0g sin ventilación, la llama adopta una esfera azul tenue controlada exclusivamente por difusión molecular; puede autoextinguirse por acumulación de CO₂ o transicionar a llama fría."
+          : `En 0g con flujo forzado de ${state.flow} cm/s, la llama se alarga en dirección al flujo (estela laminar), recibiendo suministro continuo de O₂ (${state.o2}%) sin convección ascendente.`;
+      } else if (state.gravity === "1/6g") {
+        behaviorText = `En gravedad lunar (1/6g) con ${state.o2}% O₂ y ${state.flow} cm/s, la flotabilidad es 6 veces menor que en la Tierra: la llama se inclina fuertemente con el viento de ventilación, precalentando materiales aguas abajo.`;
+      } else {
+        behaviorText = `En gravedad marciana (3/8g) con ${state.o2}% O₂, existe convección ascendente moderada combinada con el arrastre lateral del flujo de aire (${state.flow} cm/s).`;
+      }
+      document.getElementById("card-a-behavior").textContent = behaviorText;
+
+      // Avisos científicos explícitos del PSI
+      const alertsContainer = document.getElementById("card-a-alerts");
+      let alertsHTML = "";
+
+      if (state.gravity === "1/6g") {
+        alertsHTML += `
+          <div class="p-2 rounded-lg bg-amber-500/10 border border-amber-500/35 text-amber-200 leading-snug">
+            <strong>📡 BRECHA DE DATOS PSI (1/6g):</strong> Aún no existen datos reales en gravedad lunar en PSI (en espera de misiones <strong>LUCI</strong> y <strong>FM2</strong>). El motor acota el riesgo interpolando entre <strong>0g</strong> y <strong>1g</strong>.
+          </div>`;
+      } else if (state.gravity === "3/8g") {
+        alertsHTML += `
+          <div class="p-2 rounded-lg bg-amber-500/10 border border-amber-500/35 text-amber-200 leading-snug">
+            <strong>📡 PROYECCIÓN MARCIANA (3/8g):</strong> Sin experimentos directos en PSI; acotado mediante modelos de flotabilidad parcial entre <strong>0g</strong> y <strong>1g</strong>.
+          </div>`;
+      }
+
+      if (state.flow <= 15 || state.gravity !== "0g") {
+        alertsHTML += `
+          <div class="p-2 rounded-lg bg-cyan-500/10 border border-cyan-500/30 text-cyan-200 leading-snug">
+            <strong>⚡ ANÁLOGO ACME (E-FIELD Flames):</strong> Usó campos eléctricos en 0g (viento iónico) para simular los efectos de flotabilidad reducida en gravedad parcial.
+          </div>`;
+      }
+
+      if (state.o2 > 30) {
+        alertsHTML += `
+          <div class="p-2 rounded-lg bg-rose-500/15 border border-rose-500/40 text-rose-200 leading-snug">
+            <strong>🚨 ALERTA O₂ &gt; 30% (BASS-II / Saffire I-III):</strong> Incremento exponencial en velocidad de propagación de llama y reducción crítica del tiempo de respuesta de la tripulación.
+          </div>`;
+      }
+      alertsContainer.innerHTML = alertsHTML;
+
+      // --- TARJETA B: TOP 3 EXPERIMENTOS PSI ---
+      const rankingList = document.getElementById("ranking-list");
+      rankingList.innerHTML = top3.map((exp, idx) => {
+        const badgeColor = idx === 0
+          ? "bg-cyan-500/20 text-cyan-300 border-cyan-400/50"
+          : "bg-[#111b2e] text-slate-300 border-[#1e2f4d]";
+        return `
+          <div class="p-2.5 rounded-xl bg-[#111b2e] border ${idx === 0 ? 'border-cyan-500/50' : 'border-[#1e2f4d]'}">
+            <div class="flex items-center justify-between gap-2">
+              <div class="font-bold text-xs text-white truncate">
+                <span class="text-cyan-400 font-mono">#${idx + 1}</span> ${exp.nombre}
+              </div>
+              <span class="px-2 py-0.5 rounded font-mono text-[11px] font-bold border ${badgeColor} shrink-0">
+                ${exp.similarity}% match
+              </span>
+            </div>
+            <div class="w-full h-1.5 bg-[#060a12] rounded-full overflow-hidden my-1.5">
+              <div class="h-full bg-cyan-400" style="width: ${exp.similarity}%"></div>
+            </div>
+            <div class="text-[10px] font-mono text-amber-300/90 mb-1">Hardware: ${exp.hardware}</div>
+            <p class="text-[11px] text-slate-300 leading-snug">${exp.hallazgo_clave}</p>
+          </div>
+        `;
+      }).join("");
+
+      // --- TARJETA C: ESTRATEGIA DE DETECCIÓN (SAME / SAME-R / DAFT-2) ---
+      const cardCMain = document.getElementById("card-c-main");
+      const cardCSensor = document.getElementById("card-c-sensor");
+      const cardCDust = document.getElementById("card-c-dust");
+
+      if (state.flow < 5) {
+        cardCMain.textContent = "Con flujo de aire casi nulo (<5 cm/s), el humo queda estancado formando una nube esférica alrededor del foco sin llegar a los detectores de techo.";
+        cardCSensor.textContent = "SAME demostró que en 0g/baja gravedad las partículas se aglomeran: usar detectores fotoeléctricos de alta sensibilidad cercanos a racks de electrónica.";
+      } else {
+        cardCMain.textContent = `En ${state.gravity} con ventilación de ${state.flow} cm/s, el humo no sube al techo: sigue las corrientes de aire y cambia la distribución de tamaño de sus aerosoles.`;
+        cardCSensor.textContent = "SAME-R recomienda ubicar sensores ópticos multi-longitud de onda directamente en las rejillas de retorno de ventilación.";
+      }
+
+      if (state.gravity === "1/6g" || state.gravity === "3/8g") {
+        cardCDust.textContent = "DAFT / DAFT-2: Discriminación óptica por dispersión angular obligatoria para distinguir humo real de polvo/regolito lunar en esclusas y rovers.";
+      } else {
+        cardCDust.textContent = "DAFT / DAFT-2: Calibración contra aerosoles de mantenimiento y pelusas en cabina orbital para evitar falsas alarmas.";
+      }
+
+      // --- TARJETA D: PROTOCOLO DE EXTINCIÓN ---
+      const cardDRef = document.getElementById("card-d-ref");
+      const cardDAgent = document.getElementById("card-d-agent");
+      const cardDWarning = document.getElementById("card-d-warning");
+
+      if (state.fuel === "solido") {
+        cardDRef.textContent = "BASS-II / SAFFIRE I-III";
+        cardDAgent.textContent = "Agente: Corte de ventilación HVAC + Niebla fina de agua / N₂ localizado";
+        cardDWarning.textContent = state.o2 > 30
+          ? "⚠️ ALERTA CRÍTICA (O₂ > 30%): La propagación en telas y polímeros es exponencial; cortar ventiladores de cabina de inmediato para privar de oxidante al fuego."
+          : "⚠️ En baja gravedad, apagar el flujo de aire detiene el suministro de oxidante antes de descargar el agente supresor.";
+      } else if (state.fuel === "liquido") {
+        cardDRef.textContent = "FLEX / FLEX-2 / CFI";
+        cardDAgent.textContent = "Agente: Dilución con gas inerte (Helio o CO₂) + Monitoreo IR/CH₂O";
+        cardDWarning.textContent = "⚠️ ALERTA COOL FLAMES (CFI / FLEX-2): Tras apagarse la llama visible, el combustible puede seguir ardiendo como 'llama fría' invisible (~400°C) y reignitar.";
+      } else {
+        cardDRef.textContent = "ACME CLD / SLICE / CFI-G";
+        cardDAgent.textContent = "Agente: Cierre remoto de válvula de gas + Aislamiento eléctrico";
+        cardDWarning.textContent = "⚠️ PROTOCOLO SLICE: Nunca extinguir la llama de un chorro de gas antes de cerrar la fuga, o se formará una nube explosiva en microgravedad.";
+      }
+
+      // Actualizar métricas de la tarjeta de Morfología de Llama
+      const baseTemp = 1850 + (state.o2 - 21) * 14;
+      document.getElementById("flame-temp-val").textContent = `~${Math.round(baseTemp).toLocaleString()} K`;
+      const spreadFactor = (1 + (state.o2 - 21) * 0.18 + (state.flow / 25) * 0.6).toFixed(1);
+      document.getElementById("flame-spread-val").textContent = `${spreadFactor}x (1g)`;
+      document.getElementById("flame-soot-val").textContent = state.fuel === "gas" && state.o2 <= 25 ? "Mínimo (Lifted)" : "Aglomerado";
+
+      const regimeTag = document.getElementById("flame-regime-tag");
+      if (state.gravity === "0g") {
+        regimeTag.textContent = state.flow < 5 ? "Difusión Esférica 0g" : "Estela Laminar Forzada";
+      } else if (state.gravity === "1/6g") {
+        regimeTag.textContent = "Flotabilidad Lunar 1/6g";
+      } else {
+        regimeTag.textContent = "Convección Marciana 3/8g";
+      }
+
+      document.getElementById("flame-geometry-desc").textContent = behaviorText;
+    }
+
+    // 5. CONTROLADORES DE EVENTOS DE USUARIO
+    function selectPreset(presetId) {
+      const preset = PSI_MASTER_DATA.habitat_presets.find(p => p.id === presetId);
+      if (!preset) return;
+
+      state.presetId = preset.id;
+      state.gravity = preset.gravity_label;
+      state.o2 = preset.o2_pct;
+      state.psi = preset.pressure_psi;
+      state.flow = preset.airflow_cm_s;
+      state.fuel = preset.predominant_fuel;
+
+      // Actualizar controles DOM
+      document.getElementById("o2-slider").value = state.o2;
+      document.getElementById("psi-slider").value = state.psi;
+      document.getElementById("flow-slider").value = state.flow;
+      document.getElementById("active-habitat-badge").textContent = preset.name;
+      document.getElementById("preset-description-banner").textContent = preset.description;
+      document.getElementById("hud-lat").textContent = preset.lat;
+      document.getElementById("hud-lon").textContent = preset.lon;
+
+      // Resaltar tarjetas rápidas
+      document.querySelectorAll(".preset-card").forEach(el => {
+        if (el.dataset.preset === presetId) {
+          el.classList.remove("border-[#1e2f4d]");
+          el.classList.add("border-cyan-400", "bg-cyan-950/30");
+        } else {
+          el.classList.remove("border-cyan-400", "bg-cyan-950/30");
+          el.classList.add("border-[#1e2f4d]");
+        }
+      });
+
+      // Resaltar botones de gravedad y combustible
+      syncButtonsUI();
+      focusCameraOnPreset(preset);
+      computePSIDiagnosis();
+    }
+
+    function syncButtonsUI() {
+      ["0g", "1/6g", "3/8g"].forEach(g => {
+        const btn = document.getElementById(`grav-btn-${g}`);
+        if (state.gravity === g) {
+          btn.className = "grav-btn py-2 px-2 rounded-lg border border-cyan-400 bg-cyan-500/20 text-cyan-300 transition font-semibold";
+        } else {
+          btn.className = "grav-btn py-2 px-2 rounded-lg border border-[#1e2f4d] bg-[#090f1c] text-slate-300 hover:border-cyan-400 transition font-semibold";
+        }
+      });
+
+      const fuelHints = {
+        solido: "Nomex, algodón, PMMA/acrílico, aislamiento de cables",
+        liquido: "Refrigerantes térmicos, alcoholes, hidrocarburos de prueba",
+        gas: "Metano (CH₄), etileno (C₂H₄), fugas de líneas presurizadas"
+      };
+      document.getElementById("fuel-detail-hint").textContent = fuelHints[state.fuel];
+
+      ["solido", "liquido", "gas"].forEach(f => {
+        const btn = document.getElementById(`fuel-btn-${f}`);
+        if (state.fuel === f) {
+          btn.className = "fuel-btn py-2 px-2 rounded-lg border border-cyan-400 bg-cyan-500/20 text-cyan-300 transition font-semibold";
+        } else {
+          btn.className = "fuel-btn py-2 px-2 rounded-lg border border-[#1e2f4d] bg-[#090f1c] text-slate-300 hover:border-cyan-400 transition font-semibold";
+        }
+      });
+    }
+
+    function setGravity(g) {
+      state.gravity = g;
+      syncButtonsUI();
+      computePSIDiagnosis();
+    }
+
+    function setFuel(f) {
+      state.fuel = f;
+      syncButtonsUI();
+      computePSIDiagnosis();
+    }
+
+    function onO2Change(val) {
+      state.o2 = parseFloat(val);
+      // Ajuste realista sugerido de presión inversa si el usuario explora atmósferas hipobáricas
+      computePSIDiagnosis();
+    }
+
+    function onPsiChange(val) {
+      state.psi = parseFloat(val);
+      computePSIDiagnosis();
+    }
+
+    function onFlowChange(val) {
+      state.flow = parseInt(val, 10);
+      computePSIDiagnosis();
+    }
+
+    // 6. CO-PILOTO DE IA (INTERPRETAR ESTE ESCENARIO CON IA)
+    function runAICopilot() {
+      const persona = document.getElementById("ai-persona-select").value;
+      const out = document.getElementById("ai-copilot-output");
+      const top1 = state.lastTop3[0];
+      const top2 = state.lastTop3[1];
+      const top3 = state.lastTop3[2];
+
+      out.innerHTML = `<div class="text-cyan-400 animate-pulse">&gt; Procesando telemetría PSI (${top1.id}, ${top2.id}, ${top3.id}) para perfil [${persona.toUpperCase()}]...</div>`;
+
+      setTimeout(() => {
+        if (persona === "engineer") {
+          out.innerHTML = `
+            <div class="text-cyan-300 font-bold">&gt; DICTAMEN DE INGENIERÍA DE SISTEMAS CONTRA INCENDIOS (NASA PSI ENGINE):</div>
+            <p class="text-slate-200">
+              • <strong>Evaluación Termodinámica:</strong> En régimen <span class="text-amber-300">${state.gravity}</span> con <span class="text-cyan-300">${state.o2}% O₂ / ${state.psi} psi</span> y ventilación de <span class="text-emerald-300">${state.flow} cm/s</span> sobre combustible <span class="text-white uppercase">${state.fuel}</span>, el índice de severidad alcanza <span class="text-rose-400 font-bold">${state.lastRiskScore}/100</span>.
+            </p>
+            <p class="text-slate-200">
+              • <strong>Anclaje Experimental PSI:</strong> La arquitectura del sistema debe dimensionarse usando los límites críticos de <strong>${top1.nombre}</strong> (${top1.similarity}% similitud) y <strong>${top2.nombre}</strong> (${top2.similarity}%). ${state.gravity === '1/6g' ? 'Dado que PSI aún espera las misiones lunares LUCI y FM2, aplique un factor de seguridad conservador acotando entre 0g (BASS-II/Saffire) y 1g, apoyado en el modelado de viento iónico de ACME E-FIELD.' : ''}
+            </p>
+            <p class="text-emerald-300">
+              • <strong>Acción Recomendada de Diseño:</strong> (1) Enclavamiento automático de corte de ventiladores HVAC al detectar ΔT o dispersión óptica en retornos (protocolo <em>SAME-R / DAFT-2</em>); (2) Boquillas de <em>Fine Water Mist</em> o dilución con Helio/CO₂ según protocolo <em>${top1.id}</em>.
+            </p>
+          `;
+        } else {
+          out.innerHTML = `
+            <div class="text-cyan-300 font-bold">&gt; EXPLICACIÓN CIENTÍFICA PARA EXPLORADORES Y ESTUDIANTES:</div>
+            <p class="text-slate-200">
+              • <strong>¿Cómo se comporta el fuego aquí?</strong> En la Tierra, el aire caliente sube y crea la típica llama alargada de una vela. Pero en <span class="text-amber-300">${state.gravity}</span> esa fuerza casi desaparece: el fuego depende de las corrientes de ventilación (<span class="text-emerald-300">${state.flow} cm/s</span>) para "respirar" oxígeno (<span class="text-cyan-300">${state.o2}%</span>).
+            </p>
+            <p class="text-slate-200">
+              • <strong>Lo que aprendió la NASA en el espacio:</strong> Gracias a experimentos reales en la Estación Espacial como <strong>${top1.nombre}</strong> y <strong>${top2.nombre}</strong>, sabemos que el humo no sube al techo (por eso los detectores van en los ductos de aire) y que incluso existen <em>"llamas frías"</em> invisibles a 400°C.
+            </p>
+            <p class="text-amber-300">
+              • <strong>Impacto en la Tierra:</strong> La tecnología de niebla fina de agua creada para proteger a los astronautas sin usar gases tóxicos hoy salva obras de arte en museos y pasajeros en aviones comerciales.
+            </p>
+          `;
+        }
+      }, 320);
+    }
+
+    // 7. MODAL DE BITÁCORA REAL ACME 17319
+    function openAcmeCampaignModal() {
+      const tbody = document.getElementById("acme-tests-tbody");
+      tbody.innerHTML = PSI_MASTER_DATA.acme_17319_tests.map(t => {
+        const badge = t.status === "flame"
+          ? `<span class="px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">IGNICIÓN</span>`
+          : t.status === "abort"
+          ? `<span class="px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/40">ABORTADA</span>`
+          : `<span class="px-1.5 py-0.5 rounded bg-rose-500/20 text-rose-300 border border-rose-500/40">SIN IGNICIÓN</span>`;
+        const highlight = t.id === "17319A3" ? "bg-cyan-950/40" : "";
+        return `
+          <tr class="${highlight} hover:bg-[#111b2e]/80">
+            <td class="py-2 px-3 text-slate-400">${t.n}</td>
+            <td class="py-2 px-3 font-bold text-white">${t.id}</td>
+            <td class="py-2 px-3 text-slate-400">${t.gmt}</td>
+            <td class="py-2 px-3 text-cyan-300">${t.vel}</td>
+            <td class="py-2 px-3">${badge}</td>
+            <td class="py-2 px-3 text-slate-300 font-sans">${t.note}</td>
+          </tr>
+        `;
+      }).join("");
+      document.getElementById("acme-modal").classList.remove("hidden");
+    }
+
+    function closeAcmeCampaignModal() {
+      document.getElementById("acme-modal").classList.add("hidden");
+    }
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") closeAcmeCampaignModal();
+    });
+
+    // 8. GRÁFICA DE TELEMETRÍA REAL PRUEBA ACME 17319A3 (CANVAS)
+    function setTelemetryChannel(ch) {
+      state.telemetryChannel = ch;
+      ["all", "flows", "radiometers", "pmt"].forEach(id => {
+        const btn = document.getElementById(`tel-btn-${id}`);
+        if (id === ch) {
+          btn.className = "px-2 py-1 rounded bg-cyan-500/20 text-cyan-300 border border-cyan-500/50";
+        } else {
+          btn.className = "px-2 py-1 rounded bg-[#111b2e] text-slate-300 border border-[#1e2f4d]";
+        }
+      });
+      drawTelemetryChart();
+    }
+
+    function drawTelemetryChart() {
+      const canvas = document.getElementById("telemetry-canvas");
+      if (!canvas) return;
+      const rect = canvas.parentElement.getBoundingClientRect();
+      canvas.width = rect.width * window.devicePixelRatio;
+      canvas.height = rect.height * window.devicePixelRatio;
+      const ctx = canvas.getContext("2d");
+      ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+
+      const w = rect.width;
+      const h = rect.height;
+      ctx.clearRect(0, 0, w, h);
+
+      // Rejilla de fondo
+      ctx.strokeStyle = "rgba(30, 47, 77, 0.45)";
+      ctx.lineWidth = 1;
+      for (let i = 1; i <= 4; i++) {
+        const y = (h / 5) * i;
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(w, y);
+        ctx.stroke();
+      }
+      for (let s = 10; s <= 70; s += 10) {
+        const x = (s / 80) * w;
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, h);
+        ctx.stroke();
+        ctx.fillStyle = "#64748b";
+        ctx.font = "9px JetBrains Mono";
+        ctx.fillText(`${s}s`, x + 2, h - 4);
+      }
+
+      // Franja de llama estable (66.3s - 71.8s)
+      const xStart = (66.3 / 80) * w;
+      const xEnd = (71.8 / 80) * w;
+      ctx.fillStyle = "rgba(0, 229, 255, 0.12)";
+      ctx.fillRect(xStart, 0, xEnd - xStart, h);
+
+      // Helper para trazar curvas basadas en los puntos exactos de 17319A3_data.csv
+      function plotSeries(points, maxVal, color) {
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 1.8;
+        ctx.beginPath();
+        points.forEach(([t, v], idx) => {
+          const x = (t / 80) * w;
+          const y = h - 14 - (v / maxVal) * (h - 26);
+          if (idx === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        });
+        ctx.stroke();
+      }
+
+      // Datos reales sintetizados de las curvas de 17319A3 (0s a 80s)
+      const mfca3Fuel = [
+        [0, 0], [45.8, 0], [46.2, 0.29], [47.5, 0.06], [51, 0.01], [60.0, 0.02],
+        [60.5, 1.40], [61.2, 1.10], [66.3, 1.09], [71.8, 1.10], [72.2, 0.15], [75, 0.02], [80, 0]
+      ];
+      const mfca1Coflow = [
+        [0, 0], [52.5, 0], [53.5, 0.12], [55.5, 0.25], [56.5, 0.51], [60, 0.61],
+        [66.3, 0.66], [71.8, 0.67], [72.5, 0.22], [76.8, 0.04], [80, 0.01]
+      ];
+      const radiometerOffset = [
+        [0, 0.05], [64.0, 0.05], [64.6, 1.25], [65.3, 1.86], [66.0, 0.18],
+        [66.3, 0.12], [71.8, 0.12], [72.3, 0.05], [80, 0.05]
+      ];
+      const pmt1Signal = [
+        [0, 4.52], [51.4, 4.52], [51.5, 0.02], [64.3, 0.02], [64.6, 4.50],
+        [65.6, 4.45], [66.0, 1.02], [71.8, 1.00], [72.1, 0.02], [80, 0.01]
+      ];
+
+      const ch = state.telemetryChannel;
+      if (ch === "all" || ch === "flows") {
+        plotSeries(mfca3Fuel, 1.6, "#ffb300");
+        plotSeries(mfca1Coflow, 1.6, "#00e5ff");
+      }
+      if (ch === "all" || ch === "radiometers") {
+        plotSeries(radiometerOffset, 2.0, "#ff3b5c");
+      }
+      if (ch === "all" || ch === "pmt") {
+        plotSeries(pmt1Signal, 4.8, "#00e676");
+      }
+    }
+
+    // 9. ANIMACIÓN DE LLAMA SIMULADA EN CANVAS 2D
+    let flameTick = 0;
+    function animateFlameCanvas() {
+      const canvas = document.getElementById("flame-canvas");
+      if (canvas) {
+        const rect = canvas.parentElement.getBoundingClientRect();
+        if (canvas.width !== Math.floor(rect.width) || canvas.height !== Math.floor(rect.height)) {
+          canvas.width = rect.width;
+          canvas.height = rect.height;
+        }
+        const ctx = canvas.getContext("2d");
+        const w = canvas.width;
+        const h = canvas.height;
+        ctx.clearRect(0, 0, w, h);
+
+        flameTick += 0.08;
+
+        // Líneas de flujo de aire (ventilación horizontal)
+        ctx.strokeStyle = "rgba(0, 229, 255, 0.18)";
+        ctx.lineWidth = 1;
+        const speed = Math.max(0.4, state.flow * 0.12);
+        for (let row = 22; row < h - 15; row += 26) {
+          const offset = (flameTick * speed * 14) % 45;
+          for (let x = -45 + offset; x < w; x += 45) {
+            ctx.beginPath();
+            ctx.moveTo(x, row);
+            ctx.lineTo(x + 18, row);
+            ctx.stroke();
+          }
+        }
+
+        // Quemador / punto de ignición
+        const bx = w * 0.34;
+        const by = h * 0.68;
+        ctx.fillStyle = "#334155";
+        ctx.fillRect(bx - 12, by, 24, 14);
+        ctx.fillStyle = "#00e5ff";
+        ctx.fillRect(bx - 12, by, 24, 2);
+
+        // Geometría dinámica según O2, Flujo y Gravedad
+        const o2Scale = 0.7 + (state.o2 / 100) * 0.95;
+        const tiltX = state.flow * 0.95 + Math.sin(flameTick * 1.4) * 2.5;
+        const liftY = state.gravity === "0g" ? 6 : state.gravity === "1/6g" ? 18 : 30;
+        const radius = (22 + Math.sin(flameTick * 2) * 1.8) * o2Scale;
+
+        // Halo exterior (amarillo/naranja o azul si es gas magro)
+        const grad = ctx.createRadialGradient(
+          bx + tiltX * 0.55, by - liftY * 0.55, 2,
+          bx + tiltX * 0.7, by - liftY * 0.7, radius * 1.35
+        );
+        if (state.fuel === "gas" && state.o2 <= 25) {
+          grad.addColorStop(0, "rgba(255, 255, 255, 0.95)");
+          grad.addColorStop(0.45, "rgba(0, 229, 255, 0.85)");
+          grad.addColorStop(1, "rgba(0, 100, 255, 0)");
+        } else {
+          grad.addColorStop(0, "rgba(255, 255, 255, 0.95)");
+          grad.addColorStop(0.35, "rgba(0, 229, 255, 0.75)");
+          grad.addColorStop(0.7, "rgba(255, 179, 0, 0.75)");
+          grad.addColorStop(1, "rgba(255, 59, 92, 0)");
+        }
+
+        ctx.fillStyle = grad;
+        ctx.beginPath();
+        ctx.ellipse(
+          bx + tiltX * 0.65,
+          by - liftY * 0.6,
+          radius * (1 + state.flow * 0.015),
+          radius * 0.82,
+          -Math.atan2(liftY, Math.max(8, tiltX)) * 0.45,
+          0,
+          Math.PI * 2
+        );
+        ctx.fill();
+      }
+      requestAnimationFrame(animateFlameCanvas);
+    }
+
+    // 10. ESCENARIO 3D LUNAR Y ESTACIÓN ORBITAL GATEWAY (THREE.JS)
+    let scene, camera, renderer, moonMesh, gatewayGroup;
+    let isDragging = false;
+    let prevMouse = { x: 0, y: 0 };
+    let targetRotation = { x: 0.25, y: 0.4 };
+    let targetCameraZ = 3.6;
+
+    function initThreeJS() {
+      const container = document.getElementById("three-container");
+      const width = container.clientWidth;
+      const height = container.clientHeight;
+
+      scene = new THREE.Scene();
+      camera = new THREE.PerspectiveCamera(42, width / height, 0.1, 100);
+      camera.position.set(0, 0.2, targetCameraZ);
+
+      renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+      renderer.setSize(width, height);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      container.appendChild(renderer.domElement);
+
+      // Estrellas de fondo
+      const starsGeo = new THREE.BufferGeometry();
+      const starCoords = [];
+      for (let i = 0; i < 650; i++) {
+        starCoords.push(
+          (Math.random() - 0.5) * 40,
+          (Math.random() - 0.5) * 40,
+          (Math.random() - 0.5) * 40
+        );
+      }
+      starsGeo.setAttribute("position", new THREE.Float32BufferAttribute(starCoords, 3));
+      const starsMat = new THREE.PointsMaterial({ color: 0x94a3b8, size: 0.06 });
+      scene.add(new THREE.Points(starsGeo, starsMat));
+
+      // Textura procedural de la Luna con cráteres
+      const moonCanvas = document.createElement("canvas");
+      moonCanvas.width = 512;
+      moonCanvas.height = 256;
+      const mCtx = moonCanvas.getContext("2d");
+      mCtx.fillStyle = "#64748b";
+      mCtx.fillRect(0, 0, 512, 256);
+
+      // Mares lunares oscuros
+      for (let i = 0; i < 28; i++) {
+        mCtx.fillStyle = "rgba(30, 41, 59, 0.35)";
+        mCtx.beginPath();
+        mCtx.arc(Math.random() * 512, Math.random() * 256, 15 + Math.random() * 40, 0, Math.PI * 2);
+        mCtx.fill();
+      }
+      // Cráteres
+      for (let i = 0; i < 160; i++) {
+        const cx = Math.random() * 512;
+        const cy = Math.random() * 256;
+        const cr = 2 + Math.random() * 11;
+        mCtx.strokeStyle = "rgba(226, 232, 240, 0.32)";
+        mCtx.lineWidth = 1.2;
+        mCtx.beginPath();
+        mCtx.arc(cx, cy, cr, 0, Math.PI * 2);
+        mCtx.stroke();
+        mCtx.fillStyle = "rgba(15, 23, 42, 0.25)";
+        mCtx.fill();
+      }
+      const moonTex = new THREE.CanvasTexture(moonCanvas);
+
+      // Esfera Lunar
+      const moonGeo = new THREE.SphereGeometry(1.15, 48, 48);
+      const moonMat = new THREE.MeshStandardMaterial({
+        map: moonTex,
+        bumpMap: moonTex,
+        bumpScale: 0.03,
+        roughness: 0.88,
+        metalness: 0.05
+      });
+      moonMesh = new THREE.Mesh(moonGeo, moonMat);
+      scene.add(moonMesh);
+
+      // Marcadores luminosos en la superficie lunar (Polo Sur Base, Rover, Airlock)
+      function addSurfacePin(latDeg, lonDeg, colorHex) {
+        const phi = (90 - latDeg) * (Math.PI / 180);
+        const theta = (lonDeg + 180) * (Math.PI / 180);
+        const r = 1.17;
+        const x = -(r * Math.sin(phi) * Math.cos(theta));
+        const z = r * Math.sin(phi) * Math.sin(theta);
+        const y = r * Math.cos(phi);
+
+        const pinGeo = new THREE.SphereGeometry(0.04, 16, 16);
+        const pinMat = new THREE.MeshBasicMaterial({ color: colorHex });
+        const pin = new THREE.Mesh(pinGeo, pinMat);
+        pin.position.set(x, y, z);
+        moonMesh.add(pin);
+      }
+      addSurfacePin(-78, 10, 0x00e5ff);  // Base Polo Sur
+      addSurfacePin(-55, 45, 0xffb300);  // Rover Lunar
+      addSurfacePin(-70, -25, 0xff3b5c); // Esclusa EVA
+
+      // Estación Orbital Gateway en órbita
+      gatewayGroup = new THREE.Group();
+      const moduleGeo = new THREE.CylinderGeometry(0.04, 0.04, 0.26, 12);
+      const moduleMat = new THREE.MeshStandardMaterial({ color: 0xe2e8f0, metalness: 0.6, roughness: 0.3 });
+      const coreMod = new THREE.Mesh(moduleGeo, moduleMat);
+      coreMod.rotation.z = Math.PI / 2;
+      gatewayGroup.add(coreMod);
+
+      const panelGeo = new THREE.BoxGeometry(0.06, 0.34, 0.005);
+      const panelMat = new THREE.MeshStandardMaterial({ color: 0x0284c7, emissive: 0x0369a1, emissiveIntensity: 0.4 });
+      const solarPanels = new THREE.Mesh(panelGeo, panelMat);
+      gatewayGroup.add(solarPanels);
+
+      gatewayGroup.position.set(1.45, 0.85, 0.4);
+      scene.add(gatewayGroup);
+
+      // Anillo orbital sutil
+      const orbitGeo = new THREE.RingGeometry(1.68, 1.695, 64);
+      const orbitMat = new THREE.MeshBasicMaterial({ color: 0x00e5ff, side: THREE.DoubleSide, transparent: true, opacity: 0.22 });
+      const orbitRing = new THREE.Mesh(orbitGeo, orbitMat);
+      orbitRing.rotation.x = Math.PI / 2.4;
+      orbitRing.rotation.y = 0.3;
+      scene.add(orbitRing);
+
+      // Iluminación direccional solar + luz ambiental
+      const sunLight = new THREE.DirectionalLight(0xffffff, 1.35);
+      sunLight.position.set(4, 2.5, 4);
+      scene.add(sunLight);
+
+      const rimLight = new THREE.DirectionalLight(0x00e5ff, 0.35);
+      rimLight.position.set(-4, -2, -3);
+      scene.add(rimLight);
+
+      scene.add(new THREE.AmbientLight(0x1e293b, 0.8));
+
+      // Controles de arrastre con mouse y touch
+      const domEl = renderer.domElement;
+      domEl.addEventListener("mousedown", (e) => {
+        isDragging = true;
+        prevMouse = { x: e.clientX, y: e.clientY };
+      });
+      window.addEventListener("mouseup", () => { isDragging = false; });
+      window.addEventListener("mousemove", (e) => {
+        if (!isDragging) return;
+        const dx = e.clientX - prevMouse.x;
+        const dy = e.clientY - prevMouse.y;
+        targetRotation.y += dx * 0.008;
+        targetRotation.x = Math.max(-1.2, Math.min(1.2, targetRotation.x + dy * 0.008));
+        prevMouse = { x: e.clientX, y: e.clientY };
+      });
+
+      domEl.addEventListener("touchstart", (e) => {
+        if (e.touches.length === 1) {
+          isDragging = true;
+          prevMouse = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+        }
+      }, { passive: true });
+      window.addEventListener("touchend", () => { isDragging = false; });
+      window.addEventListener("touchmove", (e) => {
+        if (!isDragging || e.touches.length !== 1) return;
+        const dx = e.touches[0].clientX - prevMouse.x;
+        const dy = e.touches[0].clientY - prevMouse.y;
+        targetRotation.y += dx * 0.008;
+        targetRotation.x = Math.max(-1.2, Math.min(1.2, targetRotation.x + dy * 0.008));
+        prevMouse = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+      }, { passive: true });
+
+      window.addEventListener("resize", () => {
+        if (!container) return;
+        const nw = container.clientWidth;
+        const nh = container.clientHeight;
+        camera.aspect = nw / nh;
+        camera.updateProjectionMatrix();
+        renderer.setSize(nw, nh);
+        drawTelemetryChart();
+      });
+
+      animateThreeJS();
+    }
+
+    function focusCameraOnPreset(preset) {
+      if (preset.id === "lunar_base_south_pole") {
+        targetRotation = { x: -0.55, y: 0.2 };
+        targetCameraZ = 3.15;
+      } else if (preset.id === "pressurized_rover") {
+        targetRotation = { x: -0.35, y: -0.55 };
+        targetCameraZ = 3.2;
+      } else if (preset.id === "eva_airlock") {
+        targetRotation = { x: -0.45, y: 0.65 };
+        targetCameraZ = 3.15;
+      } else {
+        targetRotation = { x: 0.25, y: 0.4 };
+        targetCameraZ = 3.85;
+      }
+    }
+
+    let orbitAngle = 0.5;
+    function animateThreeJS() {
+      requestAnimationFrame(animateThreeJS);
+      if (!isDragging) {
+        targetRotation.y += 0.0018;
+      }
+      moonMesh.rotation.x += (targetRotation.x - moonMesh.rotation.x) * 0.08;
+      moonMesh.rotation.y += (targetRotation.y - moonMesh.rotation.y) * 0.08;
+      camera.position.z += (targetCameraZ - camera.position.z) * 0.08;
+
+      orbitAngle += 0.008;
+      gatewayGroup.position.x = Math.cos(orbitAngle) * 1.65;
+      gatewayGroup.position.z = Math.sin(orbitAngle) * 1.65;
+      gatewayGroup.position.y = Math.sin(orbitAngle) * 0.55;
+      gatewayGroup.rotation.y = -orbitAngle;
+
+      renderer.render(scene, camera);
+    }
+
+    // 11. INICIALIZACIÓN AL CARGAR LA VENTANA
+    window.onload = function () {
+      initThreeJS();
+      selectPreset("lunar_base_south_pole");
+      drawTelemetryChart();
+      animateFlameCanvas();
+    };
+  </script>
+</body>
+</html>
