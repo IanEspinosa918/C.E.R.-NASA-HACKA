@@ -1,4 +1,8 @@
-"""Prueba la búsqueda del RAG: dada una pregunta, muestra los fragmentos más parecidos.
+"""Prueba la búsqueda del RAG: dada una pregunta, muestra los fragmentos más relevantes.
+
+Búsqueda híbrida: por significado (vectores) + por palabras clave (texto completo de Postgres,
+con glosario español->inglés), combinadas con Reciprocal Rank Fusion. Luego se eligen
+fragmentos variados: sin casi-duplicados, máximo 2 por documento y 4 por experimento.
 
 Esto es la mitad "buscar" del chat: el backend hará lo mismo y luego le pasará estos
 fragmentos al modelo de IA para que redacte la respuesta con sus citas.
@@ -20,28 +24,132 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import bd  # noqa: E402
 from embeddings import Vectorizador, a_pgvector, nombre_configurado  # noqa: E402
+from glosario import terminos_clave  # noqa: E402
 
 CAMPOS = ["experimento", "experimento_id", "doi", "tipo_documento", "titulo_documento",
           "archivo", "pagina", "orden", "texto"]
+CANDIDATOS = 40        # cuántos resultados pide cada búsqueda antes de combinar
+RRF_K = 60             # constante estándar de Reciprocal Rank Fusion
+POR_DOCUMENTO = 2      # máximo de fragmentos de un mismo archivo
+POR_EXPERIMENTO = 4    # máximo de fragmentos de un mismo experimento
+CASI_IGUAL = 0.8       # parecido de palabras (Jaccard) a partir del cual dos fragmentos son "el mismo"
+TSV = "to_tsvector('english', texto)"  # debe coincidir con el índice fragmentos_texto_idx
 
 
-def buscar(conexion, vectorizador: Vectorizador, pregunta: str, k: int = 5,
-           experimento_id: str = "", pilar: str = "") -> list[dict]:
-    """Regresa los k fragmentos más parecidos a la pregunta, con sus metadatos y similitud (0 a 1)."""
-    vector = a_pgvector(vectorizador.pregunta(pregunta))
-    filtros, parametros = ["modelo_embedding = %s"], [vector, vectorizador.nombre]
+def _filtros(vectorizador, experimento_id: str, pilar: str) -> tuple[list[str], list]:
+    filtros, parametros = ["modelo_embedding = %s"], [vectorizador.nombre]
     if experimento_id:  # incluye documentos compartidos con ese experimento
         filtros.append("(experimento_id = %s OR %s = ANY(tambien_en))")
         parametros += [experimento_id, experimento_id]
     if pilar:
         filtros.append("pilar = %s")
         parametros.append(pilar)
-    sql = (f"SELECT {', '.join(CAMPOS)}, 1 - (embedding <=> %s::vector) AS similitud "
-           f"FROM fragmentos WHERE {' AND '.join(filtros)} "
-           "ORDER BY embedding <=> %s::vector LIMIT %s")
-    cursor = conexion.cursor()
-    cursor.execute(sql, parametros + [vector, k])
+    return filtros, parametros
+
+
+def _por_vectores(cursor, vector: str, filtros, parametros, limite: int) -> list[dict]:
+    cursor.execute(
+        f"SELECT {', '.join(CAMPOS)}, 1 - (embedding <=> %s::vector) AS similitud "
+        f"FROM fragmentos WHERE {' AND '.join(filtros)} ORDER BY embedding <=> %s::vector LIMIT %s",
+        [vector] + parametros + [vector, limite])
     return [dict(zip(CAMPOS + ["similitud"], fila)) for fila in cursor.fetchall()]
+
+
+def _por_palabras(cursor, consulta: str, vector: str, filtros, parametros, limite: int) -> list[dict]:
+    if not consulta:
+        return []
+    cursor.execute(
+        f"SELECT {', '.join(CAMPOS)}, 1 - (embedding <=> %s::vector) AS similitud "
+        f"FROM fragmentos, websearch_to_tsquery('english', %s) AS q "
+        f"WHERE {TSV} @@ q AND {' AND '.join(filtros)} "
+        f"ORDER BY ts_rank_cd({TSV}, q) DESC LIMIT %s",
+        [vector, consulta] + parametros + [limite])
+    return [dict(zip(CAMPOS + ["similitud"], fila)) for fila in cursor.fetchall()]
+
+
+def _palabras(texto: str) -> set[str]:
+    import re
+    return set(re.findall(r"[a-z0-9]{3,}", texto.lower()))
+
+
+def diversificar(candidatos: list[dict], k: int, limitar: bool = True) -> list[dict]:
+    """Elige k fragmentos en orden de relevancia, sin casi-duplicados y (si limitar) con
+    máximo POR_DOCUMENTO por archivo y POR_EXPERIMENTO por experimento. Si con los límites
+    no se juntan k, se completa con los que se saltaron (en orden de relevancia)."""
+    elegidos, saltados, vistos = [], [], []
+    por_doc: dict[str, int] = {}
+    por_exp: dict[str, int] = {}
+    for c in candidatos:
+        palabras = _palabras(c["texto"])
+        if any(len(palabras & v) / max(1, len(palabras | v)) >= CASI_IGUAL for v in vistos):
+            continue  # casi idéntico a uno ya elegido (p. ej. la misma hoja en dos experimentos)
+        if limitar and (por_doc.get(c["archivo"], 0) >= POR_DOCUMENTO
+                        or por_exp.get(c["experimento_id"], 0) >= POR_EXPERIMENTO):
+            saltados.append((c, palabras))
+            continue
+        elegidos.append(c)
+        vistos.append(palabras)
+        por_doc[c["archivo"]] = por_doc.get(c["archivo"], 0) + 1
+        por_exp[c["experimento_id"]] = por_exp.get(c["experimento_id"], 0) + 1
+        if len(elegidos) == k:
+            return elegidos
+    for c, palabras in saltados:
+        if len(elegidos) == k:
+            break
+        if not any(len(palabras & v) / max(1, len(palabras | v)) >= CASI_IGUAL for v in vistos):
+            elegidos.append(c)
+            vistos.append(palabras)
+    return elegidos
+
+
+def buscar(conexion, vectorizador: Vectorizador, pregunta: str, k: int = 5,
+           experimento_id: str = "", pilar: str = "", hibrida: bool = True,
+           diversa: bool = True) -> list[dict]:
+    """Regresa k fragmentos relevantes a la pregunta, con metadatos y similitud (0 a 1).
+
+    - hibrida: combina la búsqueda por significado (vectores) con la de palabras clave
+      (texto completo de Postgres, con el glosario español->inglés), usando Reciprocal Rank
+      Fusion: un fragmento que sale arriba en las dos sube más.
+    - diversa: evita casi-duplicados y limita fragmentos por documento y por experimento
+      (los límites no se aplican si se filtra por un experimento)."""
+    vector = a_pgvector(vectorizador.pregunta(pregunta))
+    filtros, parametros = _filtros(vectorizador, experimento_id, pilar)
+    cursor = conexion.cursor()
+    limite = max(CANDIDATOS, k * 4) if (hibrida or diversa) else k
+    por_vector = _por_vectores(cursor, vector, filtros, parametros, limite)
+
+    por_texto = []
+    if hibrida:
+        try:
+            por_texto = _por_palabras(cursor, terminos_clave(pregunta), vector, filtros, parametros, limite)
+        except Exception:  # sin búsqueda de texto disponible: seguimos sólo con vectores
+            conexion.rollback()
+
+    combinados: dict[tuple, dict] = {}
+    for lista, via in ((por_vector, "significado"), (por_texto, "palabras")):
+        for posicion, f in enumerate(lista, 1):
+            clave = (f["archivo"], f["orden"])
+            if clave not in combinados:
+                combinados[clave] = {**f, "puntaje": 0.0, "via": via}
+            elif combinados[clave]["via"] != via:
+                combinados[clave]["via"] = "ambas"
+            combinados[clave]["puntaje"] += 1 / (RRF_K + posicion)
+    candidatos = sorted(combinados.values(), key=lambda f: f["puntaje"], reverse=True)
+    if not diversa:
+        return candidatos[:k]
+    return diversificar(candidatos, k, limitar=not experimento_id)
+
+
+def preparar_texto_completo(conexion) -> bool:
+    """Crea (una sola vez) el índice para la búsqueda por palabras. Regresa si quedó disponible."""
+    try:
+        cursor = conexion.cursor()
+        cursor.execute(f"CREATE INDEX IF NOT EXISTS fragmentos_texto_idx ON fragmentos USING gin ({TSV})")
+        conexion.commit()
+        return True
+    except Exception:
+        conexion.rollback()
+        return False
 
 
 def con_vecinos(conexion, fragmentos: list[dict], alcance: int = 1) -> list[dict]:
@@ -75,6 +183,7 @@ def preparar(conexion, modelo: str | None = None) -> Vectorizador:
                          "Deben ser el mismo modelo (revisa MODELO_EMBEDDINGS en .env), o vuelve a cargar con\n"
                          "  python scripts/cargar_fragmentos.py --recrear")
     vectorizador = Vectorizador(nombre)
+    preparar_texto_completo(conexion)
     if cargados and vectorizador.nombre not in cargados:
         raise SystemExit(f"Los fragmentos se cargaron con {cargados} y estás preguntando con "
                          f"'{vectorizador.nombre}'. Revisa MODELO_EMBEDDINGS y DIMENSIONES_EMBEDDINGS en .env.")
@@ -88,22 +197,26 @@ def main() -> int:
     p.add_argument("--experimento", default="", help="sólo este experimento (ej. PSI-69)")
     p.add_argument("--pilar", default="", help="prevencion | deteccion | supresion | contexto")
     p.add_argument("--modelo", help="modelo de embeddings (debe ser el mismo con el que se cargó)")
+    p.add_argument("--solo-vectores", action="store_true", help="sin búsqueda por palabras clave")
+    p.add_argument("--sin-diversidad", action="store_true", help="sin límites por documento/experimento")
     args = p.parse_args()
 
     conexion = bd.conectar()
     vectorizador = preparar(conexion, args.modelo)
-    from gemini import ErrorGemini
+    from gemini import ErrorIA
     try:
-        resultados = buscar(conexion, vectorizador, args.pregunta, args.k, args.experimento, args.pilar)
-    except ErrorGemini as e:
-        raise SystemExit(f"Error al vectorizar la pregunta con Gemini:\n{e}")
+        resultados = buscar(conexion, vectorizador, args.pregunta, args.k, args.experimento, args.pilar,
+                            hibrida=not args.solo_vectores, diversa=not args.sin_diversidad)
+    except ErrorIA as e:
+        raise SystemExit(f"Error al vectorizar la pregunta:\n{e}")
     if not resultados:
         print("Sin resultados.")
         return 0
-    print(f'\nPregunta: "{args.pregunta}"\n')
+    print(f'\nPregunta: "{args.pregunta}"')
+    print(f"Palabras clave usadas: {terminos_clave(args.pregunta) or '(ninguna)'}\n")
     for i, r in enumerate(resultados, start=1):
         pagina = f", pág. {r['pagina']}" if r["pagina"] else ""
-        print(f"{i}. [{r['similitud']:.2f}] {r['experimento']} ({r['experimento_id']}) · {r['tipo_documento']} · "
+        print(f"{i}. [{r['similitud']:.2f} · {r.get('via', 'significado')}] {r['experimento']} ({r['experimento_id']}) · {r['tipo_documento']} · "
               f"{r['titulo_documento']}{pagina}")
         print(f"   DOI {r['doi']} · {r['archivo']}")
         print(f"   {r['texto']}\n")

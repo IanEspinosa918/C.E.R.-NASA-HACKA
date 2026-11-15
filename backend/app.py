@@ -8,11 +8,12 @@ Endpoints:
     GET  /api/salud                     estado: base, modelos, número de fragmentos
     GET  /api/experimentos              los 24 experimentos (para tarjetas y filtros)
     GET  /api/pruebas?experimento_id=…  pruebas limpias (números exactos salen de aquí, no del chat)
-    POST /api/chat                      pregunta -> RAG (fragmentos) -> Gemini -> respuesta con fuentes
+    POST /api/chat                      pregunta -> RAG (fragmentos) -> Gemini o Groq -> respuesta con fuentes
     GET  /docs                          documentación automática para probar la API
 
-Usa lo mismo que los scripts: DATABASE_URL, MODELO_EMBEDDINGS, GEMINI_API_KEY, MODELO_CHAT
-y NIVEL_RAZONAMIENTO de .env. La clave de Gemini se queda en el servidor; la página nunca la ve.
+Usa lo mismo que los scripts: DATABASE_URL, MODELO_EMBEDDINGS, MODELO_CHAT, NIVEL_RAZONAMIENTO
+y la clave del proveedor (GEMINI_API_KEY o GROQ_API_KEY) de .env. Las claves se quedan en el
+servidor; la página nunca las ve.
 
 Requiere:  pip install -r requirements.txt   (fastapi y uvicorn)
 """
@@ -39,8 +40,8 @@ except ImportError:
 
 import bd  # noqa: E402
 from buscar import buscar, con_vecinos, preparar  # noqa: E402
-from gemini import ErrorGemini  # noqa: E402
-from llm import MODELO_CHAT_POR_DEFECTO, fuentes_citadas, responder  # noqa: E402
+from gemini import ErrorIA  # noqa: E402
+from llm import fuentes_citadas, modelo_configurado, numeros_sin_respaldo, proveedor_de, responder  # noqa: E402
 
 FRONTEND = RAIZ / "frontend"
 
@@ -68,7 +69,7 @@ class Base:
                     self._abrir()
                 try:
                     return funcion(self.conexion)
-                except (HTTPException, ErrorGemini):
+                except (HTTPException, ErrorIA):
                     raise
                 except Exception:
                     try:
@@ -118,14 +119,19 @@ def salud():
 
     experimentos, fragmentos, modelos = base.ejecutar(consulta)
     env = bd.leer_env()
+    modelo = modelo_configurado()
+    proveedor = proveedor_de(modelo)
+    clave = env.get("GROQ_API_KEY" if proveedor == "groq" else "GEMINI_API_KEY", "").strip()
     return {
         "ok": True,
         "experimentos": experimentos,
         "fragmentos": fragmentos,
         "modelo_embeddings": modelos[0] if len(modelos) == 1 else modelos,
-        "modelo_chat": env.get("MODELO_CHAT") or MODELO_CHAT_POR_DEFECTO,
-        "gemini_configurado": bool(env.get("GEMINI_API_KEY", "").strip()
-                                   and not env.get("GEMINI_API_KEY", "").startswith("TU-")),
+        "modelo_chat": modelo,
+        "proveedor_chat": proveedor,
+        "ia_configurada": bool(clave and not clave.startswith("TU-")),
+        "falta_clave": "" if clave and not clave.startswith("TU-") else
+                       ("GROQ_API_KEY" if proveedor == "groq" else "GEMINI_API_KEY"),
     }
 
 
@@ -168,27 +174,30 @@ class Pregunta(BaseModel):
     pilar: str = ""
     contexto: str = Field("", max_length=3000, description="escenario del tablero (no es fuente)")
     estilo: str = Field("", description="engineer | student")
-    modelo: str = Field("", description="modelo de chat (vacío = MODELO_CHAT de .env)")
+    modelo: str = Field("", description="modelo de chat, ej. openai/gpt-oss-120b (vacío = MODELO_CHAT de .env)")
     vecinos: bool = True
+    hibrida: bool = Field(True, description="búsqueda por significado + palabras clave")
+    diversa: bool = Field(True, description="máx. 2 fragmentos por documento y 4 por experimento")
 
 
 @app.post("/api/chat")
 def chat(p: Pregunta):
-    if p.modelo and not re.fullmatch(r"gemini[a-z0-9.\-]*", p.modelo):
+    if p.modelo and (".." in p.modelo or not re.fullmatch(r"[a-z0-9][a-z0-9._\-]*(/[a-z0-9._\-]+)?", p.modelo)):
         raise HTTPException(400, "Nombre de modelo no válido.")
     inicio = time.time()
 
     def recuperar(conexion):
         vectorizador = base.vectorizador_listo(conexion)
-        fragmentos = buscar(conexion, vectorizador, p.pregunta, p.k, p.experimento_id, p.pilar)
+        fragmentos = buscar(conexion, vectorizador, p.pregunta, p.k, p.experimento_id, p.pilar,
+                            hibrida=p.hibrida, diversa=p.diversa)
         return con_vecinos(conexion, fragmentos) if p.vecinos else fragmentos
 
     try:
         fragmentos = base.ejecutar(recuperar)
-        # Gemini fuera del candado: puede tardar y no debe bloquear otras consultas.
+        # La IA va fuera del candado: puede tardar y no debe bloquear otras consultas.
         texto = responder(p.pregunta, fragmentos, p.modelo or None, p.contexto, p.estilo)
-    except ErrorGemini as e:
-        raise HTTPException(502, f"Gemini no pudo responder: {str(e).splitlines()[0]}")
+    except ErrorIA as e:
+        raise HTTPException(502, f"La IA no pudo responder: {str(e).splitlines()[0]}")
 
     fuentes = [{
         "n": n,
@@ -200,12 +209,15 @@ def chat(p: Pregunta):
         "doi": f.get("doi"),
         "url": f"https://doi.org/{f['doi']}" if f.get("doi") else None,
         "similitud": round(float(f["similitud"]), 3),
+        "via": f.get("via"),
     } for n, f in fuentes_citadas(texto, fragmentos)]
     return {
         "respuesta": texto,
         "fuentes": fuentes,
+        # Cifras de la respuesta que no aparecen en los fragmentos: la página las marca.
+        "cifras_sin_respaldo": numeros_sin_respaldo(texto, fragmentos, f"{p.pregunta} {p.contexto}"),
         "fragmentos_usados": len(fragmentos),
-        "modelo": p.modelo or bd.leer_env().get("MODELO_CHAT") or MODELO_CHAT_POR_DEFECTO,
+        "modelo": modelo_configurado(p.modelo or None),
         "segundos": round(time.time() - inicio, 1),
     }
 

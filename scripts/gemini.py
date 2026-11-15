@@ -23,7 +23,11 @@ TIMEOUT = 60
 REINTENTOS = 4
 
 
-class ErrorGemini(Exception):
+class ErrorIA(Exception):
+    """Error de cualquier proveedor de IA (Gemini, Groq...)."""
+
+
+class ErrorGemini(ErrorIA):
     pass
 
 

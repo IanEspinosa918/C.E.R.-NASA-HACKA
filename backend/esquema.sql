@@ -125,6 +125,8 @@ CREATE TABLE IF NOT EXISTS fragmentos (
 );
 CREATE INDEX IF NOT EXISTS fragmentos_experimento_idx ON fragmentos (experimento_id);
 CREATE INDEX IF NOT EXISTS fragmentos_embedding_idx ON fragmentos USING hnsw (embedding vector_cosine_ops);
+-- Búsqueda por palabras clave (parte "híbrida" del RAG). scripts/buscar.py también lo crea si falta.
+CREATE INDEX IF NOT EXISTS fragmentos_texto_idx ON fragmentos USING gin (to_tsvector('english', texto));
 ALTER TABLE fragmentos ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS lectura_publica ON fragmentos;
 CREATE POLICY lectura_publica ON fragmentos FOR SELECT USING (true);

@@ -10,10 +10,10 @@ python scripts\cargar_bd.py           # 3. sube experimentos y pruebas a Postgre
 python scripts\preparar_textos.py     # 4. extrae y parte los textos para el chat
 python scripts\cargar_fragmentos.py   # 5. calcula los vectores y los sube a Postgres
 python scripts\buscar.py "¿qué son las llamas frías?"   # 6. prueba la búsqueda
-python scripts\preguntar.py "¿qué son las llamas frías?" # 7. chat completo con Gemini
+python scripts\preguntar.py "¿qué son las llamas frías?" # 7. chat completo (Groq o Gemini)
 ```
 
-Los pasos 3, 5, 6 y 7 necesitan la base de datos (el 7 además GEMINI_API_KEY): ver [`docs/base-de-datos.md`](../docs/base-de-datos.md).
+Los pasos 3, 5, 6 y 7 necesitan la base de datos (el 7 además la clave de Groq o Gemini): ver [`docs/base-de-datos.md`](../docs/base-de-datos.md).
 
 | Script | Qué hace |
 |---|---|
@@ -26,9 +26,11 @@ Los pasos 3, 5, 6 y 7 necesitan la base de datos (el 7 además GEMINI_API_KEY): 
 | `preparar_textos.py` | Fichas + PDF/docx/pptx → `data/processed/fragmentos.jsonl` con metadatos |
 | `cargar_fragmentos.py` | Embeddings de los fragmentos → tabla `fragmentos` (pgvector) |
 | `buscar.py` | Prueba la búsqueda del RAG; su función `buscar()` la puede usar el backend |
-| `preguntar.py` | Chat completo: busca fragmentos y Gemini responde citando experimento y DOI |
+| `preguntar.py` | Chat completo: busca fragmentos y la IA (Gemini o Groq) responde citando experimento y DOI |
 | `bd.py`, `embeddings.py` | Conexión a Postgres y modelo de embeddings, local o Gemini (compartidos) |
-| `gemini.py`, `llm.py` | Llamadas a la API de Gemini (con reintentos) y armado de la respuesta del chat |
+| `glosario.py` | Términos español→inglés para la búsqueda por palabras clave |
+| `gemini.py`, `groq_api.py`, `llm.py` | Llamadas a Gemini y a Groq (con reintentos) y armado de la respuesta del chat |
+| `probar_gemini.py`, `probar_groq.py` | Revisan la clave y la conexión con cada proveedor |
 
 El formato de la tabla limpia está en [`docs/formato-datos.md`](../docs/formato-datos.md).
 Cada limpieza deja un reporte de problemas en `data/reportes/validacion_<nombre>.csv`.

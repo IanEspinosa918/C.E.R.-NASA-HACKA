@@ -1284,7 +1284,7 @@
     }
 
     // 6. CO-PILOTO DE IA REAL: pregunta al backend (/api/chat), que busca en los documentos
-    //    de NASA PSI (RAG) y redacta la respuesta con Gemini citando las fuentes.
+    //    de NASA PSI (RAG) y redacta la respuesta con la IA (Gemini o Groq) citando las fuentes.
     //    Si la página se abre como archivo (file://), usa el backend local en el puerto 8000.
     const API_BASE = location.protocol === "file:" ? "http://127.0.0.1:8000" : "";
 
@@ -1307,8 +1307,11 @@
         if (/^[*\-•]\s+/.test(linea)) {
           return `<p class="text-slate-200 pl-3">• ${formatoEnLinea(linea.replace(/^[*\-•]\s+/, ""))}</p>`;
         }
-        const html = formatoEnLinea(linea);
-        if (/^(<em>)?Interpretaci[oó]n/i.test(html)) return `<p class="text-amber-300">${html}</p>`;
+        const html = formatoEnLinea(linea)
+          .replace(/\(conocimiento general, no de PSI\)/gi,
+                   '<span class="text-slate-500 italic">(conocimiento general, no de PSI)</span>');
+        if (/^(<strong[^>]*>|<em>)?Interpretaci[oó]n/i.test(html)) return `<p class="text-amber-300">${html}</p>`;
+        if (/^(<strong[^>]*>|<em>)?Para la seguridad/i.test(html)) return `<p class="text-emerald-300 border-l-2 border-emerald-500/50 pl-2">${html}</p>`;
         return `<p class="text-slate-200">${html}</p>`;
       }).join("");
     }
@@ -1336,7 +1339,7 @@
       const out = document.getElementById("ai-copilot-output");
       const estilo = document.getElementById("ai-persona-select").value;
       out.innerHTML = `<div class="text-cyan-400">&gt; ${escaparHTML(encabezado)}</div>
-        <div class="text-slate-400 animate-pulse">&gt; Buscando en los documentos de NASA PSI y redactando con IA (5 a 30 s)...</div>`;
+        <div class="text-slate-400 animate-pulse">&gt; Buscando en los documentos de NASA PSI y redactando con IA...</div>`;
       bloquearBotonesIA(true);
       try {
         const r = await fetch(`${API_BASE}/api/chat`, {
@@ -1348,6 +1351,7 @@
         if (!r.ok) throw new Error(datos.detail ? (typeof datos.detail === "string" ? datos.detail : JSON.stringify(datos.detail)) : `HTTP ${r.status}`);
         out.innerHTML = `<div class="text-cyan-300 font-bold">&gt; ${escaparHTML(encabezado)}</div>
           ${formatearRespuesta(datos.respuesta)}
+          ${(datos.cifras_sin_respaldo || []).length ? `<div class="text-amber-300 text-[11px] border border-amber-500/40 rounded px-2 py-1">⚠ Estas cifras no aparecen en los documentos consultados; verifícalas: ${datos.cifras_sin_respaldo.map(escaparHTML).join(", ")}</div>` : ""}
           ${formatearFuentes(datos.fuentes)}
           <div class="text-[10px] text-slate-500 pt-1">Modelo: ${escaparHTML(datos.modelo)} · ${datos.fragmentos_usados} fragmentos consultados · ${datos.segundos} s</div>`;
       } catch (e) {
@@ -1390,11 +1394,12 @@
         const r = await fetch(`${API_BASE}/api/salud`);
         const d = await r.json();
         if (!r.ok) throw new Error(d.detail || `HTTP ${r.status}`);
-        const ok = d.gemini_configurado && d.fragmentos > 0;
+        const ok = d.ia_configurada && d.fragmentos > 0;
+        const proveedor = d.proveedor_chat === "groq" ? "Groq" : "Gemini";
         estado.className = `text-[11px] font-mono ${ok ? "text-emerald-400" : "text-amber-300"}`;
         estado.textContent = ok
-          ? `● IA conectada · ${d.modelo_chat} · ${d.fragmentos.toLocaleString()} fragmentos de ${d.experimentos} experimentos`
-          : `● Backend conectado, pero falta ${d.fragmentos ? "GEMINI_API_KEY en .env" : "cargar los fragmentos"}`;
+          ? `● IA conectada · ${proveedor} · ${d.modelo_chat} · ${d.fragmentos.toLocaleString()} fragmentos de ${d.experimentos} experimentos`
+          : `● Backend conectado, pero falta ${d.fragmentos ? d.falta_clave + " en .env" : "cargar los fragmentos"}`;
       } catch (e) {
         estado.className = "text-[11px] font-mono text-rose-300";
         estado.textContent = "● Sin conexión con el backend (corre: python backend\\app.py)";

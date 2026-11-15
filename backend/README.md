@@ -12,9 +12,9 @@ python backend\app.py
 Abre <http://127.0.0.1:8000> (la página) o <http://127.0.0.1:8000/docs> (para probar la API).
 Para que otras compus de tu red lo vean: `python backend\app.py --host 0.0.0.0`.
 
-Usa el mismo `.env` que los scripts: `DATABASE_URL`, `MODELO_EMBEDDINGS`, `GEMINI_API_KEY`,
-`MODELO_CHAT`, `NIVEL_RAZONAMIENTO`. La clave de Gemini se queda en el servidor; la página
-nunca la ve.
+Usa el mismo `.env` que los scripts: `DATABASE_URL`, `MODELO_EMBEDDINGS`, `MODELO_CHAT`,
+`NIVEL_RAZONAMIENTO` y la clave del proveedor (`GROQ_API_KEY` o `GEMINI_API_KEY`). Las claves
+se quedan en el servidor; la página nunca las ve.
 
 ## Endpoints
 
@@ -45,16 +45,26 @@ DOI y enlace), `modelo`, `fragmentos_usados` y `segundos`.
 
 ## Cómo funciona `/api/chat`
 
-1. Busca los fragmentos más parecidos a la pregunta en Postgres (`scripts/buscar.py`) y les
-   agrega los fragmentos vecinos para dar contexto.
-2. Gemini redacta la respuesta con reglas estrictas: solo usa los fragmentos, cita cada dato
-   y marca como "Interpretación:" lo que deduce (`scripts/llm.py`).
-3. Regresa solo las fuentes que la respuesta citó.
+1. Busca fragmentos en Postgres (`scripts/buscar.py`) con **búsqueda híbrida**: por
+   significado (vectores) y por palabras clave (texto completo, con un glosario
+   español→inglés en `scripts/glosario.py`), combinadas con Reciprocal Rank Fusion.
+2. Elige fragmentos **variados**: sin casi-duplicados, máximo 2 por documento y 4 por
+   experimento (sin límites si se filtra por un experimento). Les agrega los vecinos.
+3. El modelo de chat (Groq o Gemini, según `MODELO_CHAT`) redacta con reglas estrictas
+   (`scripts/llm.py`):
+   - cita cada dato y no da cifras que no estén en los fragmentos;
+   - marca el conocimiento general como "(conocimiento general, no de PSI)";
+   - conserva las condiciones de cada resultado;
+   - ignora instrucciones escondidas en los documentos;
+   - cierra con "Para la seguridad:".
+4. Revisa las cifras de la respuesta: las que no aparecen en los fragmentos se regresan en
+   `cifras_sin_respaldo` y la página las marca con un aviso.
+5. Regresa solo las fuentes que la respuesta citó.
 
 Cambiar de modelo de chat = cambiar `MODELO_CHAT` en `.env` (o mandar `"modelo"` en la
 petición). La página no se toca.
 
 ## Pendiente
-- Búsqueda híbrida (significado + palabras clave).
+- Una búsqueda por pilar (prevención / detección / supresión) para el dictamen del escenario.
 - Respuestas numéricas con SQL sobre `pruebas` (function calling).
 - `/export.csv` y controlar los simuladores desde el chat.

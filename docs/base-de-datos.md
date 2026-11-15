@@ -74,6 +74,22 @@ LIMIT 5;
   ACME). Se guarda una vez y los demás quedan en `tambien_en`.
 - **Citar siempre** `experimento` y `doi`.
 
+### Cómo se buscan los fragmentos
+`scripts/buscar.py` hace búsqueda **híbrida**:
+- por significado (vectores, cruza español-inglés);
+- por palabras clave (texto completo de Postgres, índice `fragmentos_texto_idx`);
+- se combinan con Reciprocal Rank Fusion.
+
+Como los documentos están en inglés, `scripts/glosario.py` traduce los términos técnicos de la
+pregunta (por ejemplo, "llamas frías" → "cool flame"). Si una pregunta no encuentra lo que
+debería, agrega el término al glosario.
+
+Después se eligen fragmentos variados:
+- sin casi-duplicados;
+- máximo 2 por documento y 4 por experimento.
+
+Para comparar: `python scripts\buscar.py "..." --solo-vectores --sin-diversidad`.
+
 ### Cambiar de modelo de embeddings
 Cambia `MODELO_EMBEDDINGS` en `.env` y vuelve a cargar con
 `python scripts\cargar_fragmentos.py --recrear` (la tabla depende del tamaño del vector).
@@ -82,6 +98,26 @@ Modelos locales compatibles: los que lista `fastembed` (ej.
 
 La base guarda en `modelo_embedding` el nombre exacto con el que se cargó; los scripts se
 niegan a buscar con otro modelo para que nunca se mezclen vectores incompatibles.
+
+## Groq (chat)
+
+El chat puede usar Groq en lugar de Gemini. Groq **sólo redacta** las respuestas; la búsqueda
+sigue con el modelo de embeddings de siempre, así que no hay que recargar nada.
+
+1. Crea la clave en <https://console.groq.com/keys> y ponla **sólo** en `.env`:
+   `GROQ_API_KEY=gsk_...`
+2. En `.env`: `MODELO_CHAT=openai/gpt-oss-120b` (o `openai/gpt-oss-20b`, más rápido) y
+   `NIVEL_RAZONAMIENTO=low`.
+3. Revisa la conexión y los modelos disponibles: `python scripts\probar_groq.py`.
+4. Prueba: `python scripts\preguntar.py "¿qué son las llamas frías?"` o reinicia el backend.
+
+Límites del plan gratis: son por modelo y por organización. Para `openai/gpt-oss-120b`, Groq
+publica 30 peticiones por minuto, 1,000 al día, 8,000 tokens por minuto y 200,000 al día. Cada
+pregunta del chat gasta unos 3,000 a 5,000 tokens (fragmentos + respuesta), así que alcanza para
+unas 40 a 60 preguntas al día y 1 o 2 por minuto. Los límites exactos de tu cuenta aparecen en tu consola de
+Groq (<https://console.groq.com>).
+
+Para volver a Gemini basta con poner un modelo `gemini-...` en `MODELO_CHAT`.
 
 ## Gemini (API de Google)
 
@@ -92,12 +128,14 @@ Se usa para dos cosas independientes:
 | Vectores de los fragmentos (opcional) | `MODELO_EMBEDDINGS` | `gemini-embedding-001` |
 | | `DIMENSIONES_EMBEDDINGS` | `768` (o `1536`; no más de 2000 por el índice de pgvector) |
 | Redactar las respuestas del chat | `MODELO_CHAT` | `gemini-flash-latest` (por defecto) |
+| | `NIVEL_RAZONAMIENTO` | `low` (por defecto; `minimal` es más rápido, `high` más lento) |
 | Ambas | `GEMINI_API_KEY` | tu clave |
 
 1. Saca la clave en <https://aistudio.google.com> → **Get API key** → **Create API key**.
    Pégala **sólo** en `.env` (nunca en el chat, WhatsApp ni GitHub). Cada quien puede usar su
    propia clave.
-2. Prueba el chat completo (funciona con los vectores locales que ya están cargados):
+2. Revisa la conexión y la clave: `python scripts\probar_gemini.py`.
+   Prueba el chat completo (funciona con los vectores locales que ya están cargados):
    `python scripts\preguntar.py "¿qué son las llamas frías?"`
 3. (Opcional) Pasar también los vectores a Gemini: primero una prueba chica
    `python scripts\cargar_fragmentos.py --recrear --limite 200` y luego
@@ -127,4 +165,4 @@ Notas:
 - Las tres tablas tienen seguridad por filas (RLS) con una política de **sólo lectura**: en
   Supabase, quien tenga la clave pública puede leer (son datos públicos de la NASA) pero no
   modificar ni borrar. El backend y los scripts se conectan como dueños y sí pueden escribir.
-- La contraseña de la base y la clave de Gemini sólo viven en `.env`.
+- La contraseña de la base y las claves de Gemini y Groq sólo viven en `.env`.
