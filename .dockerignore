@@ -1,0 +1,14 @@
+# Lo que NO se manda a construir la imagen
+.git
+.env
+.env.*
+!.env.example
+data
+notebooks
+docs
+**/__pycache__
+**/*.pyc
+.venv
+venv
+node_modules
+artemis_psi_fire_safety_mission_control.html
