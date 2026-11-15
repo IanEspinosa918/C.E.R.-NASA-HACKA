@@ -32,7 +32,7 @@ def leer_env() -> dict:
                 continue
             clave, valor = linea.split("=", 1)
             valores[clave.strip()] = valor.strip().strip('"').strip("'")
-    variables = ("DATABASE_URL", "MODELO_EMBEDDINGS", "DIMENSIONES_EMBEDDINGS", "GEMINI_API_KEY", "MODELO_CHAT", "NIVEL_RAZONAMIENTO", "GROQ_API_KEY")
+    variables = ("DATABASE_URL", "MODELO_EMBEDDINGS", "DIMENSIONES_EMBEDDINGS", "GEMINI_API_KEY", "MODELO_CHAT", "NIVEL_RAZONAMIENTO", "GROQ_API_KEY", "TEMPERATURA_CHAT", "TABLA_FRAGMENTOS")
     valores.update({k: v for k, v in os.environ.items() if k in variables})
     return valores
 

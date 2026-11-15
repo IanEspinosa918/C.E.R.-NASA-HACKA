@@ -13,6 +13,8 @@ Uso:
   python scripts/cargar_fragmentos.py --continuar   # retoma una carga que se interrumpió
   python scripts/cargar_fragmentos.py --recrear     # borra la tabla (necesario si cambias de modelo)
   python scripts/cargar_fragmentos.py --limite 200  # prueba rápida con pocos fragmentos
+  python scripts/cargar_fragmentos.py --modelo gemini-embedding-001   # carga la tabla fragmentos_gemini
+                                                                      # sin tocar la del modelo local
 
 Con Gemini (MODELO_EMBEDDINGS=gemini-embedding-001 en .env) los vectores se calculan en
 la API de Google: no usa tu computadora, pero tiene límites por minuto y por día.
@@ -68,30 +70,33 @@ def main() -> int:
 
     if not args.lote:
         args.lote = 100 if es_gemini(nombre_modelo) else 128
+    tabla = vectorizador.tabla
+    retomar = "python scripts/cargar_fragmentos.py --continuar" + (f" --modelo {args.modelo}" if args.modelo else "")
+    print(f"Tabla: {tabla}")
 
     cursor = conexion.cursor()
     if args.recrear:
-        cursor.execute("DROP TABLE IF EXISTS fragmentos")
-    bd.aplicar(conexion, "fragmentos", {"vector(384)": f"vector({vectorizador.dimension})"})
+        cursor.execute(f"DROP TABLE IF EXISTS {tabla}")
+    bd.aplicar(conexion, "fragmentos", {"vector(384)": f"vector({vectorizador.dimension})", "fragmentos": tabla})
     conexion.commit()
 
-    dimension_tabla = bd.uno(conexion, "SELECT atttypmod FROM pg_attribute WHERE attrelid = 'fragmentos'::regclass "
+    dimension_tabla = bd.uno(conexion, f"SELECT atttypmod FROM pg_attribute WHERE attrelid = '{tabla}'::regclass "
                                        "AND attname = 'embedding'")
     if dimension_tabla != vectorizador.dimension:
-        raise SystemExit(f"La tabla fragmentos guarda vectores de {dimension_tabla} dimensiones y este modelo "
+        raise SystemExit(f"La tabla {tabla} guarda vectores de {dimension_tabla} dimensiones y este modelo "
                          f"produce {vectorizador.dimension}. Vuelve a correr con --recrear.")
 
     if args.continuar:
-        otros = bd.uno(conexion, "SELECT count(*) FROM fragmentos WHERE modelo_embedding <> %s", [nombre_modelo])
+        otros = bd.uno(conexion, f"SELECT count(*) FROM {tabla} WHERE modelo_embedding <> %s", [nombre_modelo])
         if otros:
             raise SystemExit("La tabla tiene fragmentos de otro modelo. No se pueden mezclar: usa --recrear.")
-        cursor.execute("SELECT archivo, orden FROM fragmentos")
+        cursor.execute(f"SELECT archivo, orden FROM {tabla}")
         ya = {(a, o) for a, o in cursor.fetchall()}
         antes = len(fragmentos)
         fragmentos = [f for f in fragmentos if (f["archivo"], f["orden"]) not in ya]
         print(f"Ya había {len(ya)} fragmentos; faltan {len(fragmentos)} de {antes}.")
     else:
-        cursor.execute("TRUNCATE fragmentos RESTART IDENTITY")
+        cursor.execute(f"TRUNCATE {tabla} RESTART IDENTITY")
         conexion.commit()
 
     conocidos = set()
@@ -111,25 +116,25 @@ def main() -> int:
             vectores = vectorizador.documentos([f"{f['experimento']}: {f['texto']}" for f in grupo])
         except Exception as e:  # cuota de Gemini agotada, sin conexión, etc.
             raise SystemExit(f"\n{e}\n\nSe detuvo en el fragmento {i} de {total}. Lo ya subido quedó guardado.\n"
-                             "Retoma con:  python scripts/cargar_fragmentos.py --continuar")
+                             f"Retoma con:  {retomar}")
         filas = [[f["experimento_id"], f["experimento"], f.get("pilar") or None, f.get("doi") or None,
                   f["tipo_documento"], f.get("titulo_documento") or None, f["archivo"], f.get("pagina"),
                   f["orden"], f["texto"].replace("\x00", ""), f.get("tambien_en") or [], nombre_modelo,
                   a_pgvector(v)] for f, v in zip(grupo, vectores)]
         try:
-            bd.insertar(conexion, "fragmentos", COLUMNAS, filas, conversiones=CONVERSIONES,
+            bd.insertar(conexion, tabla, COLUMNAS, filas, conversiones=CONVERSIONES,
                         al_final="ON CONFLICT (archivo, orden) DO NOTHING", lote=args.lote)
             conexion.commit()
         except Exception as e:
             raise SystemExit(f"\nSe interrumpió la carga en el fragmento {i}: {e}\n"
-                             "Lo ya subido quedó guardado. Retoma con:  python scripts/cargar_fragmentos.py --continuar")
+                             f"Lo ya subido quedó guardado. Retoma con:  {retomar}")
         hechos = i + len(grupo)
         transcurrido = time.time() - inicio
         restante = transcurrido / hechos * (total - hechos)
         print(f"   {hechos}/{total}  ({transcurrido / 60:.1f} min; faltan ~{restante / 60:.1f} min)", end="\r")
 
-    en_base = bd.uno(conexion, "SELECT count(*) FROM fragmentos")
-    print(f"\nListo: la tabla fragmentos tiene {en_base} fragmentos.")
+    en_base = bd.uno(conexion, f"SELECT count(*) FROM {tabla}")
+    print(f"\nListo: la tabla {tabla} tiene {en_base} fragmentos.")
     print('Prueba la búsqueda con:  python scripts/buscar.py "¿qué son las llamas frías?"')
     return 0
 

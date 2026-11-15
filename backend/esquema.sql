@@ -119,12 +119,14 @@ CREATE TABLE IF NOT EXISTS fragmentos (
     orden             integer NOT NULL,        -- posición del fragmento dentro del documento
     texto             text NOT NULL,
     tambien_en        text[],                  -- otros experimentos que traen el mismo documento
+    fuente_general    text,                    -- etiqueta si es una guía/hoja general (ver scripts/fuentes_generales.py)
     modelo_embedding  text NOT NULL,
     embedding         vector(384) NOT NULL,
     UNIQUE (archivo, orden)
 );
 CREATE INDEX IF NOT EXISTS fragmentos_experimento_idx ON fragmentos (experimento_id);
 CREATE INDEX IF NOT EXISTS fragmentos_embedding_idx ON fragmentos USING hnsw (embedding vector_cosine_ops);
+ALTER TABLE fragmentos ADD COLUMN IF NOT EXISTS fuente_general text;  -- para bases creadas antes
 -- Búsqueda por palabras clave (parte "híbrida" del RAG). scripts/buscar.py también lo crea si falta.
 CREATE INDEX IF NOT EXISTS fragmentos_texto_idx ON fragmentos USING gin (to_tsvector('english', texto));
 ALTER TABLE fragmentos ENABLE ROW LEVEL SECURITY;

@@ -39,9 +39,12 @@ except ImportError:
     raise SystemExit("Faltan fastapi/uvicorn. Instálalos con:  pip install -r requirements.txt")
 
 import bd  # noqa: E402
-from buscar import buscar, con_vecinos, preparar  # noqa: E402
+from buscar import buscar, buscar_por_pilares, con_vecinos, preparar  # noqa: E402
+from fuentes_generales import nombre_fuente  # noqa: E402
 from gemini import ErrorIA  # noqa: E402
-from llm import fuentes_citadas, modelo_configurado, numeros_sin_respaldo, proveedor_de, responder  # noqa: E402
+from seguridad import revisar_pregunta  # noqa: E402
+from idioma import detectar_idioma  # noqa: E402
+from llm import agrupar_fuentes, es_negativa, seguridad_al_reves, fuentes_citadas, quitar_veredictos, modelo_configurado, numeros_sin_respaldo, proveedor_de, responder  # noqa: E402
 
 FRONTEND = RAIZ / "frontend"
 
@@ -102,16 +105,31 @@ def filas_a_dict(cursor) -> list[dict]:
 
 # ---------------------------------------------------------------- API
 
+def modelos_disponibles(env: dict) -> list[str]:
+    """Modelos de chat que la página puede ofrecer, según las claves configuradas."""
+    def hay(nombre):
+        valor = (env.get(nombre) or "").strip()
+        return bool(valor) and not valor.startswith("TU-")
+    modelos = []
+    if hay("GROQ_API_KEY"):
+        modelos += ["openai/gpt-oss-120b", "openai/gpt-oss-20b"]
+    if hay("GEMINI_API_KEY"):
+        modelos += ["gemini-flash-lite-latest"]
+    return modelos
+
+
 @app.get("/api/salud")
 def salud():
     def consulta(conexion):
         cursor = conexion.cursor()
         cursor.execute("SELECT count(*) FROM experimentos")
         experimentos = cursor.fetchone()[0]
-        cursor.execute("SELECT to_regclass('public.fragmentos') IS NOT NULL")
+        from embeddings import nombre_configurado, tabla_fragmentos
+        tabla = base.vectorizador.tabla if base.vectorizador else tabla_fragmentos(nombre_configurado())
+        cursor.execute(f"SELECT to_regclass('public.{tabla}') IS NOT NULL")
         fragmentos, modelos = 0, []
         if cursor.fetchone()[0]:
-            cursor.execute("SELECT modelo_embedding, count(*) FROM fragmentos GROUP BY 1")
+            cursor.execute(f"SELECT modelo_embedding, count(*) FROM {tabla} GROUP BY 1")
             filas = cursor.fetchall()
             modelos = [f[0] for f in filas]
             fragmentos = sum(f[1] for f in filas)
@@ -130,6 +148,7 @@ def salud():
         "modelo_chat": modelo,
         "proveedor_chat": proveedor,
         "ia_configurada": bool(clave and not clave.startswith("TU-")),
+        "modelos_chat": modelos_disponibles(env),
         "falta_clave": "" if clave and not clave.startswith("TU-") else
                        ("GROQ_API_KEY" if proveedor == "groq" else "GEMINI_API_KEY"),
     }
@@ -167,6 +186,41 @@ def pruebas(experimento_id: str = "", resultado: str = "", limite: int = 200):
     return base.ejecutar(consulta)
 
 
+# --- Órbita de la Estación Espacial Internacional (para el visor 3D en 0 g) ---
+# Se bajan sus elementos orbitales (TLE) de CelesTrak y la página calcula la posición con SGP4.
+# Se guardan 2 horas para no consultar de más; si no hay internet se reusan los últimos.
+ISS_TLE_URL = "https://celestrak.org/NORAD/elements/gp.php?CATNR=25544&FORMAT=TLE"
+_iss = {"hora": 0.0, "datos": None}
+_iss_candado = threading.Lock()
+
+
+@app.get("/api/iss")
+def iss():
+    import os
+    import urllib.request
+    from datetime import datetime, timezone
+
+    with _iss_candado:
+        if _iss["datos"] and time.time() - _iss["hora"] < 2 * 3600:
+            return _iss["datos"]
+        url = os.environ.get("ISS_TLE_URL", ISS_TLE_URL)
+        try:
+            pedido = urllib.request.Request(url, headers={"User-Agent": "FlameInFreefall/1.0 (NASA Space Apps)"})
+            with urllib.request.urlopen(pedido, timeout=8) as r:
+                lineas = [l.strip() for l in r.read().decode("utf-8", "replace").splitlines() if l.strip()]
+            l1 = next(l for l in lineas if l.startswith("1 "))
+            l2 = next(l for l in lineas if l.startswith("2 "))
+            nombre = lineas[0] if not lineas[0].startswith("1 ") else "ISS (ZARYA)"
+            _iss["datos"] = {"nombre": nombre, "tle1": l1, "tle2": l2, "fuente": "CelesTrak",
+                             "obtenido": datetime.now(timezone.utc).isoformat(timespec="seconds")}
+            _iss["hora"] = time.time()
+            return _iss["datos"]
+        except Exception as e:  # sin internet o respuesta rara
+            if _iss["datos"]:
+                return {**_iss["datos"], "desactualizado": True}
+            raise HTTPException(503, f"No se pudo obtener la órbita de la EEI: {e}")
+
+
 class Pregunta(BaseModel):
     pregunta: str = Field(..., min_length=2, max_length=1500)
     k: int = Field(8, ge=1, le=20, description="fragmentos a buscar")
@@ -178,6 +232,10 @@ class Pregunta(BaseModel):
     vecinos: bool = True
     hibrida: bool = Field(True, description="búsqueda por significado + palabras clave")
     diversa: bool = Field(True, description="máx. 2 fragmentos por documento y 4 por experimento")
+    por_pilar: bool = Field(False, description="una búsqueda por pilar y respuesta en 3 viñetas (dictamen)")
+    idioma: str = Field("", pattern=r"^(es|en)?$",
+                        description="idioma de la página (es | en). La IA responde en el idioma de la pregunta; "
+                                    "si no se distingue, en este")
 
 
 @app.post("/api/chat")
@@ -185,23 +243,38 @@ def chat(p: Pregunta):
     if p.modelo and (".." in p.modelo or not re.fullmatch(r"[a-z0-9][a-z0-9._\-]*(/[a-z0-9._\-]+)?", p.modelo)):
         raise HTTPException(400, "Nombre de modelo no válido.")
     inicio = time.time()
+    # Idioma de la respuesta: el de la pregunta (o el que pida explícitamente); si no se nota, el de la página
+    idioma = detectar_idioma(p.pregunta, p.idioma or "es")
+    bloqueo = revisar_pregunta(p.pregunta, idioma)
+    if bloqueo:  # filtro de seguridad: respuesta fija, sin buscar ni llamar a la IA
+        return {"respuesta": bloqueo[1], "fuentes": [], "cifras_sin_respaldo": [], "fragmentos_usados": 0,
+                "modelo": "safety filter" if idioma == "en" else "filtro de seguridad", "bloqueada": bloqueo[0],
+                "idioma": idioma, "segundos": round(time.time() - inicio, 1)}
 
     def recuperar(conexion):
         vectorizador = base.vectorizador_listo(conexion)
-        fragmentos = buscar(conexion, vectorizador, p.pregunta, p.k, p.experimento_id, p.pilar,
-                            hibrida=p.hibrida, diversa=p.diversa)
-        return con_vecinos(conexion, fragmentos) if p.vecinos else fragmentos
+        if p.por_pilar:
+            fragmentos = buscar_por_pilares(conexion, vectorizador, p.pregunta, max(p.k, 9))
+        else:
+            fragmentos = buscar(conexion, vectorizador, p.pregunta, p.k, p.experimento_id, p.pilar,
+                                hibrida=p.hibrida, diversa=p.diversa)
+        return con_vecinos(conexion, fragmentos, tabla=vectorizador.tabla) if p.vecinos else fragmentos
 
     try:
         fragmentos = base.ejecutar(recuperar)
         # La IA va fuera del candado: puede tardar y no debe bloquear otras consultas.
-        texto = responder(p.pregunta, fragmentos, p.modelo or None, p.contexto, p.estilo)
+        texto = responder(p.pregunta, fragmentos, p.modelo or None, p.contexto, p.estilo,
+                          por_pilar=p.por_pilar, idioma=idioma)
     except ErrorIA as e:
         raise HTTPException(502, f"La IA no pudo responder: {str(e).splitlines()[0]}")
+    texto, quitadas = quitar_veredictos(texto, f"{p.pregunta} {p.contexto}", idioma)
 
     fuentes = [{
-        "n": n,
-        "experimento": f["experimento"],
+        "n": numeros[0],
+        "numeros": numeros,
+        "experimento": nombre_fuente(f),
+        "general": bool(f.get("fuente_general")),
+        "pilar": f.get("pilar"),
         "experimento_id": f["experimento_id"],
         "documento": f.get("titulo_documento") or Path(f["archivo"]).name,
         "tipo_documento": f.get("tipo_documento"),
@@ -210,7 +283,7 @@ def chat(p: Pregunta):
         "url": f"https://doi.org/{f['doi']}" if f.get("doi") else None,
         "similitud": round(float(f["similitud"]), 3),
         "via": f.get("via"),
-    } for n, f in fuentes_citadas(texto, fragmentos)]
+    } for numeros, f in agrupar_fuentes(fuentes_citadas(texto, fragmentos))]
     return {
         "respuesta": texto,
         "fuentes": fuentes,
@@ -218,6 +291,11 @@ def chat(p: Pregunta):
         "cifras_sin_respaldo": numeros_sin_respaldo(texto, fragmentos, f"{p.pregunta} {p.contexto}"),
         "fragmentos_usados": len(fragmentos),
         "modelo": modelo_configurado(p.modelo or None),
+        "bloqueada": "",
+        "veredictos_quitados": quitadas,
+        "seguridad_al_reves": seguridad_al_reves(texto),
+        "negativa": es_negativa(texto),
+        "idioma": idioma,
         "segundos": round(time.time() - inicio, 1),
     }
 

@@ -24,14 +24,16 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import bd  # noqa: E402
 from embeddings import Vectorizador, a_pgvector, nombre_configurado  # noqa: E402
+from fuentes_generales import nombre_fuente  # noqa: E402
 from glosario import terminos_clave  # noqa: E402
 
 CAMPOS = ["experimento", "experimento_id", "doi", "tipo_documento", "titulo_documento",
-          "archivo", "pagina", "orden", "texto"]
+          "archivo", "pagina", "orden", "texto", "pilar", "fuente_general"]
 CANDIDATOS = 40        # cuántos resultados pide cada búsqueda antes de combinar
 RRF_K = 60             # constante estándar de Reciprocal Rank Fusion
 POR_DOCUMENTO = 2      # máximo de fragmentos de un mismo archivo
 POR_EXPERIMENTO = 4    # máximo de fragmentos de un mismo experimento
+POR_GENERAL = 3        # máximo de fragmentos de documentos generales (guías, hojas informativas)
 CASI_IGUAL = 0.8       # parecido de palabras (Jaccard) a partir del cual dos fragmentos son "el mismo"
 TSV = "to_tsvector('english', texto)"  # debe coincidir con el índice fragmentos_texto_idx
 
@@ -47,20 +49,21 @@ def _filtros(vectorizador, experimento_id: str, pilar: str) -> tuple[list[str], 
     return filtros, parametros
 
 
-def _por_vectores(cursor, vector: str, filtros, parametros, limite: int) -> list[dict]:
+def _por_vectores(cursor, vector: str, filtros, parametros, limite: int, tabla: str = "fragmentos") -> list[dict]:
     cursor.execute(
         f"SELECT {', '.join(CAMPOS)}, 1 - (embedding <=> %s::vector) AS similitud "
-        f"FROM fragmentos WHERE {' AND '.join(filtros)} ORDER BY embedding <=> %s::vector LIMIT %s",
+        f"FROM {tabla} WHERE {' AND '.join(filtros)} ORDER BY embedding <=> %s::vector LIMIT %s",
         [vector] + parametros + [vector, limite])
     return [dict(zip(CAMPOS + ["similitud"], fila)) for fila in cursor.fetchall()]
 
 
-def _por_palabras(cursor, consulta: str, vector: str, filtros, parametros, limite: int) -> list[dict]:
+def _por_palabras(cursor, consulta: str, vector: str, filtros, parametros, limite: int,
+                  tabla: str = "fragmentos") -> list[dict]:
     if not consulta:
         return []
     cursor.execute(
         f"SELECT {', '.join(CAMPOS)}, 1 - (embedding <=> %s::vector) AS similitud "
-        f"FROM fragmentos, websearch_to_tsquery('english', %s) AS q "
+        f"FROM {tabla}, websearch_to_tsquery('english', %s) AS q "
         f"WHERE {TSV} @@ q AND {' AND '.join(filtros)} "
         f"ORDER BY ts_rank_cd({TSV}, q) DESC LIMIT %s",
         [vector, consulta] + parametros + [limite])
@@ -83,14 +86,15 @@ def diversificar(candidatos: list[dict], k: int, limitar: bool = True) -> list[d
         palabras = _palabras(c["texto"])
         if any(len(palabras & v) / max(1, len(palabras | v)) >= CASI_IGUAL for v in vistos):
             continue  # casi idéntico a uno ya elegido (p. ej. la misma hoja en dos experimentos)
-        if limitar and (por_doc.get(c["archivo"], 0) >= POR_DOCUMENTO
-                        or por_exp.get(c["experimento_id"], 0) >= POR_EXPERIMENTO):
+        grupo = "general" if c.get("fuente_general") else c["experimento_id"]
+        tope = POR_GENERAL if grupo == "general" else POR_EXPERIMENTO
+        if limitar and (por_doc.get(c["archivo"], 0) >= POR_DOCUMENTO or por_exp.get(grupo, 0) >= tope):
             saltados.append((c, palabras))
             continue
         elegidos.append(c)
         vistos.append(palabras)
         por_doc[c["archivo"]] = por_doc.get(c["archivo"], 0) + 1
-        por_exp[c["experimento_id"]] = por_exp.get(c["experimento_id"], 0) + 1
+        por_exp[grupo] = por_exp.get(grupo, 0) + 1
         if len(elegidos) == k:
             return elegidos
     for c, palabras in saltados:
@@ -116,12 +120,13 @@ def buscar(conexion, vectorizador: Vectorizador, pregunta: str, k: int = 5,
     filtros, parametros = _filtros(vectorizador, experimento_id, pilar)
     cursor = conexion.cursor()
     limite = max(CANDIDATOS, k * 4) if (hibrida or diversa) else k
-    por_vector = _por_vectores(cursor, vector, filtros, parametros, limite)
+    tabla = vectorizador.tabla
+    por_vector = _por_vectores(cursor, vector, filtros, parametros, limite, tabla)
 
     por_texto = []
     if hibrida:
         try:
-            por_texto = _por_palabras(cursor, terminos_clave(pregunta), vector, filtros, parametros, limite)
+            por_texto = _por_palabras(cursor, terminos_clave(pregunta), vector, filtros, parametros, limite, tabla)
         except Exception:  # sin búsqueda de texto disponible: seguimos sólo con vectores
             conexion.rollback()
 
@@ -140,11 +145,47 @@ def buscar(conexion, vectorizador: Vectorizador, pregunta: str, k: int = 5,
     return diversificar(candidatos, k, limitar=not experimento_id)
 
 
-def preparar_texto_completo(conexion) -> bool:
-    """Crea (una sola vez) el índice para la búsqueda por palabras. Regresa si quedó disponible."""
+PILARES = {  # consultas en inglés: los documentos están en inglés
+    "prevencion": "flammability limit and flame spread of solid materials, oxygen concentration, "
+                  "pressure and air flow velocity in microgravity",
+    "deteccion": "smoke particle size, fire detection and smoke detectors in microgravity, "
+                 "combustion products and aerosol",
+    "supresion": "flame extinction and fire suppression in microgravity, extinguishing agents, "
+                 "carbon dioxide, nitrogen and helium diluents",
+}
+
+
+def buscar_por_pilares(conexion, vectorizador: Vectorizador, pregunta: str, k: int = 9,
+                       por_pilar: int = 3) -> list[dict]:
+    """Para el dictamen de un escenario: una búsqueda con la pregunta y una por cada pilar
+    (prevención, detección, supresión), filtrando por los experimentos de ese pilar. Se
+    intercalan los resultados para que la respuesta tenga material de los tres pilares."""
+    listas = [buscar(conexion, vectorizador, pregunta, por_pilar)]
+    for pilar, consulta in PILARES.items():
+        listas.append(buscar(conexion, vectorizador, consulta, por_pilar, pilar=pilar))
+    intercalados, vistos = [], set()
+    for posicion in range(max(len(lista) for lista in listas)):
+        for lista in listas:
+            if posicion < len(lista) and (lista[posicion]["archivo"], lista[posicion]["orden"]) not in vistos:
+                vistos.add((lista[posicion]["archivo"], lista[posicion]["orden"]))
+                intercalados.append(lista[posicion])
+    return diversificar(intercalados, k)
+
+
+def preparar_texto_completo(conexion, tabla: str = "fragmentos") -> bool:
+    """Crea (una sola vez) el índice para la búsqueda por palabras y etiqueta los documentos
+    generales (ver fuentes_generales.py). Regresa si la búsqueda por palabras quedó disponible."""
+    from fuentes_generales import sql_actualizar
+    try:  # columna y etiquetas de documentos generales (rápido; sólo cambia lo que falte)
+        cursor = conexion.cursor()
+        for sql, parametros in sql_actualizar(tabla):
+            cursor.execute(sql, parametros)
+        conexion.commit()
+    except Exception:
+        conexion.rollback()
     try:
         cursor = conexion.cursor()
-        cursor.execute(f"CREATE INDEX IF NOT EXISTS fragmentos_texto_idx ON fragmentos USING gin ({TSV})")
+        cursor.execute(f"CREATE INDEX IF NOT EXISTS {tabla}_texto_idx ON {tabla} USING gin ({TSV})")
         conexion.commit()
         return True
     except Exception:
@@ -152,7 +193,7 @@ def preparar_texto_completo(conexion) -> bool:
         return False
 
 
-def con_vecinos(conexion, fragmentos: list[dict], alcance: int = 1) -> list[dict]:
+def con_vecinos(conexion, fragmentos: list[dict], alcance: int = 1, tabla: str = "fragmentos") -> list[dict]:
     """Agrega a cada fragmento el texto de los vecinos (orden ± alcance) del mismo archivo,
     para que el modelo de IA tenga el párrafo completo y no sólo un pedazo de 500 caracteres.
     Si dos resultados son vecinos entre sí, se quedan como uno solo (sin repetir texto)."""
@@ -161,7 +202,7 @@ def con_vecinos(conexion, fragmentos: list[dict], alcance: int = 1) -> list[dict
     for f in fragmentos:
         if (f["archivo"], f["orden"]) in cubiertos:
             continue  # ya viene dentro del texto ampliado de un resultado anterior
-        cursor.execute("SELECT orden, texto FROM fragmentos WHERE archivo = %s AND orden BETWEEN %s AND %s "
+        cursor.execute(f"SELECT orden, texto FROM {tabla} WHERE archivo = %s AND orden BETWEEN %s AND %s "
                        "ORDER BY orden", [f["archivo"], f["orden"] - alcance, f["orden"] + alcance])
         filas = [fila for fila in cursor.fetchall() if (f["archivo"], fila[0]) not in cubiertos]
         cubiertos.update((f["archivo"], fila[0]) for fila in filas)
@@ -170,22 +211,27 @@ def con_vecinos(conexion, fragmentos: list[dict], alcance: int = 1) -> list[dict
 
 
 def preparar(conexion, modelo: str | None = None) -> Vectorizador:
-    """Crea el Vectorizador y revisa que coincida con el modelo de los fragmentos cargados."""
-    if not bd.uno(conexion, "SELECT to_regclass('public.fragmentos') IS NOT NULL"):
-        raise SystemExit("La base no tiene fragmentos. Corre: python scripts/cargar_fragmentos.py")
-    cursor = conexion.cursor()
-    cursor.execute("SELECT DISTINCT modelo_embedding FROM fragmentos")
-    cargados = [f[0] for f in cursor.fetchall()]
+    """Crea el Vectorizador y revisa que su tabla exista y tenga fragmentos de ese modelo.
+    Cada modelo de embeddings tiene su propia tabla (ver embeddings.tabla_fragmentos)."""
+    from embeddings import tabla_fragmentos
     nombre = nombre_configurado(modelo)
+    tabla = tabla_fragmentos(nombre)
     # Revisión previa (sin cargar el modelo) para no descargar 220 MB en vano.
-    if cargados and nombre not in cargados and not any(c.split("@")[0] == nombre.split("@")[0] for c in cargados):
-        raise SystemExit(f"Los fragmentos se cargaron con {cargados} y estás preguntando con '{nombre}'.\n"
-                         "Deben ser el mismo modelo (revisa MODELO_EMBEDDINGS en .env), o vuelve a cargar con\n"
-                         "  python scripts/cargar_fragmentos.py --recrear")
+    if not bd.uno(conexion, f"SELECT to_regclass('public.{tabla}') IS NOT NULL"):
+        raise SystemExit(f"No existe la tabla {tabla} para el modelo '{nombre}'. Cárgala con:\n"
+                         f"  python scripts/cargar_fragmentos.py --modelo {nombre.split('@')[0]}")
+    cursor = conexion.cursor()
+    cursor.execute(f"SELECT modelo_embedding, count(*) FROM {tabla} GROUP BY 1")
+    cargados = dict(cursor.fetchall())
+    if not cargados:
+        raise SystemExit(f"La tabla {tabla} está vacía. Corre: python scripts/cargar_fragmentos.py")
+    if nombre not in cargados and not any(c.split("@")[0] == nombre.split("@")[0] for c in cargados):
+        raise SystemExit(f"La tabla {tabla} tiene fragmentos de {list(cargados)} y estás preguntando con "
+                         f"'{nombre}'. Revisa MODELO_EMBEDDINGS en .env.")
     vectorizador = Vectorizador(nombre)
-    preparar_texto_completo(conexion)
-    if cargados and vectorizador.nombre not in cargados:
-        raise SystemExit(f"Los fragmentos se cargaron con {cargados} y estás preguntando con "
+    preparar_texto_completo(conexion, tabla)
+    if vectorizador.nombre not in cargados:
+        raise SystemExit(f"La tabla {tabla} tiene fragmentos de {list(cargados)} y estás preguntando con "
                          f"'{vectorizador.nombre}'. Revisa MODELO_EMBEDDINGS y DIMENSIONES_EMBEDDINGS en .env.")
     return vectorizador
 
@@ -199,14 +245,18 @@ def main() -> int:
     p.add_argument("--modelo", help="modelo de embeddings (debe ser el mismo con el que se cargó)")
     p.add_argument("--solo-vectores", action="store_true", help="sin búsqueda por palabras clave")
     p.add_argument("--sin-diversidad", action="store_true", help="sin límites por documento/experimento")
+    p.add_argument("--por-pilar", action="store_true", help="una búsqueda por pilar (como el dictamen)")
     args = p.parse_args()
 
     conexion = bd.conectar()
     vectorizador = preparar(conexion, args.modelo)
     from gemini import ErrorIA
     try:
-        resultados = buscar(conexion, vectorizador, args.pregunta, args.k, args.experimento, args.pilar,
-                            hibrida=not args.solo_vectores, diversa=not args.sin_diversidad)
+        if args.por_pilar:
+            resultados = buscar_por_pilares(conexion, vectorizador, args.pregunta, args.k)
+        else:
+            resultados = buscar(conexion, vectorizador, args.pregunta, args.k, args.experimento, args.pilar,
+                                hibrida=not args.solo_vectores, diversa=not args.sin_diversidad)
     except ErrorIA as e:
         raise SystemExit(f"Error al vectorizar la pregunta:\n{e}")
     if not resultados:
@@ -216,7 +266,8 @@ def main() -> int:
     print(f"Palabras clave usadas: {terminos_clave(args.pregunta) or '(ninguna)'}\n")
     for i, r in enumerate(resultados, start=1):
         pagina = f", pág. {r['pagina']}" if r["pagina"] else ""
-        print(f"{i}. [{r['similitud']:.2f} · {r.get('via', 'significado')}] {r['experimento']} ({r['experimento_id']}) · {r['tipo_documento']} · "
+        print(f"{i}. [{r['similitud']:.2f} · {r.get('via', 'significado')} · {r.get('pilar') or '-'}] "
+              f"{nombre_fuente(r)} ({r['experimento_id']}) · {r['tipo_documento']} · "
               f"{r['titulo_documento']}{pagina}")
         print(f"   DOI {r['doi']} · {r['archivo']}")
         print(f"   {r['texto']}\n")

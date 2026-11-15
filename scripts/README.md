@@ -28,6 +28,7 @@ Los pasos 3, 5, 6 y 7 necesitan la base de datos (el 7 además la clave de Groq 
 | `buscar.py` | Prueba la búsqueda del RAG; su función `buscar()` la puede usar el backend |
 | `preguntar.py` | Chat completo: busca fragmentos y la IA (Gemini o Groq) responde citando experimento y DOI |
 | `bd.py`, `embeddings.py` | Conexión a Postgres y modelo de embeddings, local o Gemini (compartidos) |
+| `comparar_busqueda.py` | Compara la búsqueda con dos modelos de embeddings (p. ej. local contra Gemini) |
 | `glosario.py` | Términos español→inglés para la búsqueda por palabras clave |
 | `gemini.py`, `groq_api.py`, `llm.py` | Llamadas a Gemini y a Groq (con reintentos) y armado de la respuesta del chat |
 | `probar_gemini.py`, `probar_groq.py` | Revisan la clave y la conexión con cada proveedor |

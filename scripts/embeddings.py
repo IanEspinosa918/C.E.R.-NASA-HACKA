@@ -78,6 +78,11 @@ class Vectorizador:
         self.dimension = len(self._locales(["prueba"])[0])
         print("Modelo cargado.")
 
+    @property
+    def tabla(self) -> str:
+        """Tabla de Postgres con los fragmentos vectorizados con este modelo."""
+        return tabla_fragmentos(self.nombre)
+
     # ------------------------------------------------------------ local
 
     def _prefijo(self, tipo: str) -> str:
@@ -129,6 +134,21 @@ class Vectorizador:
         if self._gemini:
             return self._gemini_vectores([texto], "RETRIEVAL_QUERY")[0]
         return self._locales([self._prefijo("pregunta") + texto])[0]
+
+
+def tabla_fragmentos(nombre_modelo: str) -> str:
+    """Tabla donde viven los vectores de ese modelo. Cada modelo tiene la suya para poder
+    probar uno nuevo (por ejemplo Gemini) sin borrar el que ya funciona:
+      modelo local (MiniLM, etc.) -> fragmentos
+      Gemini                      -> fragmentos_gemini
+    TABLA_FRAGMENTOS en .env la fija a mano (sólo letras, números y _)."""
+    from bd import leer_env
+    fija = (leer_env().get("TABLA_FRAGMENTOS") or "").strip()
+    if fija:
+        if not re.fullmatch(r"[a-z_][a-z0-9_]{0,40}", fija):
+            raise SystemExit("TABLA_FRAGMENTOS sólo puede tener minúsculas, números y _.")
+        return fija
+    return "fragmentos_gemini" if es_gemini(nombre_modelo) else "fragmentos"
 
 
 def nombre_configurado(argumento: str | None = None) -> str:

@@ -137,17 +137,22 @@ Se usa para dos cosas independientes:
 2. Revisa la conexión y la clave: `python scripts\probar_gemini.py`.
    Prueba el chat completo (funciona con los vectores locales que ya están cargados):
    `python scripts\preguntar.py "¿qué son las llamas frías?"`
-3. (Opcional) Pasar también los vectores a Gemini: primero una prueba chica
-   `python scripts\cargar_fragmentos.py --recrear --limite 200` y luego
-   `python scripts\buscar.py "..."`. Si convence, carga todo con `--recrear` sin `--limite`.
+3. (Opcional) Probar los vectores de Gemini **sin tocar los actuales**. Cada modelo tiene su
+   propia tabla: el local usa `fragmentos` y Gemini usa `fragmentos_gemini`.
+   - Cargar (si se acaba la cuota del día, se retoma con `--continuar --modelo gemini-embedding-001`):
+     `python scripts\cargar_fragmentos.py --modelo gemini-embedding-001`
+   - Comparar las dos búsquedas con las mismas preguntas:
+     `python scripts\comparar_busqueda.py`
+   - Si Gemini gana, pon `MODELO_EMBEDDINGS=gemini-embedding-001` en `.env` y reinicia el backend.
+     Para regresar, quita esa línea: la tabla del modelo local sigue intacta.
 
 Notas:
 - **Límites del plan gratuito.** Son por proyecto de Google (no por clave) y la cuota diaria se
   reinicia a medianoche hora del Pacífico. Si se alcanza el límite por minuto, el script espera
   solo; si se acaba la cuota del día, se detiene y se retoma otro día con `--continuar`. Los
   límites exactos de tu cuenta están en <https://aistudio.google.com/rate-limit>.
-- **Volver al modelo local:** borra o cambia `MODELO_EMBEDDINGS` en `.env` y corre
-  `cargar_fragmentos.py --recrear`.
+- **Volver al modelo local:** quita o cambia `MODELO_EMBEDDINGS` en `.env`. No hay que recargar
+  nada, porque cada modelo tiene su tabla. `TABLA_FRAGMENTOS` en `.env` fija la tabla a mano.
 - En el plan gratuito Google puede usar lo que se envía para mejorar sus productos. Aquí sólo
   van textos públicos de la NASA y las preguntas del chat; no mandes datos personales.
 - `scripts/gemini.py` hace las llamadas (REST, sin librerías extra), `scripts/llm.py` arma el
