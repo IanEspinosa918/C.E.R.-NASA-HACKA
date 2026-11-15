@@ -176,9 +176,16 @@ def preparar_texto_completo(conexion, tabla: str = "fragmentos") -> bool:
     """Crea (una sola vez) el índice para la búsqueda por palabras y etiqueta los documentos
     generales (ver fuentes_generales.py). Regresa si la búsqueda por palabras quedó disponible."""
     from fuentes_generales import sql_actualizar
+    # Si otro servidor (otra revisión de Cloud Run, o el backend de alguien del equipo) tiene la tabla en uso,
+    # no esperar: con lock_timeout cada paso se rinde a los 5 s y el servidor arranca igual.
+    _sql_seguro(conexion, "SET lock_timeout = '5s'")
+    sentencias = sql_actualizar(tabla)
+    if _tiene_columna(conexion, tabla, "fuente_general"):
+        # ALTER TABLE pide un candado exclusivo AUNQUE la columna ya exista: se salta si ya está
+        sentencias = [s for s in sentencias if not s[0].lstrip().upper().startswith("ALTER TABLE")]
     try:  # columna y etiquetas de documentos generales (rápido; sólo cambia lo que falte)
         cursor = conexion.cursor()
-        for sql, parametros in sql_actualizar(tabla):
+        for sql, parametros in sentencias:
             cursor.execute(sql, parametros)
         conexion.commit()
     except Exception:
@@ -190,7 +197,28 @@ def preparar_texto_completo(conexion, tabla: str = "fragmentos") -> bool:
         return True
     except Exception:
         conexion.rollback()
-        return False
+        return _sql_seguro(conexion, f"SELECT to_regclass('public.{tabla}_texto_idx') IS NOT NULL", leer=True) is True
+
+
+def _sql_seguro(conexion, sql: str, leer: bool = False):
+    """Ejecuta una sentencia sin dejar la transacción abierta ni lanzar errores."""
+    try:
+        cursor = conexion.cursor()
+        cursor.execute(sql)
+        valor = cursor.fetchone()[0] if leer else None
+        conexion.commit()
+        return valor
+    except Exception:
+        try:
+            conexion.rollback()
+        except Exception:
+            pass
+        return None
+
+
+def _tiene_columna(conexion, tabla: str, columna: str) -> bool:
+    return _sql_seguro(conexion, "SELECT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = "
+                                 f"'public' AND table_name = '{tabla}' AND column_name = '{columna}')", leer=True) is True
 
 
 def con_vecinos(conexion, fragmentos: list[dict], alcance: int = 1, tabla: str = "fragmentos") -> list[dict]:

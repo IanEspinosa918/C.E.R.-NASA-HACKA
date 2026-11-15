@@ -67,6 +67,14 @@ class Base:
             self.conexion = bd.conectar()
         except SystemExit as e:  # bd.conectar() termina con mensajes claros: aquí los convertimos
             raise HTTPException(503, f"No hay conexión con la base de datos: {e}")
+        # Ninguna consulta espera más de 5 s por una tabla ocupada (por ejemplo, mientras Cloud Run
+        # cambia de versión): falla, se reintenta y el servidor nunca se queda colgado.
+        try:
+            cursor = self.conexion.cursor()
+            cursor.execute("SET lock_timeout = '5s'")
+            self.conexion.commit()
+        except Exception:
+            pass
 
     def ejecutar(self, funcion):
         """Corre funcion(conexion) con el candado; reintenta una vez reconectando."""
@@ -75,8 +83,11 @@ class Base:
                 if self.conexion is None:
                     self._abrir()
                 try:
-                    return funcion(self.conexion)
+                    resultado = funcion(self.conexion)
+                    self._terminar("commit")   # cierra la transacción: no deja la tabla ocupada entre peticiones
+                    return resultado
                 except (HTTPException, ErrorIA):
+                    self._terminar("rollback")
                     raise
                 except Exception:
                     try:
@@ -86,6 +97,12 @@ class Base:
                     self.conexion = None
                     if intento == 2:
                         raise
+
+    def _terminar(self, como: str):
+        try:
+            getattr(self.conexion, como)()
+        except Exception:
+            pass
 
     def vectorizador_listo(self, conexion):
         if self.vectorizador is None:
@@ -375,8 +392,10 @@ if __name__ == "__main__":
     print("Conectando a la base y preparando el modelo de búsqueda (la primera vez tarda)...")
     try:
         base.ejecutar(base.vectorizador_listo)
-    except HTTPException as e:
-        raise SystemExit(f"\nNo pude arrancar: {e.detail}")
+    except Exception as e:  # el servidor arranca igual: /api/salud dirá qué falta y se reintenta en cada petición
+        detalle = getattr(e, "detail", None) or f"{type(e).__name__}: {e}"
+        print(f"\nAVISO: no pude preparar la base o el modelo al arrancar: {detalle}\n"
+              "El servidor arranca igual y lo vuelve a intentar con la primera pregunta.", flush=True)
     print(f"\nListo. Abre en tu navegador:  http://127.0.0.1:{args.puerto}")
     print(f"Documentación de la API:      http://127.0.0.1:{args.puerto}/docs")
     print("Para detenerlo: Ctrl+C\n")
