@@ -31,8 +31,11 @@ HackatonNASA/
 
 ## Primeros pasos
 
-1. Descargar los datos: ver [`scripts/README.md`](scripts/README.md).
-2. Leer [`docs/reto.md`](docs/reto.md) y [`docs/plan.md`](docs/plan.md).
+1. Leer [`docs/reto.md`](docs/reto.md) y [`docs/plan.md`](docs/plan.md).
+2. Descargar y limpiar los datos: ver [`scripts/README.md`](scripts/README.md).
+   Los datos limpios ya vienen en `data/processed/pruebas.csv`
+   (formato en [`docs/formato-datos.md`](docs/formato-datos.md)).
+3. Base de datos y chat con RAG: ver [`docs/base-de-datos.md`](docs/base-de-datos.md).
 
 ## Datos
 

@@ -3,17 +3,29 @@
 Orden de uso:
 
 ```powershell
-python scripts\descargar_psi.py     # 1. descarga de PSI a data\raw\
-python scripts\limpiar_todo.py      # 2. limpia todo a data\processed\pruebas.csv
+pip install -r requirements.txt       # 0. librerías (una sola vez)
+python scripts\descargar_psi.py       # 1. descarga de PSI a data\raw\
+python scripts\limpiar_todo.py        # 2. limpia todo a data\processed\pruebas.csv
+python scripts\cargar_bd.py           # 3. sube experimentos y pruebas a Postgres
+python scripts\preparar_textos.py     # 4. extrae y parte los textos para el chat
+python scripts\cargar_fragmentos.py   # 5. calcula los vectores y los sube a Postgres
+python scripts\buscar.py "¿qué son las llamas frías?"   # 6. prueba la búsqueda
 ```
+
+Los pasos 3, 5 y 6 necesitan la base de datos: ver [`docs/base-de-datos.md`](../docs/base-de-datos.md).
 
 | Script | Qué hace |
 |---|---|
 | `descargar_psi.py` | Descarga fichas, tablas y documentos de PSI |
 | `limpiar_todo.py` | Corre todas las limpiezas y junta el resultado en `data/processed/pruebas.csv` |
-| `limpiar_flex.py` | Limpia FLEX (PSI-69) → `data/processed/pruebas_flex.csv` |
+| `limpiar_flex.py`, `limpiar_bass2.py`, `limpiar_cfi.py`, `limpiar_saffire.py`, `limpiar_same.py` | Limpian cada experimento → `data/processed/pruebas_<nombre>.csv` |
 | `comun_limpieza.py` | Formato común, lectura de valores sucios y validación (lo usan los `limpiar_*`) |
-| `investigaciones.py` | Lista de los 24 experimentos |
+| `investigaciones.py` | Lista de los 24 experimentos y su clasificación (pilar, combustible, equipo) |
+| `cargar_bd.py` | Crea las tablas `experimentos` y `pruebas` y carga los datos (`--revisar` muestra qué hay) |
+| `preparar_textos.py` | Fichas + PDF/docx/pptx → `data/processed/fragmentos.jsonl` con metadatos |
+| `cargar_fragmentos.py` | Embeddings de los fragmentos → tabla `fragmentos` (pgvector) |
+| `buscar.py` | Prueba la búsqueda del RAG; su función `buscar()` la puede usar el backend |
+| `bd.py`, `embeddings.py` | Conexión a Postgres y modelo de embeddings (compartidos) |
 
 El formato de la tabla limpia está en [`docs/formato-datos.md`](../docs/formato-datos.md).
 Cada limpieza deja un reporte de problemas en `data/reportes/validacion_<nombre>.csv`.

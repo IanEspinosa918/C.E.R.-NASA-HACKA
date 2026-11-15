@@ -7,6 +7,9 @@ data/reportes/*
 !data/reportes/.gitkeep
 
 # data/processed/ SÍ se sube: son CSV limpios y pequeños que necesita el backend.
+# Excepto los fragmentos de texto: pesan varios MB, se regeneran con
+# scripts/preparar_textos.py y el equipo los comparte en la base de datos.
+data/processed/fragmentos.jsonl
 
 # Claves y configuración local (NUNCA subir claves de API)
 .env

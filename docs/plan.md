@@ -17,14 +17,15 @@ Regla de oro: **la Fase 3 funcionando de punta a punta antes de empezar los simu
 - [ ] Revisar requisitos de entrega de Space Apps
 
 ## Fase 1 — Datos
-- [ ] Descargar con `scripts/descargar_psi.py`
-- [ ] Revisar cada CSV: columnas, unidades, faltantes (ver `trampas-datos.md`)
-- [ ] Formato común: tablas `experimentos` y `pruebas`
-- [ ] Convertir unidades (ej. ventilador de BASS-II → cm/s)
-- [ ] Validación: rangos, unidades, valores raros
-- [ ] Cargar en Postgres; guardar DOI
-- [ ] Texto para la IA → embeddings en pgvector
-- [ ] Buscar curvas de inflamabilidad en documentos de BASS/BASS-II
+- [x] Descargar con `scripts/descargar_psi.py`
+- [x] Revisar cada CSV: columnas, unidades, faltantes (ver `trampas-datos.md`)
+- [x] Formato común: `data/processed/pruebas.csv` (781 pruebas; ver `formato-datos.md`)
+- [x] Convertir unidades
+- [x] Validación: rangos, unidades, valores raros
+- [ ] Cargar en Postgres: `scripts/cargar_bd.py` (script listo; falta crear la base y correrlo, ver `base-de-datos.md`)
+- [ ] Texto para la IA → embeddings en pgvector: `preparar_textos.py` + `cargar_fragmentos.py` (scripts listos; falta correrlos)
+- [ ] Buscar curvas de inflamabilidad en documentos de BASS/BASS-II (se hace junto con el simulador de inflamabilidad)
+- [ ] Opcional: limpiar CFI-G y BASS (Excel); tabla de tamaños de partícula de SAME desde los reportes
 
 ## Fase 2 — Backend + IA
 - [ ] FastAPI: `/experimentos`, `/experimentos/{id}`, `/pruebas`, `/export.csv`, `/chat`
