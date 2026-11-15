@@ -1,6 +1,10 @@
 # Datos descargados (pesan GB; cada quien los descarga con scripts/descargar_psi.py)
 data/raw/*
 !data/raw/.gitkeep
+# Copias comprimidas de los datos (data/raw.zip pesa ~2.5 GB: GitHub no las acepta)
+data/*.zip
+data/*.7z
+data/*.rar
 
 # Reportes (se regeneran con cada corrida)
 data/reportes/*
