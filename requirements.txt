@@ -1,4 +1,4 @@
-# Dependencias de Python de los scripts de datos
+# Dependencias de Python del proyecto (scripts de datos y backend)
 # Instalar con:  pip install -r requirements.txt
 #
 # descargar_psi.py y la mayoría de las limpiezas sólo usan la librería estándar.
@@ -6,3 +6,5 @@ openpyxl>=3.1     # leer los Excel de PSI (limpiar_cfi.py)
 pg8000>=1.31      # conexión a Postgres (cargar_bd.py, cargar_fragmentos.py, buscar.py)
 pypdf>=5.0        # leer el texto de los PDF (preparar_textos.py)
 fastembed>=0.7    # modelo local de embeddings (cargar_fragmentos.py, buscar.py)
+fastapi>=0.115    # backend: API y servidor de la página (backend/app.py)
+uvicorn>=0.30     # servidor web para FastAPI

@@ -5,14 +5,17 @@ Destino:  tabla `fragmentos` de la base de DATABASE_URL (archivo .env)
 
 Antes hay que haber corrido scripts/cargar_bd.py (crea la tabla `experimentos`).
 
-El modelo corre en tu computadora (gratis, sin claves). La primera vez se descarga
-(~220 MB). Con unos 20 mil fragmentos tarda del orden de 10 a 30 minutos.
+Con el modelo local (por defecto) todo corre en tu computadora (gratis, sin claves). La
+primera vez se descarga (~220 MB). Con unos 20 mil fragmentos tarda de 10 a 30 minutos.
 
 Uso:
   python scripts/cargar_fragmentos.py               # borra los fragmentos y los carga todos
   python scripts/cargar_fragmentos.py --continuar   # retoma una carga que se interrumpió
   python scripts/cargar_fragmentos.py --recrear     # borra la tabla (necesario si cambias de modelo)
   python scripts/cargar_fragmentos.py --limite 200  # prueba rápida con pocos fragmentos
+
+Con Gemini (MODELO_EMBEDDINGS=gemini-embedding-001 en .env) los vectores se calculan en
+la API de Google: no usa tu computadora, pero tiene límites por minuto y por día.
 """
 
 from __future__ import annotations
@@ -26,7 +29,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import bd  # noqa: E402
 import comun_limpieza as cl  # noqa: E402
-from embeddings import MODELO_DE_PRUEBA, MODELO_POR_DEFECTO, Vectorizador, a_pgvector  # noqa: E402
+from embeddings import MODELO_DE_PRUEBA, MODELO_POR_DEFECTO, Vectorizador, a_pgvector, es_gemini, nombre_configurado  # noqa: E402
 
 ENTRADA = cl.DIR_PROCESSED / "fragmentos.jsonl"
 COLUMNAS = ["experimento_id", "experimento", "pilar", "doi", "tipo_documento", "titulo_documento",
@@ -40,7 +43,7 @@ def main() -> int:
     p.add_argument("--continuar", action="store_true", help="no borra; sólo agrega los fragmentos que falten")
     p.add_argument("--recrear", action="store_true", help="borra y vuelve a crear la tabla fragmentos")
     p.add_argument("--limite", type=int, default=0, help="cargar sólo los primeros N fragmentos (para probar)")
-    p.add_argument("--lote", type=int, default=128, help="fragmentos por lote (default 128)")
+    p.add_argument("--lote", type=int, default=0, help="fragmentos por lote (default 128; 100 con Gemini)")
     args = p.parse_args()
 
     if not ENTRADA.exists():
@@ -54,11 +57,17 @@ def main() -> int:
     if not bd.uno(conexion, "SELECT to_regclass('public.experimentos') IS NOT NULL"):
         raise SystemExit("La base no tiene la tabla experimentos. Corre primero: python scripts/cargar_bd.py")
 
-    nombre_modelo = args.modelo or bd.leer_env().get("MODELO_EMBEDDINGS") or MODELO_POR_DEFECTO
-    vectorizador = Vectorizador(nombre_modelo)
+    vectorizador = Vectorizador(nombre_configurado(args.modelo))
+    nombre_modelo = vectorizador.nombre
     if nombre_modelo == MODELO_DE_PRUEBA:
         print("AVISO: modelo 'prueba' = vectores falsos. Sirve para probar la carga, NO para el chat.")
     print(f"Modelo: {nombre_modelo} ({vectorizador.dimension} dimensiones)")
+    if es_gemini(nombre_modelo):
+        print("Usando la API de Gemini: si se alcanza el límite por minuto el script espera solo; "
+              "si se acaba la cuota del día, se detiene y se retoma con --continuar.")
+
+    if not args.lote:
+        args.lote = 100 if es_gemini(nombre_modelo) else 128
 
     cursor = conexion.cursor()
     if args.recrear:
@@ -98,7 +107,11 @@ def main() -> int:
     for i in range(0, total, args.lote):
         grupo = fragmentos[i:i + args.lote]
         # El nombre del experimento va al inicio para que el vector "sepa" de qué experimento habla.
-        vectores = vectorizador.documentos([f"{f['experimento']}: {f['texto']}" for f in grupo])
+        try:
+            vectores = vectorizador.documentos([f"{f['experimento']}: {f['texto']}" for f in grupo])
+        except Exception as e:  # cuota de Gemini agotada, sin conexión, etc.
+            raise SystemExit(f"\n{e}\n\nSe detuvo en el fragmento {i} de {total}. Lo ya subido quedó guardado.\n"
+                             "Retoma con:  python scripts/cargar_fragmentos.py --continuar")
         filas = [[f["experimento_id"], f["experimento"], f.get("pilar") or None, f.get("doi") or None,
                   f["tipo_documento"], f.get("titulo_documento") or None, f["archivo"], f.get("pagina"),
                   f["orden"], f["texto"].replace("\x00", ""), f.get("tambien_en") or [], nombre_modelo,

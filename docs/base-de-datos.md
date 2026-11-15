@@ -80,6 +80,42 @@ Cambia `MODELO_EMBEDDINGS` en `.env` y vuelve a cargar con
 Modelos locales compatibles: los que lista `fastembed` (ej.
 `sentence-transformers/paraphrase-multilingual-mpnet-base-v2`, más preciso y más pesado).
 
+La base guarda en `modelo_embedding` el nombre exacto con el que se cargó; los scripts se
+niegan a buscar con otro modelo para que nunca se mezclen vectores incompatibles.
+
+## Gemini (API de Google)
+
+Se usa para dos cosas independientes:
+
+| Para qué | Variable en `.env` | Valor |
+|---|---|---|
+| Vectores de los fragmentos (opcional) | `MODELO_EMBEDDINGS` | `gemini-embedding-001` |
+| | `DIMENSIONES_EMBEDDINGS` | `768` (o `1536`; no más de 2000 por el índice de pgvector) |
+| Redactar las respuestas del chat | `MODELO_CHAT` | `gemini-flash-latest` (por defecto) |
+| Ambas | `GEMINI_API_KEY` | tu clave |
+
+1. Saca la clave en <https://aistudio.google.com> → **Get API key** → **Create API key**.
+   Pégala **sólo** en `.env` (nunca en el chat, WhatsApp ni GitHub). Cada quien puede usar su
+   propia clave.
+2. Prueba el chat completo (funciona con los vectores locales que ya están cargados):
+   `python scripts\preguntar.py "¿qué son las llamas frías?"`
+3. (Opcional) Pasar también los vectores a Gemini: primero una prueba chica
+   `python scripts\cargar_fragmentos.py --recrear --limite 200` y luego
+   `python scripts\buscar.py "..."`. Si convence, carga todo con `--recrear` sin `--limite`.
+
+Notas:
+- **Límites del plan gratuito.** Son por proyecto de Google (no por clave) y la cuota diaria se
+  reinicia a medianoche hora del Pacífico. Si se alcanza el límite por minuto, el script espera
+  solo; si se acaba la cuota del día, se detiene y se retoma otro día con `--continuar`. Los
+  límites exactos de tu cuenta están en <https://aistudio.google.com/rate-limit>.
+- **Volver al modelo local:** borra o cambia `MODELO_EMBEDDINGS` en `.env` y corre
+  `cargar_fragmentos.py --recrear`.
+- En el plan gratuito Google puede usar lo que se envía para mejorar sus productos. Aquí sólo
+  van textos públicos de la NASA y las preguntas del chat; no mandes datos personales.
+- `scripts/gemini.py` hace las llamadas (REST, sin librerías extra), `scripts/llm.py` arma el
+  mensaje con los fragmentos numerados y pide citar cada dato con `[n]`; `preguntar.py` muestra
+  la respuesta y las fuentes citadas (experimento, documento, página y DOI).
+
 ## Qué entra y qué no entra a `fragmentos`
 - Entra: la ficha de cada experimento y los documentos de *Reports*, *Science Documents* y
   *Presentations* en `.pdf`, `.docx` y `.pptx`.
@@ -91,4 +127,4 @@ Modelos locales compatibles: los que lista `fastembed` (ej.
 - Las tres tablas tienen seguridad por filas (RLS) con una política de **sólo lectura**: en
   Supabase, quien tenga la clave pública puede leer (son datos públicos de la NASA) pero no
   modificar ni borrar. El backend y los scripts se conectan como dueños y sí pueden escribir.
-- La contraseña de la base sólo vive en `.env`.
+- La contraseña de la base y la clave de Gemini sólo viven en `.env`.

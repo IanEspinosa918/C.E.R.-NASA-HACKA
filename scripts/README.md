@@ -10,9 +10,10 @@ python scripts\cargar_bd.py           # 3. sube experimentos y pruebas a Postgre
 python scripts\preparar_textos.py     # 4. extrae y parte los textos para el chat
 python scripts\cargar_fragmentos.py   # 5. calcula los vectores y los sube a Postgres
 python scripts\buscar.py "¿qué son las llamas frías?"   # 6. prueba la búsqueda
+python scripts\preguntar.py "¿qué son las llamas frías?" # 7. chat completo con Gemini
 ```
 
-Los pasos 3, 5 y 6 necesitan la base de datos: ver [`docs/base-de-datos.md`](../docs/base-de-datos.md).
+Los pasos 3, 5, 6 y 7 necesitan la base de datos (el 7 además GEMINI_API_KEY): ver [`docs/base-de-datos.md`](../docs/base-de-datos.md).
 
 | Script | Qué hace |
 |---|---|
@@ -25,7 +26,9 @@ Los pasos 3, 5 y 6 necesitan la base de datos: ver [`docs/base-de-datos.md`](../
 | `preparar_textos.py` | Fichas + PDF/docx/pptx → `data/processed/fragmentos.jsonl` con metadatos |
 | `cargar_fragmentos.py` | Embeddings de los fragmentos → tabla `fragmentos` (pgvector) |
 | `buscar.py` | Prueba la búsqueda del RAG; su función `buscar()` la puede usar el backend |
-| `bd.py`, `embeddings.py` | Conexión a Postgres y modelo de embeddings (compartidos) |
+| `preguntar.py` | Chat completo: busca fragmentos y Gemini responde citando experimento y DOI |
+| `bd.py`, `embeddings.py` | Conexión a Postgres y modelo de embeddings, local o Gemini (compartidos) |
+| `gemini.py`, `llm.py` | Llamadas a la API de Gemini (con reintentos) y armado de la respuesta del chat |
 
 El formato de la tabla limpia está en [`docs/formato-datos.md`](../docs/formato-datos.md).
 Cada limpieza deja un reporte de problemas en `data/reportes/validacion_<nombre>.csv`.
