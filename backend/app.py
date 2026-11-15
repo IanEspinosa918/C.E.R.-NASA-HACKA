@@ -9,6 +9,8 @@ Endpoints:
     GET  /api/experimentos              los 24 experimentos (para tarjetas y filtros)
     GET  /api/pruebas?experimento_id=…  pruebas limpias (números exactos salen de aquí, no del chat)
     POST /api/chat                      pregunta -> RAG (fragmentos) -> Gemini o Groq -> respuesta con fuentes
+                                        (modo "bitacora": analiza sólo la bitácora que manda la página)
+                                        (+ escenarios_propuestos: casos que la IA sugiere probar en el simulador)
     GET  /docs                          documentación automática para probar la API
 
 Usa lo mismo que los scripts: DATABASE_URL, MODELO_EMBEDDINGS, MODELO_CHAT, NIVEL_RAZONAMIENTO
@@ -25,6 +27,7 @@ import sys
 import threading
 import time
 from pathlib import Path
+from typing import Optional
 
 RAIZ = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(RAIZ / "scripts"))
@@ -45,6 +48,7 @@ from gemini import ErrorIA  # noqa: E402
 from seguridad import revisar_pregunta  # noqa: E402
 from idioma import detectar_idioma  # noqa: E402
 from llm import agrupar_fuentes, es_negativa, seguridad_al_reves, fuentes_citadas, quitar_veredictos, modelo_configurado, numeros_sin_respaldo, proveedor_de, responder  # noqa: E402
+from llm import ids_sin_respaldo, responder_bitacora, unidades_sin_respaldo  # noqa: E402
 
 FRONTEND = RAIZ / "frontend"
 
@@ -226,13 +230,20 @@ class Pregunta(BaseModel):
     k: int = Field(8, ge=1, le=20, description="fragmentos a buscar")
     experimento_id: str = ""
     pilar: str = ""
-    contexto: str = Field("", max_length=3000, description="escenario del tablero (no es fuente)")
+    contexto: str = Field("", max_length=6000, description="datos actuales del tablero (no son fuente); "
+                                                       "en modo bitacora, la bitácora completa")
     estilo: str = Field("", description="engineer | student")
     modelo: str = Field("", description="modelo de chat, ej. openai/gpt-oss-120b (vacío = MODELO_CHAT de .env)")
     vecinos: bool = True
     hibrida: bool = Field(True, description="búsqueda por significado + palabras clave")
     diversa: bool = Field(True, description="máx. 2 fragmentos por documento y 4 por experimento")
     por_pilar: bool = Field(False, description="una búsqueda por pilar y respuesta en 3 viñetas (dictamen)")
+    dictamen: Optional[bool] = Field(None, description="true = dictamen del escenario (botón Interpretar); "
+                                     "false = pregunta libre con los datos actuales del tablero en `contexto`; "
+                                     "vacío = se deduce como antes (por_pilar y contexto)")
+    modo: str = Field("", pattern=r"^(bitacora)?$",
+                      description="bitacora = analizar la bitácora de pruebas que viene en `contexto` usando SÓLO "
+                                  "esa bitácora (sin buscar en los documentos); vacío = chat normal")
     idioma: str = Field("", pattern=r"^(es|en)?$",
                         description="idioma de la página (es | en). La IA responde en el idioma de la pregunta; "
                                     "si no se distingue, en este")
@@ -249,7 +260,10 @@ def chat(p: Pregunta):
     if bloqueo:  # filtro de seguridad: respuesta fija, sin buscar ni llamar a la IA
         return {"respuesta": bloqueo[1], "fuentes": [], "cifras_sin_respaldo": [], "fragmentos_usados": 0,
                 "modelo": "safety filter" if idioma == "en" else "filtro de seguridad", "bloqueada": bloqueo[0],
-                "idioma": idioma, "segundos": round(time.time() - inicio, 1)}
+                "escenarios_propuestos": [], "idioma": idioma, "segundos": round(time.time() - inicio, 1)}
+
+    if p.modo == "bitacora":
+        return chat_bitacora(p, idioma, inicio)
 
     def recuperar(conexion):
         vectorizador = base.vectorizador_listo(conexion)
@@ -260,11 +274,12 @@ def chat(p: Pregunta):
                                 hibrida=p.hibrida, diversa=p.diversa)
         return con_vecinos(conexion, fragmentos, tabla=vectorizador.tabla) if p.vecinos else fragmentos
 
+    escenarios: list[dict] = []  # escenarios que la IA propone probar en el simulador (escenarios.py)
     try:
         fragmentos = base.ejecutar(recuperar)
         # La IA va fuera del candado: puede tardar y no debe bloquear otras consultas.
         texto = responder(p.pregunta, fragmentos, p.modelo or None, p.contexto, p.estilo,
-                          por_pilar=p.por_pilar, idioma=idioma)
+                          por_pilar=p.por_pilar, idioma=idioma, escenarios=escenarios, dictamen=p.dictamen)
     except ErrorIA as e:
         raise HTTPException(502, f"La IA no pudo responder: {str(e).splitlines()[0]}")
     texto, quitadas = quitar_veredictos(texto, f"{p.pregunta} {p.contexto}", idioma)
@@ -295,6 +310,38 @@ def chat(p: Pregunta):
         "veredictos_quitados": quitadas,
         "seguridad_al_reves": seguridad_al_reves(texto),
         "negativa": es_negativa(texto),
+        # Campo nuevo (opcional para quien consuma la API): escenarios para el botón "Aplicar al simulador".
+        # Valores en % de O2, psi, fracción de g y cm/s; None = ese parámetro no cambia.
+        "escenarios_propuestos": [] if es_negativa(texto) else escenarios,
+        "idioma": idioma,
+        "segundos": round(time.time() - inicio, 1),
+    }
+
+
+def chat_bitacora(p: Pregunta, idioma: str, inicio: float) -> dict:
+    """Análisis de una bitácora de pruebas: la IA sólo ve la bitácora (sin fragmentos ni base de datos).
+    Se revisa que no use cifras ni pruebas que no estén en la bitácora."""
+    if not p.contexto.strip():
+        raise HTTPException(400, "Falta la bitácora en `contexto`.")
+    try:
+        texto = responder_bitacora(p.pregunta, p.contexto, p.modelo or None, p.estilo, idioma)
+    except ErrorIA as e:
+        raise HTTPException(502, f"La IA no pudo responder: {str(e).splitlines()[0]}")
+    return {
+        "respuesta": texto,
+        "fuentes": [],
+        # Cifras e identificadores de prueba que no aparecen en la bitácora: la página los marca.
+        "cifras_sin_respaldo": numeros_sin_respaldo(texto, [], f"{p.pregunta} {p.contexto}"),
+        "ids_sin_respaldo": ids_sin_respaldo(texto, f"{p.pregunta} {p.contexto}"),
+        "unidades_sin_respaldo": unidades_sin_respaldo(texto, f"{p.pregunta} {p.contexto}"),
+        "fragmentos_usados": 0,
+        "modelo": modelo_configurado(p.modelo or None),
+        "bloqueada": "",
+        "veredictos_quitados": [],
+        "seguridad_al_reves": seguridad_al_reves(texto),
+        "negativa": es_negativa(texto),
+        "escenarios_propuestos": [],
+        "modo": "bitacora",
         "idioma": idioma,
         "segundos": round(time.time() - inicio, 1),
     }

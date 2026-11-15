@@ -38,12 +38,51 @@ Cuerpo de `/api/chat`:
   "estilo": "engineer | student",
   "modelo": "",
   "vecinos": true,
+  "dictamen": false,
   "idioma": "es | en"
 }
 ```
 
+**Modo bitácora** (`"modo": "bitacora"`): para analizar una bitácora de pruebas (la ventana ACME 17319).
+La bitácora completa va en `contexto` (hasta 6000 caracteres) y es la **única fuente**: no se buscan
+fragmentos ni se usa la base de datos. La IA sigue otras reglas (`INSTRUCCIONES_BITACORA` en
+`scripts/llm.py`): cada dato con su prueba entre paréntesis, no inventar causas, soluciones = cambios
+que la bitácora registra en otras pruebas, máximo 2 interpretaciones marcadas. La respuesta trae
+`modo: "bitacora"`, `cifras_sin_respaldo` (cifras que no están en la bitácora), `unidades_sin_respaldo`
+(unidades que la bitácora no usa, por ejemplo "sccm") e `ids_sin_respaldo` (pruebas que no existen en ella). El filtro de seguridad se aplica igual. Un backend anterior ignora
+`modo` y responde como chat normal.
+
+`contexto` son los **datos actuales del tablero** (gravedad, O₂, presión, flujo, combustible…). La página
+los manda con cada pregunta, así la IA puede contestar "¿qué gravedad hay seleccionada?" (marca esas
+oraciones con "(dato del tablero)", sin cita). Hoy son los parámetros del simulador; si después vienen de
+sensores, sólo cambia lo que se manda en `contexto`. `dictamen` (opcional): `true` para el botón
+"Interpretar este escenario con IA", `false` para preguntas libres; si no se manda, se deduce como antes
+(`por_pilar` con `contexto` = dictamen).
+
 Respuesta: `respuesta` (texto con citas `[n]`), `fuentes` (n, experimento, documento, página,
-DOI y enlace), `modelo`, `fragmentos_usados`, `idioma` y `segundos`.
+DOI y enlace), `modelo`, `fragmentos_usados`, `idioma`, `segundos` y `escenarios_propuestos`.
+
+**Escenarios propuestos (IA → simulador)** (`scripts/escenarios.py`): cuando la IA sugiere probar
+valores concretos en el simulador, escribe al final líneas
+`ESCENARIO: nombre=…; o2=21 %; presion=70 kPa; gravedad=1/6; flujo=10 cm/s; combustible=solido`.
+El backend las quita del texto y las manda aparte (máximo 3), con unidades fijas:
+
+```json
+"escenarios_propuestos": [
+  { "nombre": "Aire terrestre a baja presión", "o2_pct": 21.0, "presion_psi": 10.15,
+    "gravedad_g": null, "flujo_cm_s": 10.0, "combustible": null, "original": "nombre=…" }
+]
+```
+
+`null` = ese parámetro no cambia. Acepta kPa, psi, atm, bar; m/s, cm/s, mm/s; gravedad como
+fracción (1/6), número, m/s² o palabra (Luna, Marte, órbita, Tierra). Un nombre que afirme que el
+caso es "seguro" o "no inflamable" se descarta. La página ajusta cada valor al rango de sus
+deslizadores y muestra el botón **Aplicar al simulador**.
+
+**Compatibilidad:** el cuerpo de la petición no cambió y la respuesta sólo agrega ese campo
+(siempre es una lista; vacía si no hay escenarios, si la pregunta se bloqueó o si la IA se negó).
+Una página anterior lo ignora y nunca ve las líneas `ESCENARIO`. `responder()` las quita siempre
+del texto; quien quiera los escenarios le pasa `escenarios=[]` (parámetro opcional).
 
 **Idioma de la respuesta** (`scripts/idioma.py`): si la pregunta pide un idioma ("in English",
 "respóndeme en inglés", "in Spanish") se respeta; si no, se detecta por sus palabras (inglés o

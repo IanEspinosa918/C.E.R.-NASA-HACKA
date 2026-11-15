@@ -28,6 +28,7 @@ from fuentes_generales import nombre_fuente  # noqa: E402
 from llm import agrupar_fuentes, es_negativa, seguridad_al_reves, fuentes_citadas, numeros_sin_respaldo, quitar_veredictos, responder
 from seguridad import revisar_pregunta  # noqa: E402
 from idioma import detectar_idioma  # noqa: E402
+from escenarios import describir  # noqa: E402
 
 
 def main() -> int:
@@ -91,9 +92,10 @@ def main() -> int:
         encabezado = f" — vuelta {vuelta} de {args.repetir}" if args.repetir > 1 else ""
         print(f"Preguntando a la IA ({modelo_chat}, temperatura: {t}){encabezado}...\n")
         inicio = time.time()
+        escenarios: list[dict] = []
         try:
             texto = responder(args.pregunta, fragmentos, modelo_chat, temperatura=args.temperatura,
-                              por_pilar=args.por_pilar, idioma=idioma)
+                              por_pilar=args.por_pilar, idioma=idioma, escenarios=escenarios)
         except ErrorIA as e:
             raise SystemExit(f"Error al pedir la respuesta a la IA:\n{e}")
         segundos = time.time() - inicio
@@ -104,6 +106,10 @@ def main() -> int:
             print("\nAVISO: se quitaron conclusiones no verificables sobre si el escenario es inflamable o seguro:")
             for q in quitadas:
                 print(f"  - {q[:160]}")
+        if escenarios and not es_negativa(texto):
+            print("\nEscenarios que la IA propone probar en el simulador:")
+            for e in escenarios:
+                print(f"  - {e['nombre'] or 'sin nombre'}: {describir(e, idioma)}")
         if seguridad_al_reves(texto):
             print("\nAVISO: la línea 'Para la seguridad' recomienda mantener una llama; ignórala.")
         dudosas = numeros_sin_respaldo(texto, fragmentos, args.pregunta)

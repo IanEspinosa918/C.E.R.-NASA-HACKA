@@ -31,6 +31,7 @@ Los pasos 3, 5, 6 y 7 necesitan la base de datos (el 7 además la clave de Groq 
 | `comparar_busqueda.py` | Compara la búsqueda con dos modelos de embeddings (p. ej. local contra Gemini) |
 | `glosario.py` | Términos español→inglés para la búsqueda por palabras clave |
 | `gemini.py`, `groq_api.py`, `llm.py` | Llamadas a Gemini y a Groq (con reintentos) y armado de la respuesta del chat |
+| `escenarios.py` | Lee las líneas `ESCENARIO:` que la IA agrega cuando sugiere probar valores en el simulador (botón "Aplicar al simulador") |
 | `probar_gemini.py`, `probar_groq.py` | Revisan la clave y la conexión con cada proveedor |
 
 El formato de la tabla limpia está en [`docs/formato-datos.md`](../docs/formato-datos.md).

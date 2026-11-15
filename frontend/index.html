@@ -215,14 +215,8 @@
         <button type="button" role="tab" id="tabbtn-simulacion" aria-controls="tab-simulacion" aria-selected="true" data-tab="simulacion" class="pestana">
           <span class="pestana-num">1</span> Simulación
         </button>
-        <button type="button" role="tab" id="tabbtn-seguridad" aria-controls="tab-seguridad" aria-selected="false" tabindex="-1" data-tab="seguridad" class="pestana">
-          <span class="pestana-num">2</span> Detección y supresión
-        </button>
-        <button type="button" role="tab" id="tabbtn-experimentos" aria-controls="tab-experimentos" aria-selected="false" tabindex="-1" data-tab="experimentos" class="pestana">
-          <span class="pestana-num">3</span> Experimentos PSI
-        </button>
         <button type="button" role="tab" id="tabbtn-ia" aria-controls="tab-ia" aria-selected="false" tabindex="-1" data-tab="ia" class="pestana">
-          <span class="pestana-num">4</span> Co-Piloto IA
+          <span class="pestana-num">2</span> Co-Piloto IA
         </button>
       </div>
 
@@ -245,7 +239,8 @@
   <main class="flex-1 max-w-[1600px] w-full mx-auto p-4">
 
     <!-- ===================================================================== -->
-    <!-- PESTAÑA 1: SIMULACIÓN (Luna + llama a la izquierda; parámetros + riesgo a la derecha) -->
+    <!-- PESTAÑA 1: SIMULACIÓN (Luna + llama a la izquierda; parámetros + riesgo a la derecha;    -->
+    <!-- debajo, detección y supresión y luego experimentos PSI, cada uno con su etiqueta)       -->
     <!-- ===================================================================== -->
     <section id="tab-simulacion" role="tabpanel" aria-labelledby="tabbtn-simulacion" tabindex="-1"
       class="tab-panel grid grid-cols-1 xl:grid-cols-12 gap-5 items-start">
@@ -529,21 +524,10 @@
           </div>
         </div>
       </div>
-      <div class="col-span-full flex justify-end">
-        <button type="button" onclick="mostrarPestana('seguridad')" class="px-3 py-1.5 rounded-lg border border-[#1e2f4d] hover:border-cyan-400 text-xs font-mono text-slate-300 hover:text-cyan-300 transition">
-          Siguiente: Detección y supresión →
-        </button>
-      </div>
-    </section>
-
-    <!-- ===================================================================== -->
-    <!-- PESTAÑA 2: DETECCIÓN Y SUPRESIÓN (tarjetas C y D)                      -->
-    <!-- ===================================================================== -->
-    <section id="tab-seguridad" role="tabpanel" aria-labelledby="tabbtn-seguridad" tabindex="-1"
-      class="tab-panel grid grid-cols-1 xl:grid-cols-12 gap-5 items-start" hidden>
-      <div class="col-span-full flex flex-wrap items-baseline gap-x-3 gap-y-1">
-        <h2 class="text-sm font-mono font-bold uppercase tracking-wider text-white">2 · Detección y supresión</h2>
-        <p class="text-xs text-slate-400">Cómo detectar el humo y cómo apagar el fuego en este escenario, según los experimentos PSI.</p>
+      <!-- Detección y supresión: tarjetas C y D (antes era la pestaña 2) -->
+      <div id="seccion-deteccion" class="col-span-full flex items-center gap-3 pt-3 scroll-mt-40">
+        <span class="text-[11px] font-mono uppercase tracking-[0.2em] text-slate-500">Detección y supresión</span>
+        <span class="flex-1 h-px bg-[#1e2f4d]"></span>
       </div>
       <div class="xl:col-span-6 flex flex-col gap-4">
           <!-- TARJETA C: ESTRATEGIA DE DETECCIÓN RECOMENDADA -->
@@ -607,21 +591,10 @@
             </div>
           </div>
       </div>
-      <div class="col-span-full flex justify-end">
-        <button type="button" onclick="mostrarPestana('experimentos')" class="px-3 py-1.5 rounded-lg border border-[#1e2f4d] hover:border-cyan-400 text-xs font-mono text-slate-300 hover:text-cyan-300 transition">
-          Siguiente: Experimentos PSI →
-        </button>
-      </div>
-    </section>
-
-    <!-- ===================================================================== -->
-    <!-- PESTAÑA 3: EXPERIMENTOS PSI (top 3 + telemetría real ACME)             -->
-    <!-- ===================================================================== -->
-    <section id="tab-experimentos" role="tabpanel" aria-labelledby="tabbtn-experimentos" tabindex="-1"
-      class="tab-panel grid grid-cols-1 xl:grid-cols-12 gap-5 items-start" hidden>
-      <div class="col-span-full flex flex-wrap items-baseline gap-x-3 gap-y-1">
-        <h2 class="text-sm font-mono font-bold uppercase tracking-wider text-white">3 · Experimentos PSI</h2>
-        <p class="text-xs text-slate-400">Los experimentos más parecidos a tu escenario y datos reales de una prueba ACME en la ISS.</p>
+      <!-- Experimentos PSI: Top 3 y telemetría ACME (antes era la pestaña 3) -->
+      <div id="seccion-experimentos" class="col-span-full flex items-center gap-3 pt-3 scroll-mt-40">
+        <span class="text-[11px] font-mono uppercase tracking-[0.2em] text-slate-500">Experimentos PSI</span>
+        <span class="flex-1 h-px bg-[#1e2f4d]"></span>
       </div>
       <div class="xl:col-span-5 flex flex-col gap-4">
           <!-- TARJETA B: RANKING TOP 3 EXPERIMENTOS PSI RELEVANTES -->
@@ -693,12 +666,12 @@
     </section>
 
     <!-- ===================================================================== -->
-    <!-- PESTAÑA 4: CO-PILOTO IA (chat con los documentos de NASA PSI)          -->
+    <!-- PESTAÑA 2: CO-PILOTO IA (chat con los documentos de NASA PSI)          -->
     <!-- ===================================================================== -->
     <section id="tab-ia" role="tabpanel" aria-labelledby="tabbtn-ia" tabindex="-1"
       class="tab-panel grid grid-cols-1 xl:grid-cols-12 gap-5 items-start" hidden>
       <div class="col-span-full flex flex-wrap items-baseline gap-x-3 gap-y-1">
-        <h2 class="text-sm font-mono font-bold uppercase tracking-wider text-white">4 · Co-Piloto IA</h2>
+        <h2 class="text-sm font-mono font-bold uppercase tracking-wider text-white">2 · Co-Piloto IA</h2>
         <p class="text-xs text-slate-400">Pregunta sobre los documentos de NASA PSI o pide que la IA interprete el escenario actual.</p>
       </div>
       <div class="xl:col-span-12 w-full max-w-6xl">
@@ -721,7 +694,7 @@
               </div>
             </div>
 
-            <div class="flex items-center gap-2">
+            <div class="flex flex-wrap items-center gap-2">
               <select id="ai-persona-select" class="bg-[#111b2e] border border-[#1e2f4d] text-xs font-mono text-slate-200 rounded-lg px-2.5 py-2 focus:outline-none focus:border-cyan-400">
                 <option value="engineer">Perfil: Ingeniero de Sistemas NASA</option>
                 <option value="student">Perfil: Estudiante / Divulgación</option>
@@ -733,12 +706,13 @@
           </div>
 
           <!-- Pregunta libre al chat (RAG sobre documentos PSI + Gemini, vía backend /api/chat) -->
-          <div class="flex items-center justify-between gap-2 mb-2">
+          <div class="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 mb-2">
             <span id="ai-estado" class="text-[11px] font-mono text-slate-400">● verificando conexión con la IA...</span>
+            <span class="text-[11px] font-mono text-slate-500 cursor-help" title="La IA recibe con cada pregunta los valores actuales del simulador (barra ESCENARIO). Más adelante pueden venir de sensores.">📡 La IA lee el escenario actual</span>
           </div>
           <form id="ai-form" class="flex gap-2 mb-3" onsubmit="event.preventDefault(); preguntarLibre();">
             <input id="ai-pregunta" type="text" maxlength="1500" autocomplete="off"
-              placeholder="Pregunta sobre los experimentos PSI (ej. ¿qué son las llamas frías?)"
+              placeholder="Pregunta sobre los experimentos PSI o el escenario actual (ej. ¿qué gravedad hay seleccionada?)"
               class="flex-1 bg-[#111b2e] border border-[#1e2f4d] text-xs font-mono text-slate-200 rounded-lg px-3 py-2 focus:outline-none focus:border-cyan-400">
             <button type="submit" id="ai-btn-preguntar"
               class="px-3.5 py-2 rounded-lg bg-[#111b2e] hover:bg-[#1a2840] border border-cyan-500/50 text-cyan-300 font-mono font-bold text-xs whitespace-nowrap">
@@ -812,6 +786,7 @@
         </button>
       </div>
       <div class="p-4 overflow-y-auto space-y-3">
+        <p class="text-xs text-slate-300 leading-relaxed">Es la bitácora real de un experimento de NASA (datos de PSI), no de nuestro proyecto: los intentos de encender una llama de metano en la Estación Espacial Internacional el 15 de noviembre de 2017. Haz clic en una prueba para verla en el simulador, o en ✨ para que la IA la analice.</p>
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs font-mono">
           <div class="p-2.5 rounded-xl bg-[#090f1c] border border-[#1e2f4d]">
             <span class="text-slate-400">Atmósfera Cámara:</span> <span class="text-white font-bold">21% O₂ / 79% N₂</span>
@@ -833,6 +808,7 @@
                 <th class="py-2 px-3">Velocidad</th>
                 <th class="py-2 px-3">Estado</th>
                 <th class="py-2 px-3">Notas Experimentales</th>
+                <th class="py-2 px-3">Acciones</th>
               </tr>
             </thead>
             <tbody id="acme-tests-tbody" class="divide-y divide-[#1e2f4d]/60 text-slate-300">
@@ -911,17 +887,11 @@
       "50 cm/s (Forzado)": "50 cm/s (Forced)",
       "Presión Parcial O₂ (ppO₂):": "O₂ Partial Pressure (ppO₂):",
       "TARJETA A // ÍNDICE DE RIESGO & LLAMA": "CARD A // RISK INDEX & FLAME",
-      "Siguiente: Detección y supresión →": "Next: Detection & suppression →",
-      "2 · Detección y supresión": "2 · Detection & suppression",
-      "Cómo detectar el humo y cómo apagar el fuego en este escenario, según los experimentos PSI.": "How to detect smoke and how to put out the fire in this scenario, according to the PSI experiments.",
       "TARJETA C // ESTRATEGIA DE DETECCIÓN": "CARD C // DETECTION STRATEGY",
       "TARJETA D // EXTINCIÓN & SPIN-OFF": "CARD D // EXTINGUISHMENT & SPIN-OFF",
       "🌍 SPIN-OFF NASA ISS → TIERRA:": "🌍 NASA ISS → EARTH SPIN-OFF:",
       "Niebla Fina de Agua (Fine Water Mist):": "Fine Water Mist:",
       "Microgotas (<100 µm) creadas para sustituir al Halón en la ISS hoy protegen museos, cabinas de aviones, hospitales y centros de datos sin dañar equipos.": "Micro-droplets (<100 µm) created to replace Halon on the ISS now protect museums, aircraft cabins, hospitals and data centers without damaging equipment.",
-      "Siguiente: Experimentos PSI →": "Next: PSI experiments →",
-      "3 · Experimentos PSI": "3 · PSI experiments",
-      "Los experimentos más parecidos a tu escenario y datos reales de una prueba ACME en la ISS.": "The experiments most similar to your scenario and real data from an ACME test on the ISS.",
       "TARJETA B // TOP 3 EXPERIMENTOS PSI": "CARD B // TOP 3 PSI EXPERIMENTS",
       "Algoritmo Similitud PSI": "PSI Similarity Algorithm",
       "Ponderación: Comb 35% | O₂ 30% | Flujo 20% | Grav 15%": "Weights: Fuel 35% | O₂ 30% | Flow 20% | Grav 15%",
@@ -934,7 +904,7 @@
       "Radiómetro (1.86V pico)": "Radiometer (1.86V peak)",
       "Llama estable: 66.3s – 71.8s": "Stable flame: 66.3s – 71.8s",
       "Siguiente: Co-Piloto IA →": "Next: AI Co-Pilot →",
-      "4 · Co-Piloto IA": "4 · AI Co-Pilot",
+      "2 · Co-Piloto IA": "2 · AI Co-Pilot",
       "Pregunta sobre los documentos de NASA PSI o pide que la IA interprete el escenario actual.": "Ask about the NASA PSI documents or have the AI interpret the current scenario.",
       "CO-PILOTO DE INGENIERÍA PSI (SÍNTESIS INTELIGENTE)": "PSI ENGINEERING CO-PILOT (SMART SYNTHESIS)",
       "Analiza el Top 3 rankeado y genera directrices accionables de seguridad contra incendios": "Analyzes the ranked Top 3 and produces actionable fire-safety guidelines",
@@ -971,14 +941,18 @@
       "ID Prueba": "Test ID",
       "Velocidad": "Velocity",
       "Estado": "Status",
-      "Notas Experimentales": "Experimental Notes"
+      "Notas Experimentales": "Experimental Notes",
+      "📡 La IA lee el escenario actual": "📡 The AI reads the current scenario",
+      "Acciones": "Actions",
+      "Es la bitácora real de un experimento de NASA (datos de PSI), no de nuestro proyecto: los intentos de encender una llama de metano en la Estación Espacial Internacional el 15 de noviembre de 2017. Haz clic en una prueba para verla en el simulador, o en ✨ para que la IA la analice.": "This is the real log of a NASA experiment (PSI data), not of our project: the attempts to ignite a methane flame on the International Space Station on November 15, 2017. Click a test to see it in the simulator, or ✨ to have the AI analyze it."
     };
     const ATRIBUTOS_EN = {
       "Apartados del panel": "Dashboard sections",
       "Cambiar el escenario": "Change the scenario",
       "Elevación del Sol sobre el horizonte del sitio, calculada para este momento (esfera lisa, sin contar el relieve local)": "Sun elevation above the site's horizon, computed for this moment (smooth sphere, local terrain not included)",
       "Gravedad libre, de 0 a 1 g": "Free gravity, from 0 to 1 g",
-      "Pregunta sobre los experimentos PSI (ej. ¿qué son las llamas frías?)": "Ask about the PSI experiments (e.g. what are cool flames?)"
+      "Pregunta sobre los experimentos PSI o el escenario actual (ej. ¿qué gravedad hay seleccionada?)": "Ask about the PSI experiments or the current scenario (e.g. what gravity is selected?)",
+      "La IA recibe con cada pregunta los valores actuales del simulador (barra ESCENARIO). Más adelante pueden venir de sensores.": "With every question the AI receives the simulator's current values (SCENARIO bar). Later they can come from sensors."
     };
     const DATOS_EN = {
       "presets": {
@@ -1472,7 +1446,8 @@
       fuel: "solido",
       telemetryChannel: "all",
       lastTop3: [],
-      lastRiskScore: 82
+      lastRiskScore: 82,
+      pruebaACME: null   // prueba de la bitácora ACME 17319 cargada en el simulador (id) o null
     };
 
     // Gravedad: los tres regímenes de los botones y la gravedad libre del deslizador
@@ -1798,6 +1773,7 @@
       actualizarResumenEscenario();
       ajustarColumnaFija();
       actualizarVisor();
+      pintarEscenariosIA();   // tarjetas "Aplicar al simulador" del chat: muestran lo que cambiaría
     }
 
     // La columna de parámetros se queda fija al bajar (pantallas anchas) para poder mover los
@@ -1853,16 +1829,37 @@
     }
 
     // 4b. RESUMEN DEL ESCENARIO EN LA BARRA DE PESTAÑAS
-    function actualizarResumenEscenario() {
+    // Valores de partida del escenario: los del hábitat elegido o los de la prueba ACME cargada
+    function valoresBaseEscenario() {
       const preset = PSI_MASTER_DATA.habitat_presets.find(p => p.id === state.presetId);
-      const modificado = preset && (
-        Math.abs(G_REGIMEN[preset.gravity_label] - state.g) > 0.004 || preset.predominant_fuel !== state.fuel ||
-        Math.abs(preset.o2_pct - state.o2) > 0.05 || Math.abs(preset.pressure_psi - state.psi) > 0.05 ||
-        preset.airflow_cm_s !== state.flow
+      if (preset) return { g: G_REGIMEN[preset.gravity_label], o2: preset.o2_pct, psi: preset.pressure_psi,
+                           flow: preset.airflow_cm_s, fuel: preset.predominant_fuel };
+      const prueba = pruebaACMEActual();
+      return prueba ? valoresSimPruebaACME(prueba) : null;
+    }
+
+    // ¿El usuario movió algún control respecto al hábitat (o a la prueba ACME) elegido?
+    function escenarioModificado() {
+      const b = valoresBaseEscenario();
+      return Boolean(b) && (
+        Math.abs(b.g - state.g) > 0.004 || b.fuel !== state.fuel || Math.abs(b.o2 - state.o2) > 0.05 ||
+        Math.abs(b.psi - state.psi) > 0.05 || b.flow !== state.flow
       );
+    }
+
+    // Nombre del escenario actual: hábitat, prueba ACME cargada o "Personalizado"
+    function nombreEscenarioActual() {
+      const preset = PSI_MASTER_DATA.habitat_presets.find(p => p.id === state.presetId);
+      if (preset) return nombrePreset(preset);
+      if (state.pruebaACME) return tr(`Prueba ACME ${state.pruebaACME} (ISS)`, `ACME test ${state.pruebaACME} (ISS)`);
+      return tr("Personalizado", "Custom");
+    }
+
+    function actualizarResumenEscenario() {
+      const modificado = escenarioModificado();
       const nombres = { solido: tr("Sólidos", "Solids"), liquido: tr("Líquidos", "Liquids"), gas: "Gases" };
       const poner = (id, texto) => { document.getElementById(id).textContent = texto; };
-      poner("resumen-habitat", preset ? nombrePreset(preset) + (modificado ? tr(" · modificado", " · modified") : "") : tr("Personalizado", "Custom"));
+      poner("resumen-habitat", nombreEscenarioActual() + (modificado ? tr(" · modificado", " · modified") : ""));
       poner("resumen-gravedad", textoGravedad());
       poner("resumen-o2", `${Number(state.o2.toFixed(1))}% O₂`);
       poner("resumen-psi", `${state.psi.toFixed(1)} psi`);
@@ -1871,12 +1868,19 @@
     }
 
     // 4c. PESTAÑAS: una sección visible a la vez; la pestaña activa queda en la URL (#simulacion, #ia...)
-    const PESTANAS = ["simulacion", "seguridad", "experimentos", "ia"];
+    const PESTANAS = ["simulacion", "ia"];
 
     function mostrarPestana(nombre, opciones = {}) {
-      const { enfocarBoton = false, actualizarUrl = true, subir = true } = opciones;
       if (nombre === "escenario") nombre = "simulacion"; // nombre anterior de la primera pestaña
+      // #seguridad y #experimentos eran pestañas; ahora son secciones de Simulación: se baja hasta ellas
+      const anclaSeccion = { seguridad: "seccion-deteccion", experimentos: "seccion-experimentos" }[nombre];
+      if (anclaSeccion) {
+        nombre = "simulacion";
+        opciones = { ...opciones, subir: false };
+        requestAnimationFrame(() => document.getElementById(anclaSeccion).scrollIntoView({ behavior: "smooth" }));
+      }
       if (!PESTANAS.includes(nombre)) nombre = "simulacion";
+      const { enfocarBoton = false, actualizarUrl = true, subir = true } = opciones;
       PESTANAS.forEach(p => {
         const activa = p === nombre;
         document.getElementById(`tab-${p}`).hidden = !activa;
@@ -1931,6 +1935,7 @@
       if (!preset) return;
 
       state.presetId = preset.id;
+      state.pruebaACME = null;
       state.gravity = preset.gravity_label;
       state.g = G_REGIMEN[preset.gravity_label];
       state.o2 = preset.o2_pct;
@@ -1946,16 +1951,7 @@
       document.getElementById("hud-lat").textContent = preset.lat;
       document.getElementById("hud-lon").textContent = preset.lon;
 
-      // Resaltar tarjetas rápidas
-      document.querySelectorAll(".preset-card").forEach(el => {
-        if (el.dataset.preset === presetId) {
-          el.classList.remove("border-[#1e2f4d]");
-          el.classList.add("border-cyan-400", "bg-cyan-950/30");
-        } else {
-          el.classList.remove("border-cyan-400", "bg-cyan-950/30");
-          el.classList.add("border-[#1e2f4d]");
-        }
-      });
+      resaltarPresetActivo();
 
       // Resaltar botones de gravedad y combustible
       syncButtonsUI();
@@ -1963,11 +1959,27 @@
       computePSIDiagnosis();
     }
 
+    // Resaltar la tarjeta del hábitat activo (ninguna si hay una prueba ACME o un escenario libre)
+    function resaltarPresetActivo() {
+      document.querySelectorAll(".preset-card").forEach(el => {
+        if (el.dataset.preset === state.presetId) {
+          el.classList.remove("border-[#1e2f4d]");
+          el.classList.add("border-cyan-400", "bg-cyan-950/30");
+        } else {
+          el.classList.remove("border-cyan-400", "bg-cyan-950/30");
+          el.classList.add("border-[#1e2f4d]");
+        }
+      });
+    }
+
     function aplicarTextosPreset() {
       const preset = PSI_MASTER_DATA.habitat_presets.find(p => p.id === state.presetId);
-      if (!preset) return;
-      document.getElementById("active-habitat-badge").textContent = nombrePreset(preset);
-      document.getElementById("preset-description-banner").textContent = descripcionPreset(preset);
+      const prueba = preset ? null : pruebaACMEActual();
+      if (!preset && !prueba) return;
+      document.getElementById("active-habitat-badge").textContent = nombreEscenarioActual();
+      document.getElementById("preset-description-banner").textContent = preset ? descripcionPreset(preset) : tr(
+        `Prueba real de NASA (ACME CLD Flame, 15 nov 2017): llama de metano diluido en la ISS. Resultado real: ${textoEstadoACME(prueba)}.`,
+        `Real NASA test (ACME CLD Flame, Nov 15 2017): diluted methane flame on the ISS. Actual result: ${textoEstadoACME(prueba)}.`);
     }
 
     function syncButtonsUI() {
@@ -2068,18 +2080,27 @@
         .replace(/\*\*(.+?)\*\*/g, '<strong class="text-white">$1</strong>')
         .replace(/(^|[^*])\*([^*\n]+)\*/g, '$1<em>$2</em>')
         .replace(/\$([^$\n]{1,40})\$/g, '$1')
-        .replace(/\[(\d+)\]/g, '<a href="#fuente-$1" class="text-cyan-300 hover:underline">[$1]</a>');
+        .replace(/\[(\d+)\]/g, '<a href="#" data-fuente="$1" class="cita-fuente text-cyan-300 hover:underline">[$1]</a>')
+        // Pruebas de la bitácora ACME (17319E3…): clic = verla en el simulador
+        .replace(/\b17319[A-Z]\d\b/g, id => PSI_MASTER_DATA.acme_17319_tests.some(t => t.id === id)
+          ? `<button type="button" onclick="simularPruebaACME('${id}')" class="text-amber-300 hover:underline" title="${tr("Ver esta prueba en el simulador", "See this test in the simulator")}">${id}</button>`
+          : id);
     }
 
     function formatearRespuesta(texto) {
-      return escaparHTML(texto).split(/\n+/).map(linea => {
-        linea = linea.trim();
+      return escaparHTML(texto).split(/\n+/).map(original => {
+        const sangria = (original.match(/^[ \t]*/)[0] || "").replace(/\t/g, "  ").length;
+        let linea = original.trim();
         if (!linea) return "";
         if (/^[*\-•]\s+/.test(linea)) {
-          return `<p class="text-slate-200 pl-3">• ${formatoEnLinea(linea.replace(/^[*\-•]\s+/, ""))}</p>`;
+          const contenido = linea.replace(/^[*\-•]\s+/, "");
+          // Viñeta que sólo es un título ("**Prevención:**"): se muestra como subtítulo, sin viñeta
+          if (/^[\p{L} ()/-]{3,40}:$/u.test(contenido.replace(/\*\*/g, "").trim()))
+            return `<p class="text-cyan-300 font-bold pt-1">${contenido.replace(/\*\*/g, "")}</p>`;
+          return `<p class="text-slate-200 ${sangria >= 2 ? "pl-6" : "pl-3"}">${sangria >= 2 ? "◦" : "•"} ${formatoEnLinea(contenido)}</p>`;
         }
         const html = formatoEnLinea(linea)
-          .replace(/\((conocimiento general, no de PSI|general knowledge, not from PSI)\)/gi,
+          .replace(/\((conocimiento general, no de PSI|general knowledge, not from PSI|dato del tablero|dashboard data|bitácora|log)\)/gi,
                    '<span class="text-slate-500 italic">($1)</span>');
         if (/^(<strong[^>]*>|<em>)?(Interpretaci[oó]n|Interpretation)/i.test(html)) return `<p class="text-amber-300">${html}</p>`;
         if (/^(<strong[^>]*>|<em>)?(Para la seguridad|For safety)/i.test(html)) return `<p class="text-emerald-300 border-l-2 border-emerald-500/50 pl-2">${html}</p>`;
@@ -2087,8 +2108,58 @@
       }).join("");
     }
 
-    function formatearFuentes(fuentes, negativa) {
+    // Cada cita [n] abre su documento (DOI) en otra pestaña; si no tiene DOI, baja a la lista de fuentes.
+    // (No se usa "#fuente-n": el # de la dirección es el que elige la pestaña y mandaba a Simulación.)
+    function enlazarCitas(contenedor, fuentes) {
+      contenedor.querySelectorAll("a.cita-fuente").forEach(a => {
+        const n = Number(a.dataset.fuente);
+        const f = fuentes.find(x => (x.numeros || [x.n]).includes(n));
+        if (!f) {   // la IA citó un número que no está entre los fragmentos: se deja como texto
+          const texto = document.createElement("span");
+          texto.className = "text-slate-500";
+          texto.textContent = a.textContent;
+          a.replaceWith(texto);
+          return;
+        }
+        const pagina = f.pagina ? `, ${tr("pág.", "p.")} ${f.pagina}` : "";
+        const descripcion = `${f.experimento} — ${nombreDocumento(f.documento)}${pagina}`;
+        if (f.url) {
+          a.href = f.url;
+          a.target = "_blank";
+          a.rel = "noopener noreferrer";
+          a.title = tr(`Abrir en NASA PSI: ${descripcion} (DOI ${f.doi})`, `Open in NASA PSI: ${descripcion} (DOI ${f.doi})`);
+        } else {
+          a.title = descripcion;
+          a.addEventListener("click", (e) => { e.preventDefault(); resaltarFuente(contenedor, n); });
+        }
+      });
+    }
+
+    function resaltarFuente(contenedor, n) {
+      const fila = contenedor.querySelector(`[data-fuente-n~="${n}"]`);
+      if (!fila) return;
+      fila.scrollIntoView({ behavior: "smooth", block: "center" });
+      fila.classList.add("bg-cyan-950/50");
+      setTimeout(() => fila.classList.remove("bg-cyan-950/50"), 1600);
+    }
+
+    function textoFuenteBitacora() {
+      const exp = listaExperimentos.find(e => e.id === "PSI-21");
+      return tr("bitácora de pruebas de ACME CLD Flame, día 17319 (15 nov 2017), NASA PSI · PSI-21",
+                "ACME CLD Flame test log, day 17319 (Nov 15 2017), NASA PSI · PSI-21") + (exp && exp.doi ? ` · DOI ${exp.doi}` : "");
+    }
+
+    function fuenteBitacoraHTML() {
+      const exp = listaExperimentos.find(e => e.id === "PSI-21");
+      const doi = exp && exp.doi ? ` · <a href="https://doi.org/${escaparHTML(exp.doi)}" target="_blank" rel="noopener noreferrer" class="text-cyan-300 hover:underline">DOI ${escaparHTML(exp.doi)}</a>` : "";
+      return `<div class="border-t border-[#1e2f4d] pt-2 mt-2"><div class="text-cyan-400 font-bold mb-1">${tr("FUENTE (ÚNICA)", "SOURCE (ONLY)")}</div>
+        <div class="text-slate-400">${tr("Bitácora de pruebas de ACME CLD Flame, día 17319 (15 nov 2017) · NASA PSI (PSI-21)", "ACME CLD Flame test log, day 17319 (Nov 15 2017) · NASA PSI (PSI-21)")}${doi}.
+        ${tr("La IA no consultó otros documentos. Los identificadores de prueba abren esa prueba en el simulador.", "The AI did not consult other documents. Test identifiers open that test in the simulator.")}</div></div>`;
+    }
+
+    function formatearFuentes(fuentes, negativa, datosTablero = false) {
       if (!fuentes.length) {
+        if (datosTablero) return `<div class="text-slate-500 text-[11px] pt-2">${tr("Respuesta con los datos actuales del tablero (parámetros del simulador).", "Answer based on the dashboard's current data (simulator parameters).")}</div>`;
         return negativa ? "" : `<div class="text-amber-300 pt-2">${tr("(La respuesta no citó fuentes: tómala con cuidado.)", "(The answer cited no sources: take it with care.)")}</div>`;
       }
       const items = fuentes.map(f => {
@@ -2096,7 +2167,7 @@
         const doi = f.url ? ` · <a href="${escaparHTML(f.url)}" target="_blank" rel="noopener noreferrer" class="text-cyan-300 hover:underline">DOI ${escaparHTML(f.doi)}</a>` : "";
         const numeros = f.numeros || [f.n];
         const anclas = numeros.slice(1).map(n => `<span id="fuente-${n}"></span>`).join("");
-        return `<li id="fuente-${f.n}" class="text-slate-400">${anclas}<span class="text-cyan-300">${numeros.map(n => `[${n}]`).join("")}</span> <span class="text-white">${escaparHTML(f.experimento)}</span> (${f.general ? tr("documento general · carpeta ", "general document · folder ") + escaparHTML(f.experimento_id) : escaparHTML(f.experimento_id)}) — ${escaparHTML(nombreDocumento(f.documento))}${pagina}${doi}</li>`;
+        return `<li id="fuente-${f.n}" data-fuente-n="${numeros.join(" ")}" class="text-slate-400 rounded transition-colors">${anclas}<span class="text-cyan-300">${numeros.map(n => `[${n}]`).join("")}</span> <span class="text-white">${escaparHTML(f.experimento)}</span> (${f.general ? tr("documento general · carpeta ", "general document · folder ") + escaparHTML(f.experimento_id) : escaparHTML(f.experimento_id)}) — ${escaparHTML(nombreDocumento(f.documento))}${pagina}${doi}</li>`;
       }).join("");
       return `<div class="border-t border-[#1e2f4d] pt-2 mt-2"><div class="text-cyan-400 font-bold mb-1">${tr("FUENTES (NASA PSI)", "SOURCES (NASA PSI)")}</div><ul class="space-y-1">${items}</ul></div>`;
     }
@@ -2209,13 +2280,17 @@
       return `${encabezado}\n\n${datos.respuesta}` + (fuentes.length ? `\n\n${tr("Fuentes (NASA PSI)", "Sources (NASA PSI)")}:\n${fuentes.join("\n")}` : "");
     }
 
-    async function preguntarIA(pregunta, contexto, encabezado, porPilar = false) {
+    // modo = "bitacora": la IA analiza SÓLO la bitácora que va en `contexto` (sin buscar en los documentos)
+    async function preguntarIA(pregunta, contexto, encabezado, porPilar = false, dictamen = false, modo = "") {
       const out = document.getElementById("ai-copilot-output");
       const estilo = document.getElementById("ai-persona-select").value;
-      const usarPilares = porPilar || opcionesIA.por_pilar;
+      const usarPilares = modo ? false : (porPilar || opcionesIA.por_pilar);
       out.innerHTML = `<div class="text-cyan-400">&gt; ${escaparHTML(encabezado)}</div>
-        <div class="text-slate-400 animate-pulse">&gt; ${tr("Buscando en los documentos de NASA PSI y redactando con IA...", "Searching the NASA PSI documents and writing with AI...")}</div>`;
+        <div class="text-slate-400 animate-pulse">&gt; ${modo === "bitacora"
+          ? tr("Analizando sólo la bitácora de pruebas con IA...", "Analyzing only the test log with AI...")
+          : tr("Buscando en los documentos de NASA PSI y redactando con IA...", "Searching the NASA PSI documents and writing with AI...")}</div>`;
       bloquearBotonesIA(true);
+      escenariosIA = [];
       try {
         const r = await fetch(`${API_BASE}/api/chat`, {
           method: "POST",
@@ -2224,25 +2299,66 @@
             pregunta, contexto, estilo, por_pilar: usarPilares, k: opcionesIA.k, modelo: opcionesIA.modelo,
             experimento_id: usarPilares ? "" : opcionesIA.experimento_id,
             pilar: usarPilares ? "" : opcionesIA.pilar,
+            dictamen,   // true = dictamen del escenario; false = pregunta libre (el contexto son los datos actuales)
+            modo,       // "bitacora" = sólo la bitácora; un backend anterior lo ignora
             idioma,   // idioma de la página: la IA responde en el de la pregunta; si no se distingue, en este
           })
         });
         const datos = await r.json().catch(() => ({}));
+        if (!r.ok && modo === "bitacora" && r.status === 422)   // un backend anterior no acepta este análisis
+          throw new Error(tr("El backend que está corriendo es una versión anterior y no acepta el análisis de bitácora. Detén el backend (Ctrl+C) y vuelve a correr python backend\\app.py.",
+                             "The running backend is an older version and does not accept log analysis. Stop the backend (Ctrl+C) and run python backend\\app.py again."));
         if (!r.ok) throw new Error(datos.detail ? (typeof datos.detail === "string" ? datos.detail : JSON.stringify(datos.detail)) : `HTTP ${r.status}`);
-        ultimaRespuestaIA = textoParaCopiar(encabezado, datos);
-        const filtros = usarPilares ? tr("búsqueda por pilares", "search by pillars")
+        // Escenarios para "Aplicar al simulador": los del backend o, si es un backend anterior, los del texto
+        let crudos = [];
+        if (Array.isArray(datos.escenarios_propuestos)) crudos = datos.escenarios_propuestos;
+        else if (typeof datos.respuesta === "string") {
+          const anterior = escenariosDeRespuestaAnterior(datos.respuesta);
+          datos.respuesta = anterior.texto;
+          crudos = anterior.escenarios;
+        }
+        if (datos.bloqueada || datos.negativa) crudos = [];
+        escenariosIA = crudos.slice(0, 3).map(prepararEscenarioIA).filter(e => {
+          const filas = cambiosEscenario(e);
+          return filas.length && !(e.desdeTexto && filas.every(f => f.igual));  // del texto: sólo si cambia algo
+        });
+        const esBitacora = datos.modo === "bitacora";
+        const hechos = modo === "bitacora" ? analisisACMEActual : null;
+        const backendViejo = modo === "bitacora" && !esBitacora;   // el servidor no se reinició con la versión nueva
+        // En modo bitácora lo que no coincide con la bitácora se QUITA (y se dice qué se quitó)
+        const depurado = esBitacora && hechos ? depurarRespuestaBitacora(datos.respuesta, datos, hechos) : null;
+        if (depurado) {
+          datos.respuesta = depurado.texto;
+          if (depurado.quitadas.length || depurado.corregidas.length) console.info("Revisión contra la bitácora", depurado);
+        }
+        const contradicho = "";
+        const datosCopiar = hechos ? { ...datos, respuesta: `${tr("Datos de la bitácora", "Log data")}:\n${hechosParaIA(hechos)}\n\n${tr("Recomendaciones de la IA", "AI recommendations")}:\n${datos.respuesta}` } : datos;
+        ultimaRespuestaIA = textoParaCopiar(encabezado, datosCopiar) + escenariosParaCopiar() +
+          (esBitacora ? `\n\n${tr("Fuente", "Source")}: ${textoFuenteBitacora()}` : "");
+        const filtros = esBitacora ? tr("sólo la bitácora", "log only") : usarPilares ? tr("búsqueda por pilares", "search by pillars")
           : [opcionesIA.experimento_id, opcionesIA.pilar].filter(Boolean).join(" · ") || tr("todos los experimentos", "all experiments");
         out.innerHTML = `<div class="flex items-start justify-between gap-2">
             <div class="text-cyan-300 font-bold">&gt; ${escaparHTML(encabezado)}</div>
             <button type="button" onclick="copiarRespuestaIA(this)" class="shrink-0 px-2 py-0.5 rounded border border-[#1e2f4d] text-[10px] text-slate-400 hover:text-cyan-300">${tr("Copiar", "Copy")}</button>
           </div>
+          ${backendViejo ? `<div class="text-rose-300 text-[11px] border border-rose-500/40 rounded px-2 py-1">${tr("⚠ El backend que está corriendo no tiene el modo bitácora: esta respuesta usó los documentos, no sólo la bitácora. Detén el backend (Ctrl+C) y vuelve a correr python backend\\app.py.", "⚠ The running backend does not have log mode: this answer used the documents, not only the log. Stop the backend (Ctrl+C) and run python backend\\app.py again.")}</div>` : ""}
+          ${hechos ? hechosHTML(hechos) : ""}
           ${formatearRespuesta(datos.respuesta)}
-          ${datos.seguridad_al_reves ? `<div class="text-amber-300 text-[11px] border border-amber-500/40 rounded px-2 py-1">${tr("⚠ La recomendación de seguridad parece ir al revés (busca mantener una llama). Ignórala.", "⚠ The safety recommendation seems backwards (it aims to keep a flame going). Ignore it.")}</div>` : ""}
+          ${contradicho ? `<div class="text-amber-300 text-[11px] border border-amber-500/40 rounded px-2 py-1">${tr(`⚠ La IA describió mal el resultado de ${hechos.t.id} (la bitácora dice: ${textoEstadoACME(hechos.t)}):`, `⚠ The AI misdescribed the result of ${hechos.t.id} (the log says: ${textoEstadoACME(hechos.t)}):`)} «${escaparHTML(contradicho.slice(0, 160))}»</div>` : ""}
+          ${datos.seguridad_al_reves && !depurado ? `<div class="text-amber-300 text-[11px] border border-amber-500/40 rounded px-2 py-1">${tr("⚠ La recomendación de seguridad parece ir al revés (busca mantener una llama). Ignórala.", "⚠ The safety recommendation seems backwards (it aims to keep a flame going). Ignore it.")}</div>` : ""}
           ${(datos.veredictos_quitados || []).length ? `<div class="text-amber-300 text-[11px] border border-amber-500/40 rounded px-2 py-1">${tr(`⚠ Se quitó ${datos.veredictos_quitados.length === 1 ? "una conclusión" : datos.veredictos_quitados.length + " conclusiones"} sobre si este escenario es inflamable o seguro: los documentos no permiten afirmarlo. Para evaluarlo usa los datos de las pruebas o el simulador.`,
                  `⚠ ${datos.veredictos_quitados.length === 1 ? "A conclusion was" : datos.veredictos_quitados.length + " conclusions were"} removed about whether this scenario is flammable or safe: the documents do not support it. To evaluate it, use the test data or the simulator.`)}</div>` : ""}
-          ${(datos.cifras_sin_respaldo || []).length ? `<div class="text-amber-300 text-[11px] border border-amber-500/40 rounded px-2 py-1">${tr("⚠ Estas cifras no aparecen en los documentos consultados; verifícalas:", "⚠ These figures do not appear in the documents consulted; check them:")} ${datos.cifras_sin_respaldo.map(escaparHTML).join(", ")}</div>` : ""}
-          ${datos.bloqueada ? "" : formatearFuentes(datos.fuentes, datos.negativa)}
-          <div class="text-[10px] text-slate-500 pt-1">${tr("Modelo", "Model")}: ${escaparHTML(datos.modelo)} · ${datos.fragmentos_usados} ${tr("fragmentos consultados", "fragments consulted")} · ${escaparHTML(filtros)} · ${datos.segundos} s</div>`;
+
+          ${!depurado && (datos.cifras_sin_respaldo || []).length ? `<div class="text-amber-300 text-[11px] border border-amber-500/40 rounded px-2 py-1">${esBitacora
+              ? tr("⚠ Estas cifras no aparecen en la bitácora (la IA no debió usarlas):", "⚠ These figures do not appear in the log (the AI should not have used them):")
+              : tr("⚠ Estas cifras no aparecen en los documentos consultados; verifícalas:", "⚠ These figures do not appear in the documents consulted; check them:")} ${datos.cifras_sin_respaldo.map(escaparHTML).join(", ")}</div>` : ""}
+          ${!depurado && (datos.unidades_sin_respaldo || []).length ? `<div class="text-amber-300 text-[11px] border border-amber-500/40 rounded px-2 py-1">${tr("⚠ Estas unidades no aparecen en la bitácora (la IA no debió agregarlas):", "⚠ These units do not appear in the log (the AI should not have added them):")} ${datos.unidades_sin_respaldo.map(escaparHTML).join(", ")}</div>` : ""}
+          ${!depurado && (datos.ids_sin_respaldo || []).length ? `<div class="text-amber-300 text-[11px] border border-amber-500/40 rounded px-2 py-1">${tr("⚠ Estas pruebas no existen en la bitácora:", "⚠ These tests do not exist in the log:")} ${datos.ids_sin_respaldo.map(escaparHTML).join(", ")}</div>` : ""}
+          <div id="ai-escenarios" class="space-y-1.5 border-t border-[#1e2f4d] pt-2 mt-2" hidden></div>
+          ${datos.bloqueada ? "" : esBitacora ? fuenteBitacoraHTML() : formatearFuentes(datos.fuentes, datos.negativa, /\((dato del tablero|dashboard data)\)/i.test(datos.respuesta || ""))}
+          <div class="text-[10px] text-slate-500 pt-1">${tr("Modelo", "Model")}: ${escaparHTML(datos.modelo)} · ${esBitacora ? "" : `${datos.fragmentos_usados} ${tr("fragmentos consultados", "fragments consulted")} · `}${escaparHTML(filtros)} · ${datos.segundos} s</div>`;
+        pintarEscenariosIA();
+        enlazarCitas(out, datos.fuentes || []);
       } catch (e) {
         const sinServidor = e instanceof TypeError;
         out.innerHTML = `<div class="text-rose-300 font-bold">&gt; ${tr("No se pudo obtener la respuesta.", "Could not get the answer.")}</div>
@@ -2255,11 +2371,47 @@
       }
     }
 
+    // 6a. DATOS ACTUALES DEL TABLERO PARA LA IA
+    //     Todo lo que la IA sabe del escenario sale de aquí (preguntas libres y dictamen). Hoy son los
+    //     parámetros del simulador. Cuando haya sensores, basta con que esta función use sus lecturas y
+    //     cambie la línea "Fuente de los datos" (por ejemplo "sensores del hábitat, leídos a las 10:32").
+    function contextoTablero() {
+      const combustibles = {
+        solido: tr("materiales sólidos (polímeros, telas, cables)", "solid materials (polymers, fabrics, cables)"),
+        liquido: tr("combustibles líquidos (gotas)", "liquid fuels (droplets)"),
+        gas: tr("combustibles gaseosos", "gaseous fuels"),
+      };
+      const habitat = nombreEscenarioActual() +
+        (escenarioModificado() ? tr(" (con valores cambiados por el usuario)", " (with values changed by the user)") : "");
+      const prueba = pruebaACMEActual();
+      const origen = prueba ? tr(
+        ` Escenario cargado de la prueba real ${prueba.id} de ACME CLD Flame (ISS, 15 nov 2017; resultado real: ${textoEstadoACME(prueba)}); el simulador la aproxima.`,
+        ` Scenario loaded from real test ${prueba.id} of ACME CLD Flame (ISS, Nov 15 2017; actual result: ${textoEstadoACME(prueba)}); the simulator approximates it.`) : "";
+      const kpa = psi => (psi * 6.894757).toFixed(1);
+      const ppo2 = state.psi * state.o2 / 100;
+      const o2 = Number(state.o2.toFixed(1));
+      const referencias = state.lastTop3.map(e => datoExp(e, "nombre")).join("; ");
+      return tr(
+        `Fuente de los datos: parámetros del simulador del tablero (valores elegidos por el usuario, no mediciones de sensores). ` +
+        `Hábitat: ${habitat}.${origen} Gravedad: ${lugarGravedad()}; ${state.g.toFixed(3)} g = ${aceleracion().toFixed(2)} m/s². ` +
+        `O2: ${o2}% a una presión total de ${state.psi.toFixed(1)} psi (${kpa(state.psi)} kPa); presión parcial de O2 ${ppo2.toFixed(2)} psi (${kpa(ppo2)} kPa). ` +
+        `Flujo de aire: ${state.flow} cm/s. Combustible: ${combustibles[state.fuel]}. ` +
+        `Índice de riesgo del tablero (heurístico propio, no de la NASA): ${state.lastRiskScore}/100. ` +
+        `Experimentos más parecidos según el tablero: ${referencias}.`,
+        `Data source: the dashboard simulator's parameters (values chosen by the user, not sensor measurements). ` +
+        `Habitat: ${habitat}.${origen} Gravity: ${lugarGravedad()}; ${state.g.toFixed(3)} g = ${aceleracion().toFixed(2)} m/s². ` +
+        `O2: ${o2}% at a total pressure of ${state.psi.toFixed(1)} psi (${kpa(state.psi)} kPa); O2 partial pressure ${ppo2.toFixed(2)} psi (${kpa(ppo2)} kPa). ` +
+        `Airflow: ${state.flow} cm/s. Fuel: ${combustibles[state.fuel]}. ` +
+        `Dashboard risk index (our own heuristic, not NASA's): ${state.lastRiskScore}/100. ` +
+        `Most similar experiments according to the dashboard: ${referencias}.`);
+    }
+
     function preguntarLibre() {
       const caja = document.getElementById("ai-pregunta");
       const pregunta = caja.value.trim();
       if (pregunta.length < 2) { caja.focus(); return; }
-      preguntarIA(pregunta, "", `${tr("PREGUNTA", "QUESTION")}: ${pregunta}`);
+      analisisACMEActual = null;
+      preguntarIA(pregunta, contextoTablero(), `${tr("PREGUNTA", "QUESTION")}: ${pregunta}`);
     }
 
     function runAICopilot() {
@@ -2270,9 +2422,7 @@
         liquido: tr("combustibles líquidos (gotas)", "liquid fuels (droplets)"),
         gas: tr("combustibles gaseosos", "gaseous fuels"),
       };
-      const preset = PSI_MASTER_DATA.habitat_presets.find(h => h.id === state.presetId);
-      const habitat = preset ? nombrePreset(preset) : tr("personalizado", "custom");
-      const ppo2 = state.psi * state.o2 / 100;
+      const habitat = nombreEscenarioActual();
       const referencias = state.lastTop3.map(e => datoExp(e, "nombre")).join("; ");
       const grav = gravedades[state.gravity] || lugarGravedad();
       const pregunta = tr(
@@ -2282,16 +2432,311 @@
         `What fire risks are there with ${combustibles[state.fuel]} in ${grav}, ` +
         `with ${state.o2}% oxygen at ${state.psi} psi and ${state.flow} cm/s ventilation, and what do the PSI ` +
         `experiments teach about preventing, detecting and suppressing that fire? Reference experiments: ${referencias}.`);
-      const contexto = tr(
-        `Hábitat: ${habitat}. Gravedad: ${grav}. ` +
-        `O2: ${state.o2}% a ${state.psi} psi (presión parcial de O2 ${ppo2.toFixed(2)} psi). Flujo de aire: ${state.flow} cm/s. ` +
-        `Combustible: ${combustibles[state.fuel]}. Índice de riesgo del tablero (heurístico propio, no de la NASA): ${state.lastRiskScore}/100. ` +
-        `Experimentos más parecidos según el tablero: ${referencias}.`,
-        `Habitat: ${habitat}. Gravity: ${grav}. ` +
-        `O2: ${state.o2}% at ${state.psi} psi (O2 partial pressure ${ppo2.toFixed(2)} psi). Airflow: ${state.flow} cm/s. ` +
-        `Fuel: ${combustibles[state.fuel]}. Dashboard risk index (our own heuristic, not NASA's): ${state.lastRiskScore}/100. ` +
-        `Most similar experiments according to the dashboard: ${referencias}.`);
-      preguntarIA(pregunta, contexto, `${tr("DICTAMEN DEL ESCENARIO", "SCENARIO ASSESSMENT")}: ${habitat}`, true);
+      const contexto = contextoTablero();
+      preguntarIA(pregunta, contexto, `${tr("DICTAMEN DEL ESCENARIO", "SCENARIO ASSESSMENT")}: ${habitat}`, true, true);
+    }
+
+    // 6b. ESCENARIOS QUE PROPONE LA IA (IA -> simulador)
+    //     El backend nuevo manda `escenarios_propuestos` (valores en %, psi, fracción de g y cm/s; null = no
+    //     cambia). Con un backend anterior que no manda ese campo, se buscan en el texto las frases que
+    //     sugieren probar valores en el simulador. Si no hay nada, no se muestra nada (como antes).
+    let escenariosIA = [];        // escenarios de la última respuesta, ya ajustados al rango del simulador
+    let escenarioPrevio = null;   // estado del simulador antes de aplicar uno (para "Deshacer")
+    let temporizadorAvisoEscenario = null;
+
+    function rangoControl(id) {
+      const el = document.getElementById(id);
+      return [parseFloat(el.min), parseFloat(el.max)];
+    }
+
+    // Convierte lo que manda el backend (o lo leído del texto) a valores del simulador, ajustados al
+    // rango de cada deslizador. `ajustes` explica lo que se tuvo que recortar.
+    function prepararEscenarioIA(e, i) {
+      const num = v => (v === null || v === undefined || v === "" || !Number.isFinite(Number(v))) ? null : Number(v);
+      const ajustes = [];
+      const ajustar = (valor, id, etiqueta, unidad) => {
+        if (valor === null) return null;
+        const [min, max] = rangoControl(id);
+        const dentro = Math.min(max, Math.max(min, valor));
+        if (Math.abs(dentro - valor) > 1e-9) ajustes.push(`${etiqueta} ${Number(valor.toFixed(2))} → ${Number(dentro.toFixed(2))} ${unidad}`);
+        return dentro;
+      };
+      let g = ajustar(num(e.gravedad_g), "g-slider", tr("Gravedad", "Gravity"), "g");
+      if (g !== null) {
+        for (const v of [0, 1 / 6, 3 / 8, 1]) if (Math.abs(g - v) < 0.008) g = v;
+        if (![0, 1 / 6, 3 / 8, 1].includes(g)) g = Math.round(g * 1000) / 1000;
+      }
+      const o2 = ajustar(num(e.o2_pct), "o2-slider", "O₂", "%");
+      const psi = ajustar(num(e.presion_psi), "psi-slider", tr("Presión", "Pressure"), "psi");
+      const flow = ajustar(num(e.flujo_cm_s), "flow-slider", tr("Flujo", "Airflow"), "cm/s");
+      const fuel = ["solido", "liquido", "gas"].includes(e.combustible) ? e.combustible : null;
+      const nombre = typeof e.nombre === "string" && e.nombre.trim() ? e.nombre.trim().slice(0, 80) : "";
+      return {
+        nombre, g,
+        o2: o2 === null ? null : Math.round(o2 * 10) / 10,
+        psi: psi === null ? null : Math.round(psi * 10) / 10,
+        flow: flow === null ? null : Math.round(flow),
+        fuel, ajustes, n: i + 1, desdeTexto: Boolean(e.desdeTexto)
+      };
+    }
+
+    // Respaldo para un backend anterior (no manda `escenarios_propuestos`): lee las líneas "ESCENARIO:"
+    // (y las quita del texto que se muestra) o, si no hay, las frases que sugieren valores para el simulador.
+    function escenariosDeRespuestaAnterior(texto) {
+      const lineas = String(texto || "").split("\n");
+      const escenarios = [], quitar = new Set();
+      lineas.forEach((linea, i) => {
+        const m = linea.match(/^\s*(?:[-*•]\s*)?(?:\*\*|__|`)?\s*(?:escenario|scenario)[^:：=]{0,25}[:：]\s*(?:\*\*|__)?\s*(.*=.*?)[\s`]*$/i);
+        if (!m) return;
+        const e = leerLineaEscenario(m[1]);
+        if (!["o2_pct", "presion_psi", "gravedad_g", "flujo_cm_s", "combustible"].some(k => e[k] !== null && e[k] !== undefined)) return;
+        quitar.add(i);
+        if (escenarios.length < 3) escenarios.push(e);
+      });
+      if (!quitar.size) return { texto, escenarios: escenariosDesdeTexto(texto) };
+      let anterior = Math.min(...quitar) - 1;
+      while (anterior >= 0 && !lineas[anterior].trim()) anterior--;
+      if (anterior >= 0 && /(escenario|scenario|simulador|simulator)[^.]*[:：]\s*(\*\*|__)?\s*$/i.test(lineas[anterior]) && lineas[anterior].length < 100) quitar.add(anterior);
+      return { texto: lineas.filter((_, i) => !quitar.has(i)).join("\n").replace(/\n{3,}/g, "\n\n").trim(), escenarios };
+    }
+
+    function gravedadDeTexto(v) {
+      const t = String(v).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+      if (!/\d/.test(t)) return /luna|lunar|moon/.test(t) ? 1 / 6 : /marte|mars/.test(t) ? 3 / 8
+        : /orbita|orbit|iss|eei|micrograv/.test(t) ? 0 : /tierra|earth/.test(t) ? 1 : null;
+      const f = t.match(/(\d+(?:[.,]\d+)?)\s*\/\s*(\d+(?:[.,]\d+)?)/);
+      if (f) return parseFloat(f[1].replace(",", ".")) / parseFloat(f[2].replace(",", "."));
+      const n = parseFloat(t.match(/\d+(?:[.,]\d+)?/)[0].replace(",", "."));
+      return /m\s*\/\s*s/.test(t) ? n / 9.80665 : n;
+    }
+
+    // "nombre=…; o2=21 %; presion=70 kPa; gravedad=1/6; flujo=10 cm/s; combustible=solido" (como escenarios.py)
+    function leerLineaEscenario(contenido) {
+      const e = { nombre: "", o2_pct: null, presion_psi: null, gravedad_g: null, flujo_cm_s: null, combustible: null };
+      for (const pedazo of contenido.split(/\s*[;|]\s*/)) {
+        const corte = pedazo.indexOf("=");
+        if (corte < 0) continue;
+        const k = pedazo.slice(0, corte).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f\s_*`]/g, "").replace("₂", "2");
+        const v = pedazo.slice(corte + 1).trim();
+        const n = parseFloat(((v.match(/[-+]?\d+(?:[.,]\d+)?/) || [""])[0]).replace(",", "."));
+        if (["nombre", "name", "titulo", "title"].includes(k)) e.nombre = v.replace(/[*_`#]+/g, "").trim().slice(0, 80);
+        else if (["o2", "oxigeno", "oxygen"].includes(k) && Number.isFinite(n)) e.o2_pct = n <= 1 && !v.includes("%") ? n * 100 : n;
+        else if (["presion", "pressure"].includes(k) && Number.isFinite(n))
+          e.presion_psi = /kpa/i.test(v) ? n / 6.894757 : /atm/i.test(v) ? n * 14.6959 : /psi/i.test(v) ? n : (n >= 30 ? n / 6.894757 : n);
+        else if (["gravedad", "gravity", "g"].includes(k)) e.gravedad_g = gravedadDeTexto(v);
+        else if (["flujo", "flow", "airflow", "ventilacion"].includes(k) && Number.isFinite(n))
+          e.flujo_cm_s = /mm\s*\/\s*s/i.test(v) ? n / 10 : /(^|[^c])m\s*\/\s*s/i.test(v) ? n * 100 : n;
+        else if (["combustible", "fuel"].includes(k))
+          e.combustible = /s[oó]lid/i.test(v) ? "solido" : /l[ií]quid/i.test(v) ? "liquido" : /gas/i.test(v) ? "gas" : null;
+      }
+      return e;
+    }
+
+    // Frases que mencionan el simulador y traen valores con unidades
+    function escenariosDesdeTexto(texto) {
+      const numero = t => parseFloat(String(t).replace(",", "."));
+      const encontrados = [];
+      for (const frase of String(texto || "").split(/(?<=[.!?])\s+|\n+/)) {
+        if (!/simulador|simulator/i.test(frase)) continue;
+        const e = { nombre: "", desdeTexto: true };
+        let m = frase.match(/(\d+(?:[.,]\d+)?)\s*%\s*(?:de\s+)?(?:O2|O₂|ox[ií]geno|oxygen)/i)
+             || frase.match(/(?:O2|O₂|ox[ií]geno|oxygen)\D{0,20}?(\d+(?:[.,]\d+)?)\s*%/i);
+        if (m) e.o2_pct = numero(m[1]);
+        m = frase.match(/(\d+(?:[.,]\d+)?)\s*(kpa|psi|atm)\b/i);
+        if (m) {
+          const v = numero(m[1]), u = m[2].toLowerCase();
+          e.presion_psi = u === "kpa" ? v / 6.894757 : u === "atm" ? v * 14.6959 : v;
+        }
+        m = frase.match(/(\d+(?:[.,]\d+)?)\s*(cm|mm)\s*\/\s*s\b/i);
+        if (m) e.flujo_cm_s = numero(m[1]) / (m[2].toLowerCase() === "mm" ? 10 : 1);
+        m = frase.match(/(?<![\d.,/])(\d+\s*\/\s*\d+|\d+(?:[.,]\d+)?)\s*g\b/i);
+        if (m) {
+          const [a, b] = m[1].split("/").map(numero);
+          const gv = b ? a / b : a;
+          if (gv <= 1.5) e.gravedad_g = gv;   // "500 g" serían gramos, no gravedad
+        }
+        const hay = ["o2_pct", "presion_psi", "flujo_cm_s", "gravedad_g"].some(k => Number.isFinite(e[k]));
+        if (hay) encontrados.push(e);
+        if (encontrados.length >= 3) break;
+      }
+      return encontrados;
+    }
+
+    function nombreCombustible(f) {
+      return { solido: tr("Sólidos", "Solids"), liquido: tr("Líquidos", "Liquids"), gas: "Gases" }[f] || f;
+    }
+
+    function textoG(g) {
+      if (g === 0) return tr("0 g (Órbita)", "0 g (Orbit)");
+      if (Math.abs(g - 1 / 6) < 1e-6) return tr("1/6 g (Luna)", "1/6 g (Moon)");
+      if (Math.abs(g - 3 / 8) < 1e-6) return tr("3/8 g (Marte)", "3/8 g (Mars)");
+      if (g >= 0.995) return tr("1 g (Tierra)", "1 g (Earth)");
+      return `${g.toFixed(2)} g`;
+    }
+
+    // Lista de cambios de un escenario frente a lo que tiene ahora el simulador
+    function cambiosEscenario(e) {
+      const filas = [];
+      if (e.g !== null) filas.push({ etiqueta: tr("Gravedad", "Gravity"), antes: textoG(state.g), despues: textoG(e.g), igual: Math.abs(state.g - e.g) < 0.004 });
+      if (e.o2 !== null) filas.push({ etiqueta: "O₂", antes: `${Number(state.o2.toFixed(1))} %`, despues: `${e.o2} %`, igual: Math.abs(state.o2 - e.o2) < 0.05 });
+      if (e.psi !== null) filas.push({ etiqueta: tr("Presión", "Pressure"), antes: `${state.psi.toFixed(1)} psi`, despues: `${e.psi.toFixed(1)} psi (${(e.psi * 6.894757).toFixed(0)} kPa)`, igual: Math.abs(state.psi - e.psi) < 0.05 });
+      if (e.flow !== null) filas.push({ etiqueta: tr("Flujo", "Airflow"), antes: `${state.flow} cm/s`, despues: `${e.flow} cm/s`, igual: Math.abs(state.flow - e.flow) < 0.5 });
+      if (e.fuel !== null) filas.push({ etiqueta: tr("Combustible", "Fuel"), antes: nombreCombustible(state.fuel), despues: nombreCombustible(e.fuel), igual: state.fuel === e.fuel });
+      return filas;
+    }
+
+    function nombreEscenarioIA(e) {
+      return e.nombre || (e.desdeTexto ? tr(`Sugerido en la respuesta ${e.n}`, `Suggested in the answer ${e.n}`)
+                                        : tr(`Escenario propuesto ${e.n}`, `Proposed scenario ${e.n}`));
+    }
+
+    // Tarjetas con el botón "Aplicar al simulador". Se repinta cuando cambia el simulador o el idioma.
+    function pintarEscenariosIA() {
+      const caja = document.getElementById("ai-escenarios");
+      if (!caja) return;
+      if (!escenariosIA.length) { caja.innerHTML = ""; caja.hidden = true; return; }
+      caja.hidden = false;
+      const tarjetas = escenariosIA.map((e, i) => {
+        const filas = cambiosEscenario(e);
+        const aplicado = filas.every(f => f.igual);
+        const chips = filas.map(f => f.igual
+          ? `<span class="px-1.5 py-0.5 rounded bg-[#111b2e] border border-[#1e2f4d] text-slate-500">${escaparHTML(f.etiqueta)} ${escaparHTML(f.despues)}</span>`
+          : `<span class="px-1.5 py-0.5 rounded bg-cyan-950/40 border border-cyan-500/30 text-slate-300">${escaparHTML(f.etiqueta)} <span class="text-slate-500">${escaparHTML(f.antes)} →</span> <span class="text-cyan-200 font-semibold">${escaparHTML(f.despues)}</span></span>`).join(" ");
+        const ajustes = e.ajustes.length
+          ? `<div class="text-[10px] text-amber-300">${tr("Ajustado al rango del simulador", "Adjusted to the simulator's range")}: ${e.ajustes.map(escaparHTML).join(" · ")}</div>` : "";
+        const boton = aplicado
+          ? `<button type="button" disabled class="shrink-0 w-full sm:w-auto px-2.5 py-1.5 rounded-lg border border-emerald-500/40 text-emerald-300 text-[11px] font-bold opacity-80 cursor-default">${tr("✓ En el simulador", "✓ In the simulator")}</button>`
+          : `<button type="button" onclick="aplicarEscenarioIA(${i})" class="shrink-0 w-full sm:w-auto px-2.5 py-1.5 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-[#060a12] text-[11px] font-bold shadow shadow-cyan-500/20">${tr("▶ Aplicar al simulador", "▶ Apply to simulator")}</button>`;
+        return `<div class="flex flex-wrap items-center justify-between gap-2 bg-[#0b1322] border border-[#1e2f4d] rounded-lg p-2">
+            <div class="flex-1 min-w-[15rem] space-y-1">
+              <div class="text-white font-semibold">${escaparHTML(nombreEscenarioIA(e))}</div>
+              <div class="flex flex-wrap gap-1 text-[11px]">${chips}</div>
+              ${ajustes}
+            </div>
+            ${boton}
+          </div>`;
+      }).join("");
+      caja.innerHTML = `<div class="text-cyan-400 font-bold text-[11px]">${tr("🧪 ESCENARIOS PROPUESTOS POR LA IA", "🧪 SCENARIOS PROPOSED BY THE AI")}</div>
+        <div class="text-[10px] text-slate-500">${tr("Para compararlos en el simulador; no son un veredicto de seguridad.", "To compare them in the simulator; they are not a safety verdict.")}</div>
+        ${tarjetas}`;
+    }
+
+    // Pone valores en el simulador como si el usuario moviera los controles (null = no cambia)
+    function fijarEscenarioSimulador(v) {
+      if (v.presetId !== undefined) state.presetId = v.presetId;
+      if (v.pruebaACME !== undefined) state.pruebaACME = v.pruebaACME;
+      if (v.g !== null && v.g !== undefined) { state.g = v.g; state.gravity = v.gravity || regimenDe(v.g); }
+      if (v.o2 !== null && v.o2 !== undefined) state.o2 = v.o2;
+      if (v.psi !== null && v.psi !== undefined) state.psi = v.psi;
+      if (v.flow !== null && v.flow !== undefined) state.flow = v.flow;
+      if (v.fuel) state.fuel = v.fuel;
+      document.getElementById("o2-slider").value = state.o2;
+      document.getElementById("psi-slider").value = state.psi;
+      document.getElementById("flow-slider").value = state.flow;
+      aplicarTextosPreset();
+      resaltarPresetActivo();
+      syncButtonsUI();          // botones de gravedad/combustible y deslizador de gravedad
+      computePSIDiagnosis();    // tarjetas, llama, resumen, visor 3D y estas tarjetas
+    }
+
+    function resaltarControles(ids) {
+      ids.forEach(id => {
+        const caja = document.getElementById(id)?.closest(".rounded-xl");
+        if (!caja) return;
+        caja.classList.add("ring-2", "ring-cyan-400/80");
+        setTimeout(() => caja.classList.remove("ring-2", "ring-cyan-400/80"), 1800);
+      });
+    }
+
+    function aplicarEscenarioIA(i) {
+      const e = escenariosIA[i];
+      if (!e) return;
+      const cambios = cambiosEscenario(e).filter(f => !f.igual);
+      if (!cambios.length) return;
+      escenarioPrevio = fotoEscenario();
+      const controles = [];
+      if (e.g !== null && Math.abs(state.g - e.g) >= 0.004) controles.push("g-slider");
+      if ((e.o2 !== null && Math.abs(state.o2 - e.o2) >= 0.05) || (e.psi !== null && Math.abs(state.psi - e.psi) >= 0.05)) controles.push("o2-slider");
+      if (e.flow !== null && Math.abs(state.flow - e.flow) >= 0.5) controles.push("flow-slider");
+      if (e.fuel !== null && state.fuel !== e.fuel) controles.push("fuel-btn-solido");
+      fijarEscenarioSimulador(e);
+      irALaLlama(controles);
+      mostrarAvisoEscenario(tr(`Escenario de la IA aplicado: ${nombreEscenarioIA(e)}`, `AI scenario applied: ${nombreEscenarioIA(e)}`), true);
+    }
+
+    // Estado completo del simulador, para "Deshacer"
+    function fotoEscenario() {
+      return { presetId: state.presetId, pruebaACME: state.pruebaACME, gravity: state.gravity, g: state.g,
+               o2: state.o2, psi: state.psi, flow: state.flow, fuel: state.fuel };
+    }
+
+    // Abre Simulación, baja hasta la llama y resalta los controles que cambiaron
+    function irALaLlama(controles = []) {
+      mostrarPestana("simulacion", { subir: false });
+      requestAnimationFrame(() => {
+        const llama = document.getElementById("llama-escena");
+        const enc = document.querySelector("header");
+        const altoEnc = enc && getComputedStyle(enc).position === "sticky" ? enc.offsetHeight : 0;
+        if (llama) window.scrollTo({ top: llama.getBoundingClientRect().top + window.scrollY - altoEnc - 16, behavior: "smooth" });
+        resaltarControles(controles);
+      });
+    }
+
+    function deshacerEscenarioIA() {
+      if (!escenarioPrevio) return;
+      const previo = escenarioPrevio;
+      escenarioPrevio = null;
+      fijarEscenarioSimulador(previo);
+      mostrarAvisoEscenario(tr("Se regresó al escenario anterior.", "Back to the previous scenario."), false);
+    }
+
+    function volverAlChatIA() {
+      ocultarAvisoEscenario();
+      mostrarPestana("ia", { subir: false });
+      requestAnimationFrame(() => document.getElementById("ai-escenarios")?.scrollIntoView({ behavior: "smooth", block: "center" }));
+    }
+
+    // `boton` (opcional): { texto, accion } reemplaza a "Volver al chat" (p. ej. "Analizar con IA")
+    function mostrarAvisoEscenario(mensaje, conDeshacer, boton = null) {
+      let aviso = document.getElementById("aviso-escenario");
+      if (!aviso) {
+        aviso = document.createElement("div");
+        aviso.id = "aviso-escenario";
+        aviso.setAttribute("role", "status");
+        aviso.setAttribute("aria-live", "polite");
+        aviso.className = "fixed bottom-4 inset-x-3 mx-auto w-fit max-w-[calc(100vw-1.5rem)] z-50 flex flex-wrap items-center gap-2 px-3 py-2 rounded-xl border border-cyan-500/50 bg-[#0c1322]/95 backdrop-blur shadow-2xl shadow-black/50 font-mono text-xs text-slate-200";
+        document.body.appendChild(aviso);
+      }
+      const botonClase = "px-2 py-1 rounded-lg border border-[#1e2f4d] hover:border-cyan-400 text-cyan-300 font-bold";
+      aviso.innerHTML = `<span>${escaparHTML(mensaje)}</span>
+        ${conDeshacer ? `<button type="button" onclick="deshacerEscenarioIA()" class="${botonClase}">${tr("↶ Deshacer", "↶ Undo")}</button>` : ""}
+        ${boton ? `<button type="button" onclick="${boton.accion}" class="${botonClase}">${escaparHTML(boton.texto)}</button>`
+                : `<button type="button" onclick="volverAlChatIA()" class="${botonClase}">${tr("Volver al chat", "Back to chat")}</button>`}
+        <button type="button" onclick="ocultarAvisoEscenario()" aria-label="${tr("Cerrar", "Close")}" class="px-1.5 text-slate-500 hover:text-white">✕</button>`;
+      aviso.hidden = false;
+      clearTimeout(temporizadorAvisoEscenario);
+      temporizadorAvisoEscenario = setTimeout(ocultarAvisoEscenario, conDeshacer ? 15000 : 4000);
+    }
+
+    function ocultarAvisoEscenario() {
+      const aviso = document.getElementById("aviso-escenario");
+      if (aviso) aviso.hidden = true;
+      clearTimeout(temporizadorAvisoEscenario);
+    }
+
+    // Texto para "Copiar": una línea por escenario
+    function escenariosParaCopiar() {
+      if (!escenariosIA.length) return "";
+      const lineas = escenariosIA.map(e => {
+        const valores = [];
+        if (e.g !== null) valores.push(`${tr("gravedad", "gravity")} ${textoG(e.g)}`);
+        if (e.o2 !== null) valores.push(`O₂ ${e.o2} %`);
+        if (e.psi !== null) valores.push(`${e.psi.toFixed(1)} psi (${(e.psi * 6.894757).toFixed(0)} kPa)`);
+        if (e.flow !== null) valores.push(`${e.flow} cm/s`);
+        if (e.fuel !== null) valores.push(nombreCombustible(e.fuel));
+        return `- ${nombreEscenarioIA(e)}: ${valores.join(", ")}`;
+      });
+      return `\n\n${tr("Escenarios propuestos para el simulador", "Scenarios proposed for the simulator")}:\n${lineas.join("\n")}`;
     }
 
     let ultimaSalud = undefined;   // última respuesta de /api/salud (null = sin conexión; undefined = aún no se sabe)
@@ -2337,14 +2782,23 @@
           ? `<span class="px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/40">${tr("ABORTADA", "ABORTED")}</span>`
           : `<span class="px-1.5 py-0.5 rounded bg-rose-500/20 text-rose-300 border border-rose-500/40">${tr("SIN IGNICIÓN", "NO IGNITION")}</span>`;
         const highlight = t.id === "17319A3" ? "bg-cyan-950/40" : "";
+        const cargada = state.pruebaACME === t.id ? "outline outline-1 outline-cyan-400/70" : "";
         return `
-          <tr class="${highlight} hover:bg-[#111b2e]/80">
+          <tr class="${highlight} ${cargada} hover:bg-[#111b2e]/80 cursor-pointer" onclick="simularPruebaACME('${t.id}')"
+              title="${tr("Clic para ver esta prueba en el simulador", "Click to see this test in the simulator")}">
             <td class="py-2 px-3 text-slate-400">${t.n}</td>
             <td class="py-2 px-3 font-bold text-white">${t.id}</td>
             <td class="py-2 px-3 text-slate-400">${t.gmt}</td>
             <td class="py-2 px-3 text-cyan-300">${datoPrueba(t, "vel")}</td>
             <td class="py-2 px-3">${badge}</td>
             <td class="py-2 px-3 text-slate-300 font-sans">${datoPrueba(t, "note")}</td>
+            <td class="py-2 px-3 whitespace-nowrap">
+              <button type="button" onclick="event.stopPropagation(); simularPruebaACME('${t.id}')"
+                class="px-2 py-1 rounded border border-cyan-500/40 text-cyan-300 hover:bg-cyan-500/10">${tr("▶ Simular", "▶ Simulate")}</button>
+              <button type="button" onclick="event.stopPropagation(); analizarPruebaACME('${t.id}')"
+                title="${tr("Pedir a la IA que analice esta prueba", "Ask the AI to analyze this test")}"
+                class="px-2 py-1 rounded border border-amber-500/40 text-amber-300 hover:bg-amber-500/10">✨ ${tr("IA", "AI")}</button>
+            </td>
           </tr>
         `;
       }).join("");
@@ -2353,6 +2807,345 @@
 
     function closeAcmeCampaignModal() {
       document.getElementById("acme-modal").classList.add("hidden");
+    }
+
+    // 7b. PRUEBAS ACME 17319 -> SIMULADOR E IA
+    //     Cómo se aproxima cada prueba en el simulador (no tiene todos los controles del quemador ACME):
+    //     0 g (ISS), aire de la cámara del CIR (21 % O2, ~1 atm = 14.7 psi; la bitácora menciona venteo a
+    //     14.73 psia), combustible gas, y como "flujo de aire" el coflujo de aire alrededor del quemador:
+    //     si la bitácora da un rango de coflujo ("5-40 coflow") se usa el final; "sin coflujo" = 0; si sólo
+    //     da una velocidad, se usa esa. La concentración de metano (40 % → 30 %) no tiene control en el simulador.
+    const ACME_COFLUJO = {
+      "17319A1": 10, "17319A2": 0, "17319F1": 40, "17319F2": 40, "17319E1": 30, "17319E2": 30,
+      "17319E3": 30, "17319C1": 20, "17319C2": 20, "17319D1": 20, "17319D2": 20, "17319H1": 20,
+      "17319D3": 20, "17319D4": 20, "17319D5": 20, "17319A3": 10, "17319H2": 20, "17319H3": 20
+    };
+
+    function pruebaACMEActual() {
+      return state.pruebaACME ? PSI_MASTER_DATA.acme_17319_tests.find(t => t.id === state.pruebaACME) || null : null;
+    }
+
+    function valoresSimPruebaACME(t) {
+      return { g: 0, o2: 21, psi: 14.7, flow: ACME_COFLUJO[t.id] ?? 20, fuel: "gas" };
+    }
+
+    // DATOS VERIFICADOS DE UNA PRUEBA (los calcula la página con la bitácora, sin IA): qué pasó, la causa que da
+    // su nota, las pruebas de referencia que sí encendieron, las que fallaron en condiciones parecidas y los
+    // avisos de notas que no apuntan a una sola regla. La página los muestra tal cual y la IA los recibe para
+    // escribir sólo las recomendaciones.
+    let analisisACMEActual = null;
+    // Qué tiene cada prueba según SU renglón de la bitácora (velocidad y nota originales, en español)
+    const conCoflujoACME = x => /ambos|igualados|coflow|coflujo/i.test(x.vel) && !/sin coflujo/i.test(x.vel);
+    const conCebadoACME = x => /cebado/i.test(x.note);
+    const conEncendedorACME = x => /encendedor|voltaje/i.test(x.note);
+
+    function hechosPruebaACME(t) {
+      const todas = PSI_MASTER_DATA.acme_17319_tests;
+      const vel = x => (String(x.vel).match(/\d+(?:\.\d+)?/) || [""])[0];
+      const serie = x => x.id.charAt(5);
+      const nota = datoPrueba(t, "note");
+      const m = nota.match(/\b(?:por|porque|due to|because of)\s+[^;.]+/i);   // "abortada por límite de tiempo"
+      const comparable = x => vel(x) === vel(t) && serie(x) === serie(t) ? tr("misma velocidad y serie", "same velocity and series")
+        : vel(x) === vel(t) ? tr("misma velocidad", "same velocity") : serie(x) === serie(t) ? tr("misma serie", "same series")
+        : tr(`otra velocidad, ${vel(x)} cm/s`, `different velocity, ${vel(x)} cm/s`);
+      const puntaje = x => (vel(x) === vel(t) ? 2 : 0) + (serie(x) === serie(t) ? 1 : 0);
+      const orden = (a, b) => puntaje(b) - puntaje(a) || Math.abs(a.n - t.n) - Math.abs(b.n - t.n);
+      const otras = todas.filter(x => x.id !== t.id);
+      const referencias = otras.filter(x => x.status === "flame").sort(orden).slice(0, 4);
+      const fallos = otras.filter(x => x.status !== "flame" && puntaje(x) > 0).sort(orden).slice(0, 3);
+      // Temas: en las notas originales (en español) para que no dependa del idioma de la página
+      const temas = [
+        { nombre: tr("Encendedor", "Igniter"), re: conEncendedorACME },
+        { nombre: tr("Cebado", "Priming"), re: conCebadoACME },
+        { nombre: tr("Coflujo", "Coflow"), re: conCoflujoACME },
+      ];
+      const avisos = [];
+      temas.forEach(({ nombre, re }) => {
+        const ok = todas.filter(x => re(x) && x.status === "flame"), mal = todas.filter(x => re(x) && x.status !== "flame");
+        if (!ok.length || !mal.length) return;
+        let texto = tr(`${nombre}: encendieron ${ok.map(x => x.id).join(", ")}; no encendieron o se abortaron ${mal.map(x => x.id).join(", ")}`,
+                       `${nombre}: ignited ${ok.map(x => x.id).join(", ")}; did not ignite or aborted ${mal.map(x => x.id).join(", ")}`);
+        if (ok.some(x => /reduc/i.test(x.note)) && ok.some(x => /aument/i.test(x.note)))
+          texto += tr(" (una encendió reduciendo tiempos y otra aumentándolos)", " (one ignited by reducing times and another by increasing them)");
+        avisos.push(texto + ".");
+      });
+      return {
+        t, nota, causa: m ? m[0].trim() : null,
+        resumen: `#${t.n} · ${t.gmt} GMT · ${datoPrueba(t, "vel")} · ${textoEstadoACME(t)}`,
+        referencias: referencias.map(x => ({ x, como: comparable(x) })),
+        fallos: fallos.map(x => ({ x, como: comparable(x) })),
+        avisos,
+      };
+    }
+
+    // Versión corta para la IA (ya tiene las notas en la bitácora; aquí van IDs y conclusiones del código)
+    function hechosParaIA(h) {
+      const lista = a => a.map(({ x, como }) => `${x.id} (${como})`).join(", ") || tr("ninguna", "none");
+      return tr(
+        `Datos verificados por el tablero (no los contradigas): resultado de ${h.t.id}: ${textoEstadoACME(h.t)}` +
+        (h.t.status === "abort" ? " (abortada no es lo mismo que sin ignición)" : "") +
+        `; causa que da su nota: ${h.causa ? `"${h.causa}"` : "ninguna"}. Referencias con ignición, de la más parecida a la menos: ${lista(h.referencias)}. ` +
+        `Fallaron en condiciones parecidas: ${lista(h.fallos)}. Ojo: ${h.avisos.join(" ") || "sin avisos"}`,
+        `Data verified by the dashboard (do not contradict them): result of ${h.t.id}: ${textoEstadoACME(h.t)}` +
+        (h.t.status === "abort" ? " (aborted is not the same as no ignition)" : "") +
+        `; cause given by its note: ${h.causa ? `"${h.causa}"` : "none"}. References with ignition, most similar first: ${lista(h.referencias)}. ` +
+        `Failed under similar conditions: ${lista(h.fallos)}. Note: ${h.avisos.join(" ") || "no warnings"}`);
+    }
+
+    // Bloque que la página muestra arriba de la respuesta de la IA (texto de la bitácora, sin IA)
+    function hechosHTML(h) {
+      const fila = ({ x, como }) => `<li><button type="button" onclick="simularPruebaACME('${x.id}')" class="text-amber-300 hover:underline">${x.id}</button>
+        <span class="text-slate-500">(#${x.n}, ${escaparHTML(como)})</span> «${escaparHTML(datoPrueba(x, "note"))}»</li>`;
+      return `<div class="border border-cyan-500/30 bg-cyan-950/10 rounded-lg p-2.5 space-y-1.5">
+        <div class="text-cyan-400 font-bold text-[11px]">${tr("📋 DATOS DE LA BITÁCORA (los arma el tablero, sin IA)", "📋 LOG DATA (assembled by the dashboard, no AI)")}</div>
+        <p class="text-slate-200"><strong class="text-white">${tr("Qué pasó:", "What happened:")}</strong> ${escaparHTML(h.resumen)} — «${escaparHTML(h.nota)}»</p>
+        <p class="text-slate-200"><strong class="text-white">${tr("Causa según la bitácora:", "Cause according to the log:")}</strong> ${h.causa
+          ? tr(`«${escaparHTML(h.causa)}» (la nota no da más detalle).`, `"${escaparHTML(h.causa)}" (the note gives no more detail).`)
+          : tr("la bitácora no dice por qué.", "the log does not say why.")}</p>
+        <div class="text-slate-200"><strong class="text-white">${tr("Pruebas que sí encendieron, de la más parecida a la menos:", "Tests that did ignite, most similar first:")}</strong>
+          <ul class="pl-3 space-y-0.5 text-slate-300">${h.referencias.map(fila).join("")}</ul></div>
+        ${h.fallos.length ? `<div class="text-slate-200"><strong class="text-white">${tr("Fallaron en condiciones parecidas:", "Failed under similar conditions:")}</strong>
+          <ul class="pl-3 space-y-0.5 text-slate-300">${h.fallos.map(fila).join("")}</ul></div>` : ""}
+        ${h.avisos.length ? `<div class="text-amber-300"><strong>${tr("Ojo, notas que no apuntan a una sola regla:", "Careful, notes that do not point to a single rule:")}</strong>
+          <ul class="pl-3 space-y-0.5">${h.avisos.map(a => `<li>${escaparHTML(a)}</li>`).join("")}</ul></div>` : ""}
+      </div>
+      <div class="text-cyan-400 font-bold text-[11px] pt-1">${tr("🤖 RECOMENDACIONES DE LA IA (con base en esos datos)", "🤖 AI RECOMMENDATIONS (based on those data)")}</div>`;
+    }
+
+    // Revisa que la IA no cambie el resultado de la prueba analizada (por ejemplo, "sin ignición" en una abortada).
+    // Sólo mira el tramo de cada frase que habla de esa prueba: desde el identificador anterior hasta el siguiente.
+    function resultadoContradicho(texto, t) {
+      const dice = { sin: /(sin|falta de|no hubo|no tuvo)\s+ignici[oó]n|no encendi[oó]|no ignition|did not ignite|lack of ignition/i,
+                     abort: /abortad|aborted/i, encendio: /hubo ignici[oó]n|encendi[oó]|ignited|had ignition/i };
+      for (const frase of String(texto).split(/(?<=[.!?])\s+|\n+/)) {
+        const partes = frase.split(/(\b\d{5}[A-Z]\d\b)/);   // [texto, id, texto, id, texto…]
+        for (let i = 1; i < partes.length; i += 2) {
+          if (partes[i] !== t.id) continue;
+          const tramo = `${partes[i - 1]} ${partes[i + 1] || ""}`;
+          const sinIgn = dice.sin.test(tramo);
+          if ((t.status === "abort" || t.status === "flame") && sinIgn) return frase;
+          if (t.status === "no ignition" && (dice.abort.test(tramo) || dice.encendio.test(tramo.replace(dice.sin, " ")))) return frase;
+        }
+      }
+      return "";
+    }
+
+    // ¿Esta frase cambia el resultado de la prueba analizada? (mira sólo el tramo que habla de ella)
+    function fraseContradiceResultado(frase, t) {
+      const dice = { sin: /(sin|falta de|no hubo|no tuvo)\s+ignici[oó]n|no encendi[oó]|no ignition|did not ignite|lack of ignition/i,
+                     abort: /abortad|aborted/i, encendio: /hubo ignici[oó]n|encendi[oó]|ignited|had ignition/i };
+      const partes = String(frase).split(/(\b\d{5}[A-Z]\d\b)/);
+      for (let i = 1; i < partes.length; i += 2) {
+        if (partes[i] !== t.id) continue;
+        const tramo = `${partes[i - 1]} ${partes[i + 1] || ""}`;
+        if ((t.status === "abort" || t.status === "flame") && dice.sin.test(tramo)) return true;
+        if (t.status === "no ignition" && (dice.abort.test(tramo) || dice.encendio.test(tramo.replace(dice.sin, " ")))) return true;
+      }
+      return false;
+    }
+
+    // QUITA de la respuesta de la IA lo que no coincide con la bitácora (en vez de sólo avisar): viñetas o frases con
+    // cifras, unidades o pruebas que no existen, que cambian el resultado de la prueba, que generalizan contra un aviso
+    // "Ojo" ("el coflujo siempre…"), o una línea de seguridad que no trata de reducir el riesgo de incendio.
+    function depurarRespuestaBitacora(texto, datos, h) {
+      // Revisa la respuesta de la IA contra la bitácora: lo que no sale exacto de ella se QUITA y los avisos "Ojo"
+      // los pone el código, copiados de la bitácora. Devuelve el texto limpio y la lista de cambios con su motivo.
+      const escapar = x => String(x).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      const cifras = (datos.cifras_sin_respaldo || []).map(n => new RegExp(`(?<![\\d.,])${escapar(n)}(?![\\d])`));
+      const unidades = (datos.unidades_sin_respaldo || []).map(u => new RegExp(`\\d[\\d.,]*\\s*(?:[-–‑]\\s*\\d[\\d.,]*\\s*)?${escapar(u)}(?![a-záéíóúñ])`, "i"));
+      const ids = datos.ids_sin_respaldo || [];
+      const porId = Object.fromEntries(PSI_MASTER_DATA.acme_17319_tests.map(x => [x.id, x]));
+      const temas = [   // clave = primera palabra del aviso "Ojo" en el idioma de la página
+        { clave: tr("coflujo", "coflow"), nombre: tr("coflujo", "coflow"), palabras: /coflujo|coflow/i, tiene: conCoflujoACME,
+          dice: x => tr(`su velocidad es «${datoPrueba(x, "vel")}»`, `its velocity is «${datoPrueba(x, "vel")}»`) },
+        { clave: tr("cebado", "priming"), nombre: tr("cebado", "priming"), palabras: /cebado|priming/i, tiene: conCebadoACME,
+          dice: () => tr("su nota no habla del cebado", "its note does not mention priming") },
+        { clave: tr("encendedor", "igniter"), nombre: tr("encendedor", "igniter"), palabras: /encendedor|igniter|voltaje|voltage/i, tiene: conEncendedorACME,
+          dice: () => tr("su nota no habla del encendedor", "its note does not mention the igniter") },
+      ];
+      const avisoDe = clave => h.avisos.find(a => a.split(":")[0].toLowerCase() === clave);
+      const temasConAviso = temas.filter(tm => avisoDe(tm.clave));
+      const tocaAviso = frase => temasConAviso.some(tm => tm.palabras.test(frase));
+      const idsEn = frase => [...new Set(frase.match(/17319[A-Z]\d/g) || [])];
+      const generaliza = /consistentemente|siempre|en todos los casos|todas las pruebas|sin excepci[oó]n|garantiza|fiable|confiable|consistently|always|in all cases|all (the )?tests|without exception|guarantee|reliabl/i;
+      const causa = /favoreci|propici|permiti[óo]|ayud[aóo]|contribu|provoc[óo]|caus[óo]|se debi[óo]|gracias a|hizo posible|eficaz|efectiv|determinante|\bclave\b|limit[aóo]|favou?r|help|allow|enabl|led to|caused|thanks to|effective|key factor|promot|\blimit/i;
+      const cauteloso = /no (siempre|garantiza|en todos)|not always|(does not|doesn't|do not|don't) guarantee|no guarantee|la bit[aá]cora no (dice|permite|indica)|the log does not/i;
+      const negacion = /sin (coflujo|cebado)|no ten[ií]a|no us[óo]|le falt|falt[óo]|without|did not have|lacked|no coflow/i;
+      const seguridadMal = /(evitar|reducir|prevenir)\s+(los\s+)?abortos|abortos?\s+por\s+l[ií]mite|(lograr|conseguir|asegurar|garantizar)\s+(la\s+)?ignici|tiempo de prueba suficiente|completar el cebado|para que (la llama )?encienda|avoid(ing)? (the )?aborts|(achieve|ensure|guarantee) (the )?ignition|enough test time|complete the priming/i;
+      const esSeguridad = frase => /^\s*(\*\*)?(para la seguridad|for safety)/i.test(frase);
+      // Le atribuye un tema (coflujo, cebado, encendedor) a una prueba cuya bitácora no lo dice: "como en 17319F1" con coflujo
+      const atribuye = frase => {
+        for (const parte of frase.split(";")) {   // "…cebado (17319E3); …coflujo (17319F2)": cada tema con sus pruebas
+          const m = atribuyeEn(parte); if (m) return m;
+        }
+        return "";
+      };
+      const atribuyeEn = frase => {
+        if (negacion.test(frase)) return "";
+        for (const tm of temas) {
+          if (!tm.palabras.test(frase)) continue;
+          const sin = idsEn(frase).filter(id => porId[id] && !tm.tiene(porId[id]));
+          if (sin.length) return tr(`le atribuye ${tm.nombre} a ${sin.join(", ")}, pero en la bitácora no lo tiene (${sin.map(id => `${id}: ${tm.dice(porId[id])}`).join("; ")})`,
+                                    `attributes ${tm.nombre} to ${sin.join(", ")}, but the log does not show it (${sin.map(id => `${id}: ${tm.dice(porId[id])}`).join("; ")})`);
+        }
+        return "";
+      };
+      const motivo = (frase, vineta) => {
+        if (ids.some(i => frase.includes(i))) return tr("menciona una prueba que no existe en la bitácora", "mentions a test that is not in the log");
+        if (cifras.some(re => re.test(frase))) return tr("usa una cifra que no está en la bitácora", "uses a figure that is not in the log");
+        if (unidades.some(re => re.test(frase))) return tr("agrega una unidad que la bitácora no usa", "adds a unit the log does not use");
+        if (fraseContradiceResultado(frase, h.t)) return tr(`cambia el resultado de ${h.t.id} (la bitácora dice: ${textoEstadoACME(h.t)})`, `changes the result of ${h.t.id} (the log says: ${textoEstadoACME(h.t)})`);
+        if (esSeguridad(frase))
+          return seguridadMal.test(frase) || datos.seguridad_al_reves
+            ? tr("la línea de seguridad no trata de reducir el riesgo de incendio", "the safety line is not about reducing fire risk")
+            : tr("la bitácora sólo registra pruebas de encendido: no trae datos de seguridad de los que salga esa línea", "the log only records ignition tests: it has no safety data that line could come from");
+        if (!vineta) { const a = atribuye(frase); if (a) return a; }
+        if (!cauteloso.test(frase) && tocaAviso(frase) && (generaliza.test(frase) || (!vineta && causa.test(frase))))
+          return tr("saca una regla o una causa de un tema con aviso «Ojo» (hay pruebas que lo contradicen)", "draws a rule or a cause from a topic with a «Careful» warning (some tests contradict it)");
+        return "";
+      };
+      // El aviso "Ojo" de una viñeta: se quita el que escribió la IA y se pone el exacto de cada tema que toca
+      const reOjo = /\s*([(\[]?)\s*(?:⚠\s*)?(?:\*\*)?(?<![\wáéíóúñÁÉÍÓÚÑ])(?:[Oo]jo|OJO|Note|NOTE|Careful|CAREFUL)(?:\*\*)?\s*[:—–,-]/;
+      const conOjoExacto = (linea, corregidas) => {
+        const m = linea.match(reOjo);
+        let delIA = "", resto = linea;
+        if (m) {
+          let fin = linea.length;   // "(Ojo: …)" en medio: sólo hasta su paréntesis; "Ojo: …" suelto: hasta el final
+          if (m[1]) for (let i = m.index + m[0].indexOf(m[1]) + 1, nivel = 1; i < linea.length; i++) {
+            if ("([".includes(linea[i])) nivel++;
+            else if (")]".includes(linea[i]) && --nivel === 0) { fin = i + 1; break; }
+          }
+          delIA = linea.slice(m.index, fin).trim();
+          resto = (linea.slice(0, m.index) + " " + linea.slice(fin)).replace(/\s+([.,;)])/g, "$1").replace(/\s{2,}/g, " ");
+        }
+        resto = conEtiquetaExacta(resto.replace(/[\s.;,—–-]+$/, ""), corregidas);
+        const exactos = temasConAviso.filter(tm => tm.palabras.test(resto)).map(tm => avisoDe(tm.clave));
+        if (!exactos.length) return { resto, linea: resto + (/[.!?]$/.test(resto) ? "" : ".") };
+        const faltan = exactos.flatMap(idsEn).filter(id => !idsEn(delIA).includes(id));
+        if (!delIA || faltan.length)
+          corregidas.push({ frase: delIA || resto.replace(/^\s*[-*•]\s+/, ""), motivo: delIA
+            ? tr(`aviso «Ojo» incompleto (le faltaba: ${[...new Set(faltan)].join(", ")}); se puso el de la bitácora`, `incomplete «Careful» warning (missing: ${[...new Set(faltan)].join(", ")}); the log's warning was used`)
+            : tr("a esta recomendación le faltaba el aviso «Ojo»; se agregó el de la bitácora", "this recommendation lacked the «Careful» warning; the log's warning was added") });
+        const sufijo = exactos.map(a => `**${tr("Ojo", "Careful")}** — ${a}`).join(" ");
+        return { resto, linea: `${resto}${/[.!?]$/.test(resto) ? "" : "."} ${sufijo}` };
+      };
+      // "(comparable: X)" lo decide el código: misma prueba, comparable (misma velocidad) o menos comparable; y X
+      // tiene que ser la prueba de donde sale la viñeta ("Repetir 17319F1… (comparable: 17319F2)" → "(misma prueba: 17319F1)")
+      const velNum = x => (String(x.vel).match(/\d+(?:\.\d+)?/) || [""])[0];
+      const claseDe = id => id === h.t.id ? tr("misma prueba", "same test")
+        : velNum(porId[id]) === velNum(h.t) ? "comparable" : tr("menos comparable", "less comparable");
+      const reEtiqueta = /\((?:menos comparable|comparable|less comparable|not comparable|misma prueba|same test)\s*:\s*(17319[A-Z]\d)\s*\)/i;
+      const conEtiquetaExacta = (resto, corregidas) => {
+        const m = resto.match(reEtiqueta);
+        if (!m) return resto;
+        const fuentes = idsEn(resto.replace(m[0], "")).filter(id => porId[id]);
+        const id = fuentes.includes(m[1]) ? m[1] : fuentes.length === 1 ? fuentes[0] : porId[m[1]] ? m[1] : null;
+        if (!id) return resto;
+        const nueva = `(${claseDe(id)}: ${id})`;
+        if (nueva.toLowerCase() !== m[0].toLowerCase()) corregidas.push({ frase: m[0], motivo: tr(`la etiqueta debía ser ${nueva}`, `the label should be ${nueva}`) });
+        return resto.replace(m[0], nueva);
+      };
+      const quitadas = [], corregidas = [];
+      const etiquetaInterp = /^\s*(\*\*)?(interpretaci[oó]n|interpretation)(\*\*)?\s*:?\s*(\*\*)?\s*/i;
+      const lineas = String(texto).split("\n").map(linea => {
+        if (!linea.trim() || /^\s*(\*\*)?[^*]{1,80}:(\*\*)?\s*$/.test(linea.trim())) return linea;   // vacías y etiquetas
+        const vineta = /^\s*[-*•]\s+/.test(linea);
+        if (!vineta && /^\s*(?:⚠\s*)?(?:\*\*)?(?:[Oo]jo|OJO|Careful|CAREFUL)(?:\*\*)?\s*[:—–,-]/.test(linea)) {   // aviso suelto
+          quitadas.push({ frase: linea.trim(), motivo: tr("aviso «Ojo» suelto: el tablero ya pone el exacto en cada recomendación", "standalone warning: the dashboard already adds the exact one to each recommendation") });
+          return null;
+        }
+        if (vineta) {   // viñeta: entera (sin contar el aviso "Ojo" de la IA, que se reemplaza)
+          const cambios = [];
+          const { resto, linea: nueva } = conOjoExacto(linea, cambios);
+          const m = motivo(resto, true);
+          if (m) { quitadas.push({ frase: linea.replace(/^\s*[-*•]\s+/, "").trim(), motivo: m }); return null; }
+          corregidas.push(...cambios);
+          return nueva;
+        }
+        if (esSeguridad(linea)) {   // línea de seguridad: entera
+          const m = motivo(linea, false);
+          if (m) { quitadas.push({ frase: linea.trim(), motivo: m }); return null; }
+          return linea;
+        }
+        const etiqueta = (linea.match(etiquetaInterp) || [""])[0];   // párrafo: frase por frase, conservando "Interpretación:"
+        const frases = linea.slice(etiqueta.length).split(/(?<=[.!?])\s+/);
+        const quedan = frases.filter(f => { const m = motivo(f, false); if (m) quitadas.push({ frase: (etiqueta + f).trim(), motivo: m }); return !m; });
+        return quedan.join(" ").trim() ? (etiqueta + quedan.join(" ")).trim() : null;
+      }).filter(l => l !== null);
+      let limpio = lineas.join("\n").replace(/\n{3,}/g, "\n\n").trim();
+      if (!/^\s*[-*•]\s+/m.test(limpio) && quitadas.length)
+        limpio += "\n" + tr("- (La IA no dejó recomendaciones que coincidan con la bitácora: usa las pruebas de referencia de arriba.)",
+                            "- (The AI left no recommendations that match the log: use the reference tests above.)");
+      return { texto: limpio, quitadas, corregidas };
+    }
+
+    function textoEstadoACME(t) {
+      return { flame: tr("hubo ignición", "ignition"), "no ignition": tr("sin ignición", "no ignition"),
+               abort: tr("abortada", "aborted") }[t.status] || t.status;
+    }
+
+    function simularPruebaACME(id) {
+      const t = PSI_MASTER_DATA.acme_17319_tests.find(x => x.id === id);
+      if (!t) return;
+      const v = valoresSimPruebaACME(t);
+      escenarioPrevio = fotoEscenario();
+      const controles = [];
+      if (Math.abs(state.g - v.g) >= 0.004) controles.push("g-slider");
+      if (Math.abs(state.o2 - v.o2) >= 0.05 || Math.abs(state.psi - v.psi) >= 0.05) controles.push("o2-slider");
+      if (state.flow !== v.flow) controles.push("flow-slider");
+      if (state.fuel !== v.fuel) controles.push("fuel-btn-solido");
+      fijarEscenarioSimulador({ ...v, gravity: "0g", presetId: "", pruebaACME: id });
+      closeAcmeCampaignModal();
+      irALaLlama(controles);
+      const real = t.status === "flame" ? "" : tr(
+        ` En la prueba real ${t.status === "abort" ? "se abortó" : "no hubo ignición"}: el simulador muestra cómo sería la llama con esas condiciones.`,
+        ` In the real test ${t.status === "abort" ? "it was aborted" : "there was no ignition"}: the simulator shows what the flame would look like under those conditions.`);
+      mostrarAvisoEscenario(tr(
+        `Prueba ${id} en el simulador: 0 g, 21 % O₂, 14.7 psi, coflujo ${v.flow} cm/s, gas.${real}`,
+        `Test ${id} in the simulator: 0 g, 21 % O₂, 14.7 psi, coflow ${v.flow} cm/s, gas.${real}`),
+        true, { texto: tr("✨ Analizar con IA", "✨ Analyze with AI"), accion: `analizarPruebaACME('${id}')` });
+    }
+
+    // Pide a la IA que analice una prueba: qué pasó, qué ajustaron los investigadores (según la bitácora)
+    // y qué lecciones deja para la seguridad. La bitácora va como datos del tablero (no son fragmentos).
+    function analizarPruebaACME(id) {
+      const pruebas = PSI_MASTER_DATA.acme_17319_tests;
+      const t = pruebas.find(x => x.id === id);
+      if (!t) return;
+      closeAcmeCampaignModal();
+      ocultarAvisoEscenario();
+      mostrarPestana("ia");
+      if (document.getElementById("ai-btn-preguntar").disabled) return; // ya hay una respuesta en curso
+      // La bitácora COMPLETA del día, en orden, con el número y la hora de cada prueba: así la IA ve qué pasó
+      // antes y después, y qué se cambió en otras series. Es su única fuente (modo "bitacora" del backend).
+      const linea = x => `#${x.n} ${x.id} | ${x.gmt} | ${datoPrueba(x, "vel")} | ${textoEstadoACME(x)} | ${datoPrueba(x, "note")}` +
+        (x.id === id ? tr(" <-- ANALIZADA", " <-- ANALYZED") : "");
+      const contexto = tr(
+        `Experimento: ACME CLD Flame de NASA (llama de difusión laminar con coflujo), en la ISS, Combustion Integrated Rack, ` +
+        `microgravedad. Día de prueba 17319 = 15 nov 2017. Cámara: 21% O2 / 79% N2. Combustible: 40% CH4 (metano) diluido con N2. ` +
+        `Resumen del día: 18 pruebas (10 con ignición, 5 sin ignición, 3 abortadas). Las pruebas, en orden ` +
+        `(# | prueba | hora GMT día:hh:mm:ss | velocidad | resultado | nota):\n`,
+        `Experiment: NASA's ACME CLD Flame (coflow laminar diffusion flame), on the ISS, Combustion Integrated Rack, ` +
+        `microgravity. Test day 17319 = Nov 15 2017. Chamber: 21% O2 / 79% N2. Fuel: 40% CH4 (methane) diluted with N2. ` +
+        `Day summary: 18 tests (10 with ignition, 5 without ignition, 3 aborted). The tests, in order ` +
+        `(# | test | GMT time day:hh:mm:ss | velocity | result | note):\n`) +
+        pruebas.map(linea).join("\n");
+      const hechos = hechosPruebaACME(t);
+      analisisACMEActual = hechos;
+      const contextoIA = contexto + "\n" + hechosParaIA(hechos);
+      const resultado = t.status === "flame" ? tr("tuvo ignición", "had ignition")
+        : t.status === "abort" ? tr("se abortó", "was aborted") : tr("no tuvo ignición", "had no ignition");
+      const objetivo = t.status === "flame"
+        ? tr("qué conviene repetir de esta prueba", "what is worth repeating from this test")
+        : tr("qué se pudo hacer en esta prueba para que tuviera éxito", "what could have been done in this test for it to succeed");
+      const pregunta = tr(
+        `Prueba ${id} (#${t.n} de 18, ${resultado}). La página ya muestra qué pasó, su causa y los avisos "Ojo". Escribe sólo recomendaciones concretas de ${objetivo}, ` +
+        `tomadas de las referencias con ignición (qué se hizo, en qué prueba y con qué resultado), en el orden de los datos verificados. ` +
+        `No escribas los avisos "Ojo" (el tablero los agrega a cada recomendación) ni una línea "Para la seguridad" (la bitácora sólo registra pruebas de encendido).`,
+        `Test ${id} (#${t.n} of 18, ${resultado}). The page already shows what happened, its cause and the "Careful" warnings. Write only concrete recommendations of ${objetivo}, ` +
+        `taken from the references with ignition (what was done, in which test and with what result), in the order of the verified data. ` +
+        `Do not write the "Careful" warnings (the dashboard adds them to each recommendation) or a "For safety" line (the log only records ignition tests).`);
+      preguntarIA(pregunta, contextoIA, `${tr("ANÁLISIS DE LA PRUEBA", "TEST ANALYSIS")} ${id} (${textoEstadoACME(t)})`, false, false, "bitacora");
     }
 
     document.addEventListener("keydown", (e) => {

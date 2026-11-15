@@ -11,14 +11,12 @@ python backend\app.py
 y luego <http://127.0.0.1:8000>.
 
 ## Cómo está organizada (pestañas)
-La página tiene 4 pestañas arriba; se ve una sola a la vez:
+La página tiene 2 pestañas arriba; se ve una sola a la vez:
 
 | # | Pestaña | Qué contiene |
 |---|---------|--------------|
-| 1 | Simulación | Izquierda: visor 3D de la Luna, los 4 hábitats y, debajo, la llama animada. Derecha: los deslizadores (gravedad, O₂, presión, flujo, combustible) y la Tarjeta A (índice de riesgo y avisos) |
-| 2 | Detección y supresión | Tarjeta C (detección de humo) y Tarjeta D (extinción y spin-off) |
-| 3 | Experimentos PSI | Tarjeta B (Top 3 experimentos) y la gráfica de la prueba ACME 17319A3 |
-| 4 | Co-Piloto IA | Chat con los documentos de NASA PSI |
+| 1 | Simulación | Arriba: a la izquierda el visor 3D, los 4 hábitats y la llama animada; a la derecha los deslizadores (gravedad, O₂, presión, flujo, combustible) y la Tarjeta A (índice de riesgo y avisos). Debajo, separadas por una etiqueta discreta: **Detección y supresión** (Tarjetas C y D) y **Experimentos PSI** (Tarjeta B con el Top 3 y la gráfica de la prueba ACME 17319A3) |
+| 2 | Co-Piloto IA | Chat con los documentos de NASA PSI |
 
 En pantallas anchas, la columna de los deslizadores se queda fija al bajar (si cabe completa en
 la pantalla), para poder moverlos mientras se ve la llama.
@@ -96,12 +94,13 @@ la página). Si el navegador no tiene WebGL, se usa la llama 2D anterior.
 
 - Bajo las pestañas hay una barra con el **escenario actual** (hábitat, gravedad, O₂, presión,
   flujo, combustible), visible en todas. Dice "· modificado" si moviste algún deslizador.
-  El botón **✨ Interpretar con IA** de esa barra abre la pestaña 4 (Co-Piloto IA) y pide el dictamen.
+  El botón **✨ Interpretar con IA** de esa barra abre la pestaña 2 (Co-Piloto IA) y pide el dictamen.
 - La pestaña activa queda en la dirección: `http://127.0.0.1:8000/#ia` abre directo
-  esa pestaña (sirve para la presentación). Nombres: `#simulacion`, `#seguridad`,
-  `#experimentos`, `#ia` (el viejo `#escenario` lleva a `#simulacion`).
+  esa pestaña (sirve para la presentación). Nombres: `#simulacion` e `#ia`. Los enlaces viejos
+  `#seguridad` y `#experimentos` abren Simulación y bajan a esa sección; `#escenario` lleva a
+  `#simulacion`.
 - Con el teclado: flechas ← → (o Inicio/Fin) sobre las pestañas.
-- Cada pestaña termina con un botón "Siguiente" para recorrerlas en orden durante la demo.
+- Simulación termina con un botón "Siguiente: Co-Piloto IA" para la demo.
 - **Para agregar una sección nueva:** ponla dentro del `<section id="tab-...">` que le
   corresponda. Si necesitas otra pestaña: agrega su botón en `#pestanas`, su `<section>` y
   su nombre en la lista `PESTANAS` del JavaScript.
@@ -112,7 +111,11 @@ la página). Si el navegador no tiene WebGL, se usa la llama 2D anterior.
 - **Co-piloto de IA:**
   - El botón "Interpretar este escenario con IA" manda el escenario (gravedad, O₂, presión,
     flujo, combustible y Top 3) a `/api/chat`.
-  - La caja "Preguntar" manda preguntas libres.
+  - La caja "Preguntar" manda preguntas libres, junto con los **valores actuales del simulador**
+    (función `contextoTablero()`), así se le puede preguntar "¿qué gravedad hay seleccionada?" o
+    "¿a qué presión está la cabina?". La IA marca esos datos con "(dato del tablero)". Junto al estado
+    de la IA dice "📡 La IA lee el escenario actual". Para usar sensores en el futuro, sólo hay que
+    cambiar `contextoTablero()` para que lea sus valores.
   - Las respuestas salen de los documentos de NASA PSI, con citas `[n]` y la lista de
     fuentes con enlace al DOI.
 - Indicador de conexión: dice si el backend y la IA (Groq o Gemini) están listos.
@@ -123,6 +126,54 @@ la página). Si el navegador no tiene WebGL, se usa la llama 2D anterior.
   - número de fragmentos (4 a 10);
   - modelo que redacta (los que tengan clave en `.env`).
 - Botón **Copiar** en cada respuesta: copia el texto con sus fuentes y enlaces DOI.
+- Las citas **[n]** de la respuesta abren su documento en NASA PSI (DOI) en otra pestaña; al pasar el
+  mouse dicen qué documento y página son. Si una fuente no tiene DOI, la cita baja a esa fila de la
+  lista de fuentes y la resalta. (No usan `#fuente-n`: el `#` de la dirección elige la pestaña.)
+- **IA → simulador (Aplicar al simulador).** Si la IA sugiere probar valores concretos
+  ("prueba 21 % O₂ a 70 kPa"), bajo la respuesta aparecen hasta 3 tarjetas
+  "Escenarios propuestos por la IA". Cada una muestra qué cambiaría (O₂ 34 % → 21 %…) y su botón:
+  - **▶ Aplicar al simulador** pone esos valores en los controles (sólo los que la IA mencionó),
+    abre Simulación, baja a la llama y resalta los controles que cambiaron;
+  - un aviso abajo ofrece **↶ Deshacer** (regresa al escenario anterior) y **Volver al chat**;
+  - si un valor se sale del rango de un deslizador, se ajusta y la tarjeta lo dice;
+  - si el simulador ya tiene esos valores, el botón dice **✓ En el simulador**.
+  - Compatibilidad: si el backend es anterior y no manda `escenarios_propuestos`, la página
+    lee el texto (líneas `ESCENARIO:` o frases que mencionan el simulador con valores y unidades).
+    Si no encuentra nada, no muestra tarjetas, igual que antes.
+
+## Bitácora ACME 17319 (ventana "Ver 18 pruebas")
+- **Qué es:** la bitácora real de un experimento de NASA, **no** del proyecto: ACME CLD Flame (llama de
+  difusión con coflujo) en la Estación Espacial, día de prueba 17319 = 15 de noviembre de 2017. Tiene
+  18 intentos de encender una llama de metano diluido (10 con ignición, 5 sin ignición, 3 abortados).
+  Coincide con PSI: la tabla `data/raw/PSI-21_ACME-CLD-Flame/Experimental table` dice 10 llamas ese día,
+  y en el listado de PSI sólo las 10 pruebas con ignición tienen archivos de datos (A3, C1, C2, D2, D5,
+  E3, F1, F2, H1, H3). Las notas de cada prueba las escribió el equipo a partir de las hojas de prueba.
+- **Clic en una fila (o ▶ Simular):** carga la prueba en el simulador: 0 g, aire de la cámara del CIR
+  (21 % O₂, 14.7 psi ≈ 1 atm), combustible gas y, como flujo de aire, el coflujo de la prueba (tabla
+  `ACME_COFLUJO` en el JavaScript). Es una aproximación: el simulador no tiene control de la
+  concentración de metano. La barra de escenario dice "Prueba ACME 17319E2 (ISS)", hay **Deshacer**,
+  y si la prueba real no encendió el aviso lo aclara.
+- **✨ IA (o "Analizar con IA" en el aviso):** primero la página muestra, **sin IA**, el bloque
+  "📋 Datos de la bitácora": qué pasó, la causa que da la nota, las pruebas que sí encendieron (de la más
+  parecida a la menos), las que fallaron en condiciones parecidas y avisos "Ojo" de notas opuestas, todo
+  copiado de la bitácora (`hechosPruebaACME`). Debajo, la IA escribe sólo las recomendaciones, y la página
+  las revisa contra la bitácora (`depurarRespuestaBitacora`): lo que sale exacto se queda; lo que no, **se
+  quita** (si cambia el resultado de la prueba, inventa cifras, unidades o pruebas, le atribuye a una prueba
+  algo que su renglón no dice —por ejemplo coflujo a 17319F1, que es "40 cm/s fuel"—, saca una regla o una
+  causa de un tema con aviso "Ojo", o es una línea "Para la seguridad", que la bitácora no respalda). Los
+  avisos "Ojo" de cada recomendación los pone la página, copiados de la bitácora, aunque la IA los haya
+  escrito incompletos, y la etiqueta "(comparable: …)" la calcula la página (misma prueba, comparable si es
+  la misma velocidad, menos comparable si no). Lo quitado o corregido no se muestra en la página; queda en la
+  consola del navegador ("Revisión contra la bitácora"). Usa el modo `bitacora` del backend: la IA recibe **sólo**
+  la bitácora completa del día (las 18 pruebas en orden, con número y hora) y **no** busca en los
+  documentos. Dice qué pasó, si la bitácora da la causa (si no, lo dice), y da 2 a 4
+  **recomendaciones** de qué se pudo hacer para que la prueba tuviera éxito, cada una tomada de una
+  prueba de ese día que sí encendió (la página le pasa cuáles son las más parecidas, misma velocidad y
+  misma serie, y también las que fallaron en condiciones parecidas, para que no generalice de más).
+  Cada recomendación dice si es comparable o menos comparable. No hay línea de seguridad: la bitácora sólo
+  registra pruebas de encendido. Cada dato lleva su prueba entre paréntesis, por ejemplo (17319E3).
+  Debajo sale "FUENTE (ÚNICA)" con el DOI de PSI-21, y avisos si la IA usó cifras, unidades o pruebas
+  que no están en la bitácora. Los identificadores de prueba de la respuesta abren esa prueba en el simulador.
 
 ## Qué sigue siendo simulado (hay que cambiarlo antes de presentar)
 - Los datos de los experimentos están escritos dentro del HTML (`PSI_MASTER_DATA`). Se pueden
